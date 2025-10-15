@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>머신러닝 프로젝트 수행평가 과제 개요</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font (for a clean look) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray background */
+        }
+        /* Custom styling for details/summary (to use custom icon) */
+        .summary-icon {
+            transition: transform 0.3s ease;
+        }
+        details[open] .summary-icon {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-3xl shadow-2xl border border-gray-100">
+
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-2">
+                머신러닝 프로젝트 수행평가
+            </h1>
+            <p class="text-xl text-blue-600 font-medium border-b-4 border-blue-500 inline-block pb-1">
+                과제 개요 및 지침
+            </p>
+        </header>
+
+        <!-- Main Content Sections (Collapsible) -->
+
+        <!-- 1. 개요 및 제출물 -->
+        <details open class="group bg-blue-50 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 mb-6 border-l-4 border-blue-600">
+            <summary class="flex justify-between items-center cursor-pointer text-xl font-bold text-blue-700 list-none" onclick="toggleIcon(this)">
+                개요 및 제출 요건
+                <svg class="w-6 h-6 text-blue-600 summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-blue-200 text-gray-700">
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">프로젝트 기본 정보</h3>
+                <ul class="list-disc ml-6 space-y-2">
+                    <li><strong class="font-semibold">주제:</strong> 자유 선정 (아래 예시 참고)</li>
+                    <li><strong class="font-semibold">형식:</strong> 구글 슬라이드 1장 (제공된 양식 사용)</li>
+                </ul>
+
+                <h3 class="text-lg font-semibold mt-4 mb-2 text-gray-800">필수 제출물</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li><strong class="font-semibold">PDF 변환 파일:</strong> (파일명: 학번이름.pdf)</li>
+                    <li><strong class="font-semibold">코랩(Colab) 파일:</strong> (파일명: 학번 이름.ipynb)</li>
+                    <li><strong class="font-semibold">사용한 데이터셋:</strong> (.csv, .xlsx 등 원본 파일)</li>
+                </ol>
+            </div>
+        </details>
+
+        <!-- 2. 주제 예시 -->
+        <details class="group bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 mb-6 border-l-4 border-teal-600">
+            <summary class="flex justify-between items-center cursor-pointer text-xl font-bold text-teal-700 list-none" onclick="toggleIcon(this)">
+                주제 예시 (자유 선정)
+                <svg class="w-6 h-6 text-teal-600 summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-gray-100 text-gray-700">
+                <ul class="list-disc ml-6 space-y-2">
+                    <li><strong class="font-semibold text-teal-800">보건/건강:</strong> 나이·BMI로 비만 여부 예측</li>
+                    <li><strong class="font-semibold text-teal-800">환경:</strong> 기상 데이터로 날씨 분류 (맑음/흐림/비)</li>
+                    <li><strong class="font-semibold text-teal-800">교육:</strong> 공부 시간·수면 시간으로 합격/불합격 예측</li>
+                    <li><strong class="font-semibold text-teal-800">일상생활:</strong> 키·몸무게로 성별 분류</li>
+                    <li><strong class="font-semibold text-teal-800">기타:</strong> Kaggle, UCI 등 교육용 데이터셋 활용 가능</li>
+                </ul>
+            </div>
+        </details>
+
+        <!-- 3. 기술적 필수 항목 -->
+        <details class="group bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 mb-6 border-l-4 border-indigo-600">
+            <summary class="flex justify-between items-center cursor-pointer text-xl font-bold text-indigo-700 list-none" onclick="toggleIcon(this)">
+                데이터 준비, 모델 학습 및 비교
+                <svg class="w-6 h-6 text-indigo-600 summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-gray-100 text-gray-700 space-y-6">
+                <!-- 데이터 준비 및 분석 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-indigo-800">데이터 준비 및 분석 요구사항</h3>
+                    <ul class="list-disc ml-6 space-y-1">
+                        <li><strong class="font-semibold">입력 속성:</strong> 2~4가지 특징 선택</li>
+                        <li><strong class="font-semibold">분류 클래스:</strong> 2~3가지 그룹으로 분류</li>
+                    </ul>
+                    <h4 class="font-semibold mt-3">필수 전처리 과정:</h4>
+                    <ul class="list-disc ml-6 space-y-1 text-sm text-red-600">
+                        <li>결측치 처리</li>
+                        <li>필요 시 정규화/표준화</li>
+                        <li>데이터 분할 (훈련/검증/테스트)</li>
+                    </ul>
+                </div>
+
+                <!-- 모델 학습 및 비교 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-indigo-800">모델 학습 및 비교 요구사항</h3>
+                    <ul class="list-disc ml-6 space-y-1">
+                        <li><strong class="font-semibold">최소 3가지 분류 모델 적용</strong> (예: KNN, 로지스틱 회귀, SVM, 결정 트리 등)</li>
+                        <li>각 모델의 정확도 계산 및 비교</li>
+                        <li>정확도 외에도 장단점, 활용 가능성 분석 포함</li>
+                    </ul>
+                </div>
+            </div>
+        </details>
+
+        <!-- 4. 스크린샷 및 성찰 문항 -->
+        <details class="group bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 mb-6 border-l-4 border-pink-600">
+            <summary class="flex justify-between items-center cursor-pointer text-xl font-bold text-pink-700 list-none" onclick="toggleIcon(this)">
+                필수 스크린샷 및 성찰(Reflection) 문항
+                <svg class="w-6 h-6 text-pink-600 summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-gray-100 text-gray-700 space-y-6">
+                <!-- 필수 스크린샷 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-pink-800">반드시 포함해야 할 스크린샷 (Colab 결과)</h3>
+                    <ul class="list-disc ml-6 space-y-1">
+                        <li>데이터 시각화 결과</li>
+                        <li>데이터 전처리/분할 과정 코드 및 결과</li>
+                        <li>세 가지 모델의 정확도 비교 결과 (표 또는 그래프)</li>
+                    </ul>
+                </div>
+
+                <!-- 성찰(Reflection) 문항 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-pink-800">성찰(Reflection) 문항 (슬라이드에 작성)</h3>
+                    <ol class="list-decimal ml-6 space-y-1">
+                        <li>어떤 모델이 가장 적합했는가? 이유는 무엇인가?</li>
+                        <li>프로젝트 과정에서 어려웠던 점과 해결 방법은 무엇인가?</li>
+                        <li>이 프로젝트가 실제 생활에 어떻게 활용될 수 있을까?</li>
+                    </ol>
+                </div>
+            </div>
+        </details>
+
+        <!-- 5. 제출 기한 및 평가 기준 -->
+        <details class="group bg-yellow-50 p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 mb-6 border-l-4 border-yellow-600">
+            <summary class="flex justify-between items-center cursor-pointer text-xl font-bold text-yellow-800 list-none" onclick="toggleIcon(this)">
+                제출 및 평가 기준 (총 100점)
+                <svg class="w-6 h-6 text-yellow-600 summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-yellow-200 text-gray-700 space-y-6">
+                <!-- 제출 기한 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-yellow-800">제출 기한 및 제출처 <span class="text-red-600 font-bold">(필수 준수)</span></h3>
+                    <ul class="list-disc ml-6 space-y-1">
+                        <li><strong class="font-semibold">기한:</strong> 수행평가 마지막일 수업 종료시</li>
+                        <li><strong class="font-semibold">제출처:</strong> 구글클래스룸 과제방</li>
+                    </ul>
+                </div>
+
+                <!-- 평가 기준 -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-yellow-800">평가 기준 (총 100점)</h3>
+                    <div class="space-y-4">
+                        <!-- 프로젝트 완성도 -->
+                        <div class="p-3 bg-white rounded-lg border border-gray-200">
+                            <strong class="font-bold text-gray-900">1. 프로젝트 완성도 (20점)</strong>
+                            <ul class="list-disc ml-6 text-sm mt-1 space-y-0.5">
+                                <li>모든 항목이 빠짐없이 작성되어 있는가</li>
+                                <li>각 항목의 내용이 명확하고 논리적인가</li>
+                                <li>시각화 자료와 실행 결과가 적절히 포함되어 있는가</li>
+                            </ul>
+                        </div>
+                        <!-- 데이터 분석의 정확성 -->
+                        <div class="p-3 bg-white rounded-lg border border-gray-200">
+                            <strong class="font-bold text-gray-900">2. 데이터 분석의 정확성 (40점)</strong>
+                            <ul class="list-disc ml-6 text-sm mt-1 space-y-0.5">
+                                <li>데이터 전처리가 적절히 수행되었는가</li>
+                                <li>세 가지 모델의 정확도가 올바르게 계산되었는가</li>
+                                <li>데이터 시각화에 대한 해석이 타당한가</li>
+                                <li>전처리-분석-시각화-해석 과정이 논리적으로 일관되게 연결되었는가</li>
+                            </ul>
+                        </div>
+                        <!-- 결과 분석의 충실성 -->
+                        <div class="p-3 bg-white rounded-lg border border-gray-200">
+                            <strong class="font-bold text-gray-900">3. 결과 분석의 충실성 (20점)</strong>
+                            <ul class="list-disc ml-6 text-sm mt-1 space-y-0.5">
+                                <li>모델별 성능 비교가 명확히 제시되었는가</li>
+                                <li>새로운 데이터 예측 결과가 포함되어 있는가</li>
+                                <li>프로젝트 성찰이 구체적으로 작성되었는가</li>
+                                <li>시각화 자료를 활용하여 성능 비교 및 해석이 타당하게 이루어졌는가</li>
+                                <li>분석 결과의 실제 응용 가능성이 제시되었는가</li>
+                            </ul>
+                        </div>
+                         <!-- 제출 요건 준수 -->
+                        <div class="p-3 bg-white rounded-lg border border-gray-200">
+                            <strong class="font-bold text-gray-900">4. 제출 요건 준수 (20점)</strong>
+                            <ul class="list-disc ml-6 text-sm mt-1 space-y-0.5">
+                                <li>데이터세트, 코랩 파일, 슬라이드 파일을 모두 제출하였는가</li>
+                                <li>파일명 규칙을 준수하였는가</li>
+                                <li>제출 형식 및 제출 기한(수업 종료 전)을 준수하였는가</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">
+                본 과제는 머신러닝의 기초 개념을 적용하고 분석 능력을 배양하는 것을 목표로 합니다.
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript for custom icon toggle (optional, for better visual feedback) -->
+    <script>
+        // Use native details tag behavior, but rotate the icon for better UX
+        document.querySelectorAll('details').forEach(details => {
+            details.addEventListener('toggle', function() {
+                const icon = this.querySelector('.summary-icon');
+                if (this.open) {
+                    icon.style.transform = 'rotate(90deg)';
+                } else {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Initialize icon state for initially open details tag
+        document.addEventListener('DOMContentLoaded', () => {
+             document.querySelectorAll('details[open]').forEach(details => {
+                const icon = details.querySelector('.summary-icon');
+                if (icon) {
+                    icon.style.transform = 'rotate(90deg)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
