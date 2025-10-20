@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C언어 제어문과 반복문 - 최종 실습 환경</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS 영역 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 15px;
+            display: flex;
+        }
+
+        /* -------------------- 목차 스타일 -------------------- */
+        #toc {
+            flex: 0 0 250px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-right: 20px;
+        }
+
+        #toc h2 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+
+        #toc-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #toc-list a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 400;
+            transition: color 0.2s, border-left 0.2s;
+            display: block;
+            padding: 5px 0;
+            border-left: 3px solid transparent;
+            padding-left: 10px;
+            font-size: 0.95em;
+        }
+
+        #toc-list a:hover, #toc-list a.active {
+            color: #dc3545;
+            border-left: 3px solid #dc3545;
+            font-weight: 700;
+        }
+
+        /* -------------------- 내용 섹션 스타일 -------------------- */
+        .content-area {
+            flex-grow: 1;
+        }
+        
+        section {
+            display: none; 
+            padding: 20px 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            min-height: 80vh;
+        }
+
+        section.active {
+            display: block; 
+        }
+
+        h2 {
+            color: #007bff;
+            border-bottom: 3px solid #e0eaff;
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 25px;
+            border-left: 5px solid #007bff;
+            padding-left: 10px;
+            font-size: 1.5em;
+        }
+
+        .code {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .code code {
+            white-space: pre; 
+            display: block;
+        }
+
+        .output {
+            background-color: #eaf4ff;
+            color: #004085;
+            padding: 10px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            font-size: 1em;
+            overflow-x: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+
+        /* -------------------- 대화형 실습 창 스타일 -------------------- */
+        .interactive-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #dc3545; 
+            border-radius: 8px;
+            background-color: #ffe0e3;
+        }
+        
+        .interactive-section h3 {
+            color: #dc3545;
+            border-left-color: #dc3545;
+        }
+
+        /* ⭐⭐⭐ 입력창 크기 증가 ⭐⭐⭐ */
+        .code-editor {
+            width: 100%;
+            min-height: 300px; /* 기존 200px에서 300px로 증가 */
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #fff;
+            resize: vertical;
+        }
+
+        .run-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s;
+        }
+
+        .run-button:hover {
+            background-color: #218838;
+        }
+
+        /* ⭐⭐⭐ 결과 텍스트 색상 변경 (더 잘 보이도록 밝은 노란색/하늘색으로 변경) ⭐⭐⭐ */
+        .console-output {
+            margin-top: 15px;
+            padding: 15px;
+            min-height: 50px;
+            background-color: #333;
+            color: #00ffff; /* 밝은 청록색 (Cyan)으로 변경하여 검은 배경에서 대비 극대화 */
+            font-family: 'Consolas', 'Monaco', monospace;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* JDoodle iframe 스타일 (1번 섹션에만 적용) */
+        .real-editor-container { 
+            margin-top: 20px;
+            border: 2px solid #007bff; 
+            border-radius: 8px; 
+            overflow: hidden; 
+        }
+        .real-editor-container iframe {
+            display: block;
+            width: 100%;
+            height: 450px;
+            border: none;
+        }
+
+        /* 코드 하이라이팅 CSS 유지 */
+        .hljs-keyword { color: #c678dd; }
+        .hljs-built_in { color: #e6c07b; }
+        .hljs-number { color: #d19a66; }
+        .hljs-string { color: #98c379; }
+        .hljs-comment { color: #5c6370; font-style: italic; }
+        .hljs-preprocessor { color: #56b6c2; }
+        .highlight { background-color: #4a5160; color: #a0d8ff; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>C언어 제어문과 반복문 (Control Flow and Loops) 💻</h1>
+        <p>원하는 주제를 선택하고 직접 코드를 실습해 보세요!</p>
+    </header>
+
+    <main>
+        <nav id="toc">
+            <h2>📚 목차</h2>
+            <ul id="toc-list">
+                <li><a href="#switch-case" class="toc-link" data-target="switch-case">1. Switch-Case 문</a></li>
+                <li><a href="#for-loop" class="toc-link" data-target="for-loop">2. For 반복문</a></li>
+                <li><a href="#while-loop" class="toc-link" data-target="while-loop">3. While 반복문</a></li>
+                <li><a href="#do-while-loop" class="toc-link" data-target="do-while-loop">4. Do-While 반복문</a></li>
+                <li><a href="#break-stmt" class="toc-link" data-target="break-stmt">5. Break 문</a></li>
+                <li><a href="#continue-stmt" class="toc-link" data-target="continue-stmt">6. Continue 문</a></li>
+                <li><a href="#break-vs-continue" class="toc-link" data-target="break-vs-continue">7. Break vs Continue 비교</a></li>
+                <li><a href="#comprehensive" class="toc-link" data-target="comprehensive">8. 종합 예제</a></li>
+                <li><a href="#exercises" class="toc-link" data-target="exercises">9. 연습 문제</a></li>
+                <li><a href="#summary" class="toc-link" data-target="summary">10. 핵심 정리</a></li>
+            </ul>
+        </nav>
+
+        <div class="content-area">
+            
+            <section id="switch-case">
+                <h2>1. Switch-Case 문 🚦</h2>
+                
+                <div class="content-block">
+                    <h3>예제 1: 요일 판별</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">int</span> day = <span class="hljs-number">3</span>;
+        <span class="hljs-keyword">switch</span>(day) {
+        <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>: <span class="hljs-title function_">printf</span>(<span class="hljs-string">"월요일\n"</span>); <span class="hljs-keyword">break</span>;
+        <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>: <span class="title function_">printf</span>(<span class="hljs-string">"수요일\n"</span>); <span class="hljs-keyword">break</span>;
+        <span class="hljs-keyword">default</span>: <span class="hljs-title function_">printf</span>(<span class="hljs-string">"잘못된 입력\n"</span>);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과 (day = 3)</h4>
+                            <p>수요일</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 실제 C 코드 실행 환경!</h3>
+                    <p>위 예제 코드를 복사하여 붙여넣고, `day` 값을 수정하거나 `break`를 제거해 결과를 확인해 보세요.</p>
+                    <div class="real-editor-container">
+                        <iframe 
+                            src="https://www.jdoodle.com/embed/v0/6c6z?language=c" 
+                            frameborder="0"
+                            title="Online C Compiler">
+                        </iframe>
+                    </div>
+                </div>
+                <div class="content-block warning-box">
+                    <h3>⚠️ Switch-Case 주의사항</h3>
+                    <p><strong>`break`</strong> 문이 없으면 **fall-through** 현상이 발생합니다.</p>
+                </div>
+            </section>
+
+            <section id="for-loop">
+                <h2>2. For 반복문 🔄</h2>
+                
+                <div class="content-block">
+                    <h3>예제 1: 1부터 10까지 출력</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= <span class="hljs-number">10</span>; i++) {
+        <span class="hljs-title function_">printf</span>(<span class="hljs-string">"%d "</span>, i);
+    }
+    <span class="hljs-title function_">printf</span>(<span class="hljs-string">"\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과</h4>
+                            <p>1 2 3 4 5 6 7 8 9 10</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>반복 횟수나 조건을 변경해 보세요. (예: `i <= 5`로 변경)</p>
+                    <textarea class="code-editor" id="editor-for-loop">
+#include <stdio.h>
+int main() {
+    // 1부터 5까지의 합계를 구해봅시다.
+    int sum = 0;
+    for(int i = 1; i <= 5; i++) {
+        sum += i;
+    }
+    printf("합계: %d\n", sum);
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-for-loop', 'console-for-loop')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-for-loop">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="while-loop">
+                <h2>3. While 반복문 ⏳</h2>
+                
+                <div class="content-block">
+                    <h3>예제 1: 1부터 5까지 출력</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">while</span>(i &lt;= <span class="hljs-number">5</span>) {
+        <span class="hljs-title function_">printf</span>(<span class="hljs-string">"%d "</span>, i);
+        i++;
+    }
+    <span class="hljs-title function_">printf</span>(<span class="hljs-string">"\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과</h4>
+                            <p>1 2 3 4 5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>초기값과 조건을 변경하여 `while`문의 작동 방식을 이해해 보세요.</p>
+                    <textarea class="code-editor" id="editor-while-loop">
+#include <stdio.h>
+int main() {
+    int i = 1; 
+    printf("숫자:");
+    while(i <= 3) { // 3번 반복하도록 설정
+        printf(" %d", i);
+        i++;
+    }
+    printf("\n");
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-while-loop', 'console-while-loop')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-while-loop">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="do-while-loop">
+                <h2>4. Do-While 반복문 ➡️</h2>
+                
+                <div class="content-block">
+                    <h3>예제 1: 기본 사용</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">int</span> i = <span class="hljs-number">6</span>; 
+    <span class="hljs-keyword">do</span> {
+        <span class="hljs-title function_">printf</span>(<span class="hljs-string">"%d "</span>, i);
+        i++;
+    } <span class="hljs-keyword">while</span>(i &lt;= <span class="hljs-number">5</span>);
+
+    <span class="hljs-title function_">printf</span>(<span class="hljs-string">"\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과</h4>
+                            <p>6</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>`while`과의 차이점을 비교하며, `do-while`은 최소 1회 실행됨을 확인해 보세요.</p>
+                    <textarea class="code-editor" id="editor-do-while-loop">
+#include <stdio.h>
+int main() {
+    int i = 10; // 조건 i<=5는 처음부터 거짓
+    printf("실행:");
+    do {
+        printf(" %d", i);
+        i++;
+    } while(i <= 5);
+    printf("\n");
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-do-while-loop', 'console-do-while-loop')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-do-while-loop">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+            
+            <section id="break-stmt">
+                <h2>5. Break 문 🛑</h2>
+                
+                <div class="content-block">
+                    <h3>예제 1: 특정 조건에서 반복 중단</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= <span class="hljs-number">10</span>; i++) {
+        <span class="hljs-keyword">if</span>(i == <span class="hljs-number">5</span>) {
+            <span class="hljs-title function_">printf</span>(<span class="hljs-string">"5에서 종료\n"</span>);
+            <span class="hljs-keyword">break</span>;
+        }
+        <span class="hljs-title function_">printf</span>(<span class="hljs-string">"%d "</span>, i);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과</h4>
+                            <p>1 2 3 4 5에서 종료</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>`break`의 위치와 조건을 변경하여 반복문 탈출 지점을 조절해 보세요.</p>
+                    <textarea class="code-editor" id="editor-break-stmt">
+#include <stdio.h>
+int main() {
+    for(int i = 1; i <= 8; i++) {
+        if(i == 6) { // 6에서 멈춤
+            printf("\n%d에서 멈춤", i);
+            break;
+        }
+        printf("%d ", i);
+    }
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-break-stmt', 'console-break-stmt')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-break-stmt">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="continue-stmt">
+                <h2>6. Continue 문 ⏩</h2>
+                
+                <div class="content-block">
+                    <h3>예제 1: 짝수 건너뛰고 홀수만 출력</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= <span class="hljs-number">10</span>; i++) {
+        <span class="hljs-keyword">if</span>(i % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">continue</span>;
+        }
+        <span class="hljs-title function_">printf</span>(<span class="hljs-string">"%d "</span>, i);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과</h4>
+                            <p>1 3 5 7 9</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>`continue`의 조건을 변경하여 건너뛰는 숫자를 바꿔 보세요. (예: `i == 5`일 때 건너뛰기)</p>
+                    <textarea class="code-editor" id="editor-continue-stmt">
+#include <stdio.h>
+int main() {
+    printf("숫자:");
+    for(int i = 1; i <= 7; i++) {
+        if(i == 5) { // 5만 건너뜁니다
+            continue;
+        }
+        printf(" %d", i);
+    }
+    printf("\n");
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-continue-stmt', 'console-continue-stmt')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-continue-stmt">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="break-vs-continue">
+                <h2>7. Break vs Continue 비교</h2>
+                
+                <div class="content-block">
+                    <h3>예제 비교</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-comment">// ... (코드 내용) ...</span>
+<span class="hljs-comment">// Break: 3에서 완전히 종료</span>
+<span class="hljs-comment">// Continue: 3만 건너뛰고 계속 실행</span></code></pre>
+                        <div class="output">
+                            <h4>실행 결과</h4>
+                            <p>
+                                Break: 1 2<br>
+                                Continue: 1 2 4 5
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>두 반복문의 `if` 조건식을 바꿔보고 차이점을 명확히 비교해 보세요.</p>
+                    <textarea class="code-editor" id="editor-break-vs-continue">
+#include <stdio.h>
+int main() {
+    printf("=== Break 테스트 ===\n");
+    for(int i = 1; i <= 6; i++) {
+        if(i == 4) { break; } 
+        printf("%d ", i);
+    }
+    printf("\n\n=== Continue 테스트 ===\n");
+    for(int i = 1; i <= 6; i++) {
+        if(i == 4) { continue; } 
+        printf("%d ", i);
+    }
+    printf("\n");
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-break-vs-continue', 'console-break-vs-continue')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-break-vs-continue">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="comprehensive">
+                <h2>8. 종합 예제</h2>
+                
+                <div class="content-block">
+                    <h3>예제: 소수 찾기 (2부터 50까지)</h3>
+                    <div class="example-container">
+                        <pre class="code c-code"><code class="hljs"><span class="hljs-preprocessor">#include &lt;stdio.h&gt;</span>
+<span class="hljs-keyword">int</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">int</span> n = <span class="hljs-number">50</span>;
+    <span class="hljs-title function_">printf</span>(<span class="hljs-string">"2부터 %d까지의 소수:\n"</span>, n);
+
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">2</span>; i &lt;= n; i++) {
+        <span class="hljs-keyword">int</span> isPrime = <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> j = <span class="hljs-number">2</span>; j * j &lt;= i; j++) {
+            <span class="hljs-keyword">if</span>(i % j == <span class="hljs-number">0</span>) { isPrime = <span class="hljs-number">0</span>; <span class="hljs-keyword">break</span>; }
+        }
+        <span class="hljs-keyword">if</span>(isPrime) { <span class="hljs-title function_">printf</span>(<span class="hljs-string">"%d "</span>, i); }
+    }
+    <span class="hljs-title function_">printf</span>(<span class="hljs-string">"\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+                        <div class="output">
+                            <h4>실행 결과 (2부터 50까지의 소수)</h4>
+                            <p>2 3 5 7 11 13 17 19 23 29 31 37 41 43 47</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 직접 실습해 보기! (가상 시뮬레이션)</h3>
+                    <p>중첩 반복문과 제어문이 복합된 코드를 분석하거나 수정해 보세요. (예: `n` 값을 20으로 변경하여 결과 확인)</p>
+                    <textarea class="code-editor" id="editor-comprehensive">
+#include <stdio.h>
+int main() {
+    int n = 20; // 20까지의 소수만 찾아봅시다.
+    printf("2부터 %d까지의 소수:\n", n);
+
+    for(int i = 2; i <= n; i++) {
+        int isPrime = 1;
+        for(int j = 2; j * j <= i; j++) {
+            if(i % j == 0) { isPrime = 0; break; }
+        }
+        if(isPrime) { printf("%d ", i); }
+    }
+    printf("\n");
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-comprehensive', 'console-comprehensive')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-comprehensive">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="exercises">
+                <h2>9. 연습 문제 💪</h2>
+                
+                <div class="content-block exercise-list">
+                    <ol>
+                        <li>1부터 100까지의 합을 구하는 프로그램 (<code>for</code>, <code>while</code> 각각 사용)</li>
+                        <li>구구단 중 원하는 단만 출력하기 (<code>switch-case</code> 사용)</li>
+                        <li>숫자 맞추기 게임 (<code>do-while</code>, <code>break</code> 사용)</li>
+                        <li>배열에서 최대값과 최소값 찾기 (<code>for</code>, <code>continue</code> 사용)</li>
+                        <li>다이아몬드 별 찍기 (중첩 <code>for</code>문 사용)</li>
+                    </ol>
+                </div>
+
+                <div class="interactive-section">
+                    <h3>🚀 연습 문제 풀이 공간 (가상 시뮬레이션)</h3>
+                    <p>위 문제를 직접 해결해보고, 실행 결과를 확인해 보세요. (이 시뮬레이터는 1번 문제의 for 루프만 해석합니다.)</p>
+                    <textarea class="code-editor" id="editor-exercises">
+#include <stdio.h>
+int main() {
+    // 1번 문제: 1부터 100까지의 합 (for 사용)
+    int sum = 0;
+    for(int i = 1; i <= 100; i++) {
+        sum += i;
+    }
+    printf("1부터 100까지의 합: %d\n", sum);
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-exercises', 'console-exercises')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-exercises">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+
+            <section id="summary">
+                <h2>10. 핵심 정리 🌟</h2>
+                
+                <div class="content-block">
+                    <table>
+                        <thead>
+                            <tr><th>구문</th><th>용도</th><th>특징</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>`switch-case`</td><td>다중 선택</td><td>**`break` 필요**</td></tr>
+                            <tr><td>`for`</td><td>횟수 정해진 반복</td><td>초기화, 조건, 증감이 한 줄에</td></tr>
+                            <tr><td>`while`</td><td>조건 기반 반복</td><td>조건 먼저 검사</td></tr>
+                            <tr><td>`do-while`</td><td>최소 1회 실행 보장</td><td>코드 실행 후 조건 검사</td></tr>
+                            <tr><td>`break`</td><td>반복 **즉시 종료**</td><td>가장 가까운 블록 탈출</td></tr>
+                            <tr><td>`continue`</td><td>현재 반복 **건너뛰기**</td><td>다음 반복으로 이동</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="interactive-section">
+                    <h3>🚀 핵심 구문 테스트 (가상 시뮬레이션)</h3>
+                    <p>배운 내용을 조합하여 코드를 작성해 보세요.</p>
+                    <textarea class="code-editor" id="editor-summary">
+#include <stdio.h>
+int main() {
+    for(int i=1; i<=10; i++) {
+        if(i % 3 == 0) {
+            printf("[SKIP] ");
+            continue;
+        }
+        if(i == 7) {
+            printf("[STOP] ");
+            break;
+        }
+        printf("%d ", i);
+    }
+    return 0;
+}</textarea>
+                    <button class="run-button" onclick="runCode('editor-summary', 'console-summary')">▶️ 코드 실행</button>
+                    <div class="console-output" id="console-summary">실행 결과가 여기에 표시됩니다.</div>
+                </div>
+                </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; C Language Control Flow Study - Final View</p>
+    </footer>
+
+    <script>
+        // JavaScript 영역: 섹션 제어 및 가상 실행 기능 (JDoodle 통합 섹션 제외)
+        
+        // --- 가상 시뮬레이션 로직 (이전 응답과 동일) ---
+        const simulations = {
+            'editor-for-loop': (code) => {
+                const limitMatch = code.match(/int i = 1; i <= (\d+);/);
+                let limit = limitMatch ? parseInt(limitMatch[1]) : 5;
+                const sumMatch = code.match(/sum \+= i;[\s\S]*printf\("합계: %d\\n", sum\);/);
+                if (sumMatch) {
+                    let sum = 0;
+                    for (let i = 1; i <= limit; i++) { sum += i; }
+                    return `합계: ${sum}\n`;
+                }
+                return "🚫 복잡한 코드는 시뮬레이션 불가\n";
+            },
+            'editor-while-loop': (code) => {
+                const limitMatch = code.match(/while\(i <= (\d+)\)/);
+                let limit = limitMatch ? parseInt(limitMatch[1]) : 3;
+                let output = "숫자:";
+                for (let i = 1; i <= limit; i++) { output += ` ${i}`; }
+                return output + "\n";
+            },
+            'editor-do-while-loop': (code) => {
+                const initialValueMatch = code.match(/int i = (\d+);/);
+                let initial = initialValueMatch ? parseInt(initialValueMatch[1]) : 10;
+                let output = "실행:";
+                output += ` ${initial}`;
+                return output + "\n";
+            },
+             'editor-break-stmt': (code) => {
+                const breakMatch = code.match(/if\(i == (\d+)\) {/);
+                const breakPoint = breakMatch ? parseInt(breakMatch[1]) : 6;
+                let output = "";
+                for(let i = 1; i <= 8; i++) {
+                    if (i === breakPoint) {
+                        output += `\n${i}에서 멈춤`;
+                        break;
+                    }
+                    output += `${i} `;
+                }
+                return output;
+            },
+            'editor-continue-stmt': (code) => {
+                const continueMatch = code.match(/if\(i == (\d+)\) {/);
+                const skipPoint = continueMatch ? parseInt(continueMatch[1]) : 5;
+                let output = "숫자:";
+                for(let i = 1; i <= 7; i++) {
+                    if (i === skipPoint) { continue; }
+                    output += ` ${i}`;
+                }
+                return output + "\n";
+            },
+            'editor-break-vs-continue': (code) => {
+                let output = "";
+                const breakPoint = 4;
+                const continuePoint = 4;
+
+                output += "=== Break 테스트 ===\n";
+                for(let i = 1; i <= 6; i++) {
+                    if(i == breakPoint) { break; } 
+                    output += `${i} `;
+                }
+
+                output += "\n\n=== Continue 테스트 ===\n";
+                for(let i = 1; i <= 6; i++) {
+                    if(i == continuePoint) { continue; } 
+                    output += `${i} `;
+                }
+                return output + "\n";
+            },
+             'editor-comprehensive': (code) => {
+                const nMatch = code.match(/int n = (\d+);/);
+                const n = nMatch ? parseInt(nMatch[1]) : 20;
+                
+                let primes = [];
+                for(let i = 2; i <= n; i++) {
+                    let isPrime = true;
+                    for(let j = 2; j * j <= i; j++) {
+                        if(i % j === 0) { isPrime = false; break; }
+                    }
+                    if(isPrime) { primes.push(i); }
+                }
+                return `2부터 ${n}까지의 소수:\n${primes.join(' ')}\n`;
+            },
+             'editor-exercises': (code) => {
+                let sum = 0;
+                for(let i = 1; i <= 100; i++) { sum += i; }
+                return `1부터 100까지의 합: ${sum}\n`;
+            },
+             'editor-summary': (code) => {
+                let output = "";
+                for(let i=1; i<=10; i++) {
+                    if(i % 3 == 0) {
+                        output += "[SKIP] ";
+                        continue;
+                    }
+                    if(i == 7) {
+                        output += "[STOP] ";
+                        break;
+                    }
+                    output += `${i} `;
+                }
+                return output;
+            },
+            'editor-switch-case': (code) => {
+                const dayMatch = code.match(/int day = (\d+);/);
+                let day = dayMatch ? parseInt(dayMatch[1]) : 0;
+                
+                if (day >= 1 && day <= 5) {
+                    const days = ["월요일", "화요일", "수요일", "목요일", "금요일"];
+                    return days[day - 1] + "\n";
+                } else if (day === 6 || day === 7) {
+                    return "주말 또는 오류\n";
+                }
+                return "주말 또는 오류\n";
+            }
+        };
+
+        function runCode(editorId, consoleId) {
+            const editor = document.getElementById(editorId);
+            const consoleOutput = document.getElementById(consoleId);
+            const code = editor.value.trim();
+            let result = "";
+
+            if (simulations[editorId]) {
+                try {
+                    result = simulations[editorId](code);
+                    consoleOutput.style.color = '#00ffff'; // 성공 시 밝은 청록색
+                } catch (e) {
+                    consoleOutput.style.color = '#ff4141'; // 오류 시 빨간색
+                    result = "🚫 가상 실행 오류 발생: 코드를 확인해 주세요.";
+                }
+            } else {
+                 consoleOutput.style.color = '#ff4141';
+                 result = "🚫 실행 불가능: 이 코드는 웹에서 직접 컴파일할 수 없으며, 시뮬레이션 예시가 아닙니다.\n\n코드 검토 및 디버깅 용도로 활용하세요.";
+            }
+
+            consoleOutput.textContent = result;
+        }
+        // --- 가상 시뮬레이션 로직 끝 ---
+
+
+        // 섹션 제어 및 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            const tocLinks = document.querySelectorAll('.toc-link');
+            const sections = document.querySelectorAll('.content-area section');
+            const initialSectionId = 'switch-case';
+
+            function showSection(targetId) {
+                sections.forEach(sec => sec.classList.remove('active'));
+                tocLinks.forEach(link => link.classList.remove('active'));
+
+                const activeSection = document.getElementById(targetId);
+                const activeLink = document.querySelector(`.toc-link[data-target="${targetId}"]`);
+                
+                if (activeSection) {
+                    activeSection.classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+
+            tocLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    history.pushState(null, '', `#${targetId}`);
+                    showSection(targetId);
+                });
+            });
+
+            function handleHashChange() {
+                const hash = window.location.hash.substring(1);
+                const targetId = hash || initialSectionId;
+                showSection(targetId);
+            }
+
+            handleHashChange();
+            window.addEventListener('hashchange', handleHashChange);
+        });
+    </script>
+</body>
+</html>
