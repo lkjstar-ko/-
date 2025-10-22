@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C언어 배열 실습 시각화 수업 자료</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 기본 폰트 설정 및 배경 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #1f2937;
+        }
+        /* 상단 고정 네비게이션을 위한 스타일 */
+        #navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        /* 코드 블록 스타일링 */
+        .code-block {
+            background-color: #1f2937; /* Gray-900 */
+            color: #d1d5db; /* Gray-300 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        /* 섹션 헤더 스타일 */
+        .section-header {
+            border-left: 6px solid #059669; /* Emerald-600 */
+            padding-left: 0.75rem;
+        }
+        /* 활성 네비게이션 항목 강조 */
+        .nav-item.active {
+            background-color: #047857; /* Emerald-700 */
+            font-weight: bold;
+        }
+        /* 실습 입력 텍스트 영역 */
+        .code-input-area {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            resize: vertical;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            box-sizing: border-box;
+            border-radius: 0.25rem;
+        }
+        /* 개념 박스 스타일 */
+        .concept-box {
+            border-left: 4px solid #3b82f6; /* Blue-500 */
+            background-color: #eff6ff; /* Blue-50 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        /* 데이터 테이블 스타일 */
+        .data-table th, .data-table td {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .data-table th {
+            background-color: #d1fae5; /* Emerald-100 */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'main-primary': '#059669', // Emerald-600
+                        'main-secondary': '#3b82f6', // Blue-500
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="scroll-smooth">
+
+    <nav id="navbar" class="bg-gray-900 text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-16">
+            <div class="flex items-center justify-between w-full">
+                <div class="text-xl font-bold text-main-primary">C 배열 시각화 수업</div>
+                <div class="flex space-x-4 text-sm">
+                    <a href="#intro" class="nav-item p-2 rounded-md hover:bg-gray-700 transition duration-300">Intro</a>
+                    <a href="#array-1d" class="nav-item p-2 rounded-md hover:bg-gray-700 transition duration-300">1차원</a>
+                    <a href="#array-2d" class="nav-item p-2 rounded-md hover:bg-gray-700 transition duration-300">2차원</a>
+                    <a href="#practice" class="nav-item p-2 rounded-md hover:bg-gray-700 transition duration-300">핵심 실습</a>
+                    <a href="#quiz" class="nav-item p-2 rounded-md hover:bg-gray-700 transition duration-300">연습문제</a>
+                    <a href="#caution" class="nav-item p-2 rounded-md hover:bg-gray-700 transition duration-300">주의사항</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <section id="intro" class="mb-16 p-12 bg-white rounded-xl shadow-2xl min-h-[70vh] flex flex-col justify-center items-center text-center">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-gray-900">
+                C언어 배열 실습 수업 자료 🧠
+            </h1>
+            <p class="text-xl md:text-2xl font-light text-gray-600 mb-8">
+                **학습 목표:** 배열의 메모리 구조를 시각화하여 이해하고, 1차원/2차원 배열 활용 능력을 배양합니다.
+            </p>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="array-1d" class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 section-header">1. 1차원 배열: 기본 원리 및 메모리 구조</h2>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-semibold mb-4 text-main-primary">1.1 배열이란? (메모리 구조 시각화)</h3>
+                <div class="concept-box">
+                    <p class="font-bold text-lg text-blue-800 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-main-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 13V7m0 6l4-4m-4 4l-4-4m12 8h.01M16 4v6m0 0v6m0-6H9m8 0h3"></path></svg>
+                        핵심 개념: 연속된 메모리
+                    </p>
+                    <p class="ml-7">같은 자료형의 데이터를 **연속된 메모리 공간**에 저장합니다. 이 연속성이 빠른 접근 속도의 핵심입니다.</p>
+                </div>
+
+                <div class="mt-4 overflow-x-auto">
+                    <table class="data-table w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr>
+                                <th>배열 선언</th>
+                                <th>arr[0]</th>
+                                <th>arr[1]</th>
+                                <th>arr[2]</th>
+                                <th>arr[3]</th>
+                                <th>arr[4]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold bg-gray-50">인덱스</td>
+                                <td>0</td>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold bg-gray-50">값 (int arr[5] = {1, 2, 3})</td>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold bg-gray-50">메모리 주소 (가정)</td>
+                                <td colspan="5" class="text-main-primary font-mono">1000 $\rightarrow$ 1004 $\rightarrow$ 1008 $\rightarrow$ 1012 $\rightarrow$ 1016</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+                
+                <h3 class="text-2xl font-semibold mt-8 mb-4 text-main-primary">1.2 1차원 배열 선언 및 초기화 (코드 패턴)</h3>
+                <div class="code-block mb-6">
+                    <pre>// 💡 Point: 크기 생략은 초기화 시에만 가능
+int arr[5] = {1, 2, 3};  // 부분 초기화 (나머지는 0)
+int arr[] = {1, 2, 3, 4, 5};  // 크기 자동 결정
+                    </pre>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-12 border-gray-300">
+
+        <section id="array-2d" class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 section-header">2. 2차원 배열: 행렬 구조의 이해</h2>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-semibold mb-4 text-main-primary">2.1 2차원 배열의 구조 (행 우선 순서)</h3>
+                <div class="concept-box">
+                    <p class="font-bold text-lg text-blue-800 flex items-center">
+                         <svg class="w-5 h-5 mr-2 text-main-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        구조: 행(row) $\times$ 열(column)
+                    </p>
+                    <p class="ml-7">메모리에서는 **1차원** 형태로 저장되지만, 접근은 2개의 인덱스(`arr[행][열]`)로 합니다. **행 전체**를 먼저 저장하는 순서(Row-Major)를 따릅니다.</p>
+                </div>
+                
+                <h3 class="text-2xl font-semibold mt-8 mb-4 text-main-primary">2.2 2차원 배열 초기화 시각화 (3행 4열)</h3>
+                <div class="code-block mb-6">
+                    <pre>
+// 3행 4열 배열 선언 및 초기화
+int arr[3][4] = { 
+    {1, 2, 3, 4}, 
+    {5, 6, 7, 8}, 
+    {9, 10, 11, 12}
+};
+                    </pre>
+                </div>
+                <div class="mt-4 overflow-x-auto">
+                    <table class="data-table w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr>
+                                <th class="w-1/6">행 인덱스 (i)</th>
+                                <th class="w-1/6">열 인덱스 (j)</th>
+                                <th class="w-1/3">값</th>
+                                <th class="w-1/3">메모리 저장 순서</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>0</td><td>0, 1, 2, 3</td><td>1, 2, 3, 4</td><td rowspan="3" class="text-sm font-mono bg-yellow-50">1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 (연속 저장)</td></tr>
+                            <tr><td>1</td><td>0, 1, 2, 3</td><td>5, 6, 7, 8</td></tr>
+                            <tr><td>2</td><td>0, 1, 2, 3</td><td>9, 10, 11, 12</td></tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="practice" class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 section-header">3. 실습 예제: 배열 알고리즘 분석</h2>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-semibold mb-4 text-main-primary">예제 1: 1차원 배열 - 점수 평균 구하기</h3>
+                <div class="code-block">
+                    <pre>
+#include &lt;stdio.h&gt;
+int main() {
+    int scores[5];
+    int sum = 0;
+    
+    // 💡 Point 1: for문 (i < 5)을 사용하여 0~4 인덱스를 순회
+    for (int i = 0; i < 5; i++) {
+        // scanf("%d", &scores[i]); // 입력
+        sum += scores[i];
+    }
+    
+    // 💡 Point 2: 정수 나누기 방지 위해 (float) 강제 형 변환 사용
+    float average = (float)sum / 5;
+    // ... 결과 출력 ...
+    return 0;
+}
+                    </pre>
+                </div>
+                
+                <h3 class="text-2xl font-semibold mt-8 mb-4 text-main-primary">🚀 인터랙티브 실습: 최댓값과 최솟값 찾기</h3>
+                <p class="text-lg mb-3">배열 값을 직접 입력하고 실행하여, **초기값 설정(max=min=arr[0])** 후 배열 전체를 순회하는 비교 로직을 실습하세요.</p>
+
+                <div class="p-6 bg-gray-100 rounded-lg shadow-inner mb-6">
+                    <textarea id="arrayInput" class="code-input-area" rows="2" placeholder="콤마(,)로 구분된 정수를 입력하세요. (예: 45, 23, 67, 12, 89, 34, 56, 78, 90, 21)">45, 23, 67, 12, 89, 34, 56, 78, 90, 21</textarea>
+                    
+                    <button onclick="simulateMaxMin()" class="w-full mt-3 p-3 bg-main-primary text-white rounded-md font-semibold hover:bg-emerald-700 transition duration-300 shadow-md">
+                        실행 (최댓값/최솟값 찾기)
+                    </button>
+
+                    <div id="simulationConsole" class="mt-4 p-4 border-2 border-gray-700 rounded-md bg-gray-900 code-block min-h-[100px]">
+                        <p class="text-main-primary font-bold mb-2">실행 결과:</p>
+                        <pre id="simulationResult" class="text-green-400"></pre>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-semibold mt-8 mb-4 text-main-primary">예제 4: 2차원 배열 - 행렬 덧셈 (로직 분석)</h3>
+                <div class="code-block">
+                    <pre>
+// 💡 Point 1: 행(i)을 먼저 순회하고, 그 안에서 열(j)을 순회
+for (int i = 0; i < 2; i++) { 
+    for (int j = 0; j < 3; j++) { 
+        // 💡 Point 2: 같은 위치의 A와 B 요소를 더해 C의 같은 위치에 저장
+        C[i][j] = A[i][j] + B[i][j];
+    }
+}
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+        
+        <section id="quiz" class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 section-header">4. 도전 과제: 연습 문제 📝</h2>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <p class="text-lg mb-6">배열의 반복문과 인덱싱을 활용하여 다음 문제들을 해결해 보세요.</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-md">
+                        <h4 class="font-bold text-xl mb-2 text-yellow-800">1차원 활용 (순회 및 조건)</h4>
+                        <ol class="list-decimal pl-6 text-base space-y-1">
+                            <li>배열에 1~10을 저장하고, **역순 출력**</li>
+                            <li>10개의 정수 입력 후, **짝수와 홀수의 개수** 세기</li>
+                        </ol>
+                    </div>
+                    <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-md">
+                        <h4 class="font-bold text-xl mb-2 text-yellow-800">2차원 심화 (특정 인덱스 활용)</h4>
+                        <ol class="list-decimal pl-6 text-base space-y-1">
+                            <li>4x4 행렬의 **대각선 요소들의 합** (조건: `i == j` )</li>
+                            <li>3x3 행렬의 **전치 행렬** 출력 (교환: `result[j][i] = arr[i][j]`)</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-12 border-gray-300">
+        
+        <section id="caution" class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 section-header">5. 배열 프로그래밍 시 주의사항 🚨</h2>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg border-2 border-red-500">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-red-100 border-l-4 border-red-600 rounded-md">
+                        <h4 class="font-bold text-lg text-red-800">⚠️ 인덱스 범위 오류</h4>
+                        <p class="text-sm">반드시 **$0$부터 $(\text{크기}-1)$**까지 사용해야 합니다. 범위 초과는 심각한 런타임 오류를 유발합니다.</p>
+                    </div>
+                    <div class="p-4 bg-red-100 border-l-4 border-red-600 rounded-md">
+                        <h4 class="font-bold text-lg text-red-800">배열 크기 고정</h4>
+                        <p class="text-sm">크기는 정적(Static)이며, 실행 중 변경할 수 없습니다. **변하는 크기**에는 배열 대신 동적 메모리 또는 연결 리스트를 고려해야 합니다.</p>
+                    </div>
+                    <div class="p-4 bg-red-100 border-l-4 border-red-600 rounded-md">
+                        <h4 class="font-bold text-lg text-red-800">초기화의 중요성</h4>
+                        <p class="text-sm">자동으로 $0$이 되지 않습니다. 사용하지 않는 요소는 예측 불가능한 '쓰레기 값'입니다. **항상 초기화**하세요.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer id="contact" class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <p class="text-lg font-light">
+                **핵심 요약:** 배열 = 연속된 메모리 + 0-기반 인덱스
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for Navbar Active State
+        function initializeNavbarObserver() {
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const currentId = entry.target.id;
+                        navItems.forEach(item => item.classList.remove('active'));
+                        const activeLink = document.querySelector(`#navbar a[href="#${currentId}"]`);
+                        if (activeLink) {
+                            activeLink.classList.add('active');
+                        }
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.3 // 30% 이상 보여야 활성화
+            });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+        
+        // 실습 예제 2: 최댓값/최솟값 찾기 시뮬레이션 (JS)
+        function simulateMaxMin() {
+            const inputElement = document.getElementById('arrayInput');
+            const resultElement = document.getElementById('simulationResult');
+            const rawInput = inputElement.value.trim();
+            
+            let arr;
+            try {
+                // 쉼표로 구분된 문자열을 정수 배열로 변환
+                arr = rawInput.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            } catch (e) {
+                resultElement.textContent = "오류: 올바른 형식의 숫자를 입력하세요 (예: 1, 2, 3)";
+                return;
+            }
+
+            if (arr.length === 0) {
+                resultElement.textContent = "오류: 배열 요소를 입력하세요.";
+                return;
+            }
+
+            let max = arr[0];
+            let min = arr[0];
+            let max_index = 0;
+            let min_index = 0;
+
+            // 최댓값과 최솟값 찾기 로직
+            for (let i = 1; i < arr.length; i++) {
+                if (arr[i] > max) {
+                    max = arr[i];
+                    max_index = i;
+                }
+                if (arr[i] < min) {
+                    min = arr[i];
+                    min_index = i;
+                }
+            }
+
+            // 결과 출력 형식
+            const arrayDisplay = arr.join(' ');
+            const output = `
+배열: ${arrayDisplay}
+총 요소 개수: ${arr.length}
+최댓값: ${max} (인덱스 ${max_index})
+최솟값: ${min} (인덱스 ${min_index})
+            `;
+            
+            resultElement.textContent = output.trim();
+        }
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            initializeNavbarObserver();
+            // 실습 시뮬레이션 초기 실행 (기본값)
+            simulateMaxMin(); 
+        };
+    </script>
+</body>
+</html>
