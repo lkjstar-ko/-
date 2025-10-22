@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>코드 박스 — 블록 80% 축소(확장 스테이지/명령 유지)</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#11162b; --panel-2:#1a2141; --text:#eef2ff; --muted:#a5b4fc;
+    --accent:#60a5fa; --accent-2:#a78bfa; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
+    --grid:#2a335a; --tile:#1a2041;
+
+    /* 벽(밝게) 기본 */
+    --wall-1:#3a4a86; --wall-2:#2e3a74; --wall-line:#7ea6ff; --wall-glow:rgba(152,189,255,.18);
+
+    /* 방향(노즈/시야선) 색 */
+    --nose:#e5efff; --nose-shadow:rgba(229,239,255,.35);
+    --heading:#bcd2ff66; --heading-strong:#d9e6ff99;
+
+    /* 블록 컬러 */
+    --c-move:#22d3ee; --c-turn:#c4b5fd; --c-jump:#60a5fa; --c-loop:#34d399; --c-end:#f59e0b; --c-cond:#f472b6;
+
+    /* 블록 크기 스케일(기본 0.2 = 기존 대비 80% 작게) */
+    --block-scale: 0.8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(160deg,#0b0f1d 0%,#121936 60%,#0b0f1d 100%);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #232846;background:rgba(15,18,32,.7);backdrop-filter: blur(6px);position:sticky;top:0;z-index:10}
+  header h1{font-size:18px;margin:0}
+  header .right{display:flex;gap:10px;align-items:center}
+  .btn{background:var(--panel-2);border:1.5px solid #33407a;color:var(--text);padding:10px 14px;border-radius:14px;cursor:pointer;transition:.18s ease;user-select:none;font-weight:600}
+  .btn:hover{transform:translateY(-1px);background:#24305b}
+  .btn.primary{background:linear-gradient(180deg,#2a68f6 0%,#6045ff 100%);border:none}
+  .btn.ok{background:linear-gradient(180deg,#22c55e,#16a34a)}
+  .btn.warn{background:linear-gradient(180deg,#f59e0b,#eab308)}
+  .btn.bad{background:linear-gradient(180deg,#ef4444,#dc2626)}
+  .btn.ghost{background:transparent;border:1.5px dashed #3a457e}
+  .slider{accent-color:#60a5fa}
+
+  main{display:grid;grid-template-columns: 360px 1fr 460px;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+
+  /* 좌측 팔레트 */
+  .palette{background:var(--panel);border:1px solid #273066;border-radius:18px;padding:16px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .palette h2,.program h2,.stage h2{font-size:14px;color:#c7d2fe;letter-spacing:.3px;margin:0 0 10px}
+
+  /* 블록 공통 축소 스타일 */
+  .cmd, .step{
+    /* 원래 기준값들을 스케일로 축소 */
+    font-size: calc(15px * var(--block-scale));
+    padding: calc(12px * var(--block-scale)) calc(14px * var(--block-scale));
+    border-radius: calc(14px * var(--block-scale));
+    min-height: calc(48px * var(--block-scale));
+    gap: calc(10px * var(--block-scale));
+  }
+  .cmd .tag, .step .badge{
+    font-size: calc(12px * var(--block-scale));
+    padding: calc(2px * var(--block-scale)) calc(8px * var(--block-scale));
+    border-width: calc(2px * var(--block-scale));
+    border-radius: 999px;
+  }
+  .cmd .title, .step .title{ font-size: calc(15px * var(--block-scale)); }
+  .step .del{
+    margin-left: calc(6px * var(--block-scale));
+    padding: calc(6px * var(--block-scale)) calc(8px * var(--block-scale));
+    border-radius: calc(10px * var(--block-scale));
+    border-width: calc(1.5px * var(--block-scale));
+    font-size: calc(12px * var(--block-scale));
+  }
+  .step input[type="number"]{
+    width: calc(64px * var(--block-scale));
+    padding: calc(6px * var(--block-scale)) calc(8px * var(--block-scale));
+    border-radius: calc(10px * var(--block-scale));
+    border-width: calc(1.8px * var(--block-scale));
+    font-size: calc(13px * var(--block-scale));
+  }
+
+  /* 개별 블록 기본 */
+  .cmd{
+    display:flex;align-items:center;
+    border:2px solid #3a4476;margin:10px 10px 0 0;
+    background:#0f1640; cursor:grab;
+    font-weight:700; letter-spacing:.2px; box-shadow:0 2px 10px rgba(0,0,0,.18);
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+    user-select:none;
+  }
+  .cmd:active{transform:scale(.98)}
+  .cmd:focus-visible{outline:3px solid #6ea8ff; outline-offset:2px}
+  .cmd .tag{flex:0 0 auto; background:rgba(255,255,255,.06)}
+  .group{display:flex;flex-wrap:wrap}
+  .cmd.move{border-color:#22d3ee; color:#22d3ee; background:linear-gradient(180deg, rgba(34,211,238,.10), rgba(34,211,238,.04))}
+  .cmd.turn{border-color:#c4b5fd; color:#c4b5fd; background:linear-gradient(180deg, rgba(196,181,253,.10), rgba(196,181,253,.04))}
+  .cmd.jump{border-color:#60a5fa; color:#60a5fa; background:linear-gradient(180deg, rgba(96,165,250,.10), rgba(96,165,250,.04))}
+  .cmd.loop{border-color:#34d399; color:#34d399; background:linear-gradient(180deg, rgba(52,211,153,.10), rgba(52,211,153,.04))}
+  .cmd.end{border-color:#f59e0b; color:#fbbf24; background:linear-gradient(180deg, rgba(251,191,36,.12), rgba(251,191,36,.05))}
+  .cmd.cond{border-color:#f472b6; color:#f472b6; background:linear-gradient(180deg, rgba(244,114,182,.12), rgba(244,114,182,.05))}
+  .cmd:hover{box-shadow:0 6px 18px rgba(0,0,0,.28); background:rgba(26,32,65,.9)}
+
+  /* 미니 랭킹 */
+  .mini-rank{margin-top:14px;padding-top:10px;border-top:1px dashed #313c78}
+  .mini-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .mini-head .title{font-size:13px;color:#c7d2fe}
+  .mini-rank table{width:100%;border-collapse:collapse}
+  .mini-rank th,.mini-rank td{border-bottom:1px solid #26315e;padding:6px 6px;text-align:left;font-size:12px}
+  .mini-rank tbody tr.me{background:rgba(96,165,250,.10)}
+  .mini-empty{font-size:12px;color:#9aa7ff;padding:8px 0}
+
+  /* 보드 */
+  .stage{background:var(--panel);border:1px solid #273066;border-radius:18px;padding:14px}
+  .board{position:relative;aspect-ratio:1/1;background:var(--tile);border-radius:14px;border:1px solid #2b3364;overflow:hidden}
+  .grid{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:100%;height:100%;}
+  .cell{border:1px solid var(--grid);position:relative}
+
+  /* 밝은 벽 */
+  .cell.wall{
+    background:
+      linear-gradient(180deg, var(--wall-1) 0%, var(--wall-2) 100%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.06) 0 2px, rgba(255,255,255,0) 2px 6px);
+    box-shadow: inset 0 1px 0 var(--wall-glow), inset 0 -1px 0 rgba(0,0,0,.25);
+    outline: 1px solid var(--wall-line); outline-offset:-1px;
+  }
+
+  .cell.goal::after{content:"★";position:absolute;inset:0;display:grid;place-items:center;font-size:20px;color:#ffd166;text-shadow:0 2px 8px rgba(255,209,102,.6)}
+  .cell.coin::after{content:"●";position:absolute;inset:0;display:grid;place-items:center;font-size:16px;color:#fcd34d;text-shadow:0 2px 6px rgba(252,211,77,.5)}
+  .cell.lava{background:linear-gradient(180deg,#6b1a1a,#4a0f0f)}
+  .cell.start::after{content:"A";position:absolute;inset:0;display:grid;place-items:center;font-size:18px;color:#60a5fa;text-shadow:0 0 6px rgba(96,165,250,.7)}
+
+  /* 경로 이펙트 */
+  #trailLayer{position:absolute; inset:0; pointer-events:none}
+  .foot{
+    position:absolute; border-radius:999px;
+    background:rgba(96,165,250,.26); box-shadow:0 0 10px rgba(96,165,250,.35);
+    transition:opacity .6s ease, left .18s ease, top .18s ease; opacity:.75;
+  }
+  .foot.fade{opacity:0}
+
+  /* 에이전트 + 방향 표시 */
+  .agent{
+    position:absolute;
+    left: var(--left, 0%); top: var(--top, 0%);
+    transform: rotate(var(--rot, 0deg));
+    transition: left var(--spd,.18s) ease, top var(--spd,.18s) ease, transform var(--spd,.18s) ease;
+    will-change: left, top, transform;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
+  }
+  .agent .body{width:100%;height:100%;display:grid;place-items:center;position:relative}
+  .agent .body::after{
+    content:""; width:64%;height:64%;
+    background:radial-gradient(circle at 60% 35%,#a5f3fc 0%,#60a5fa 40%,#4c51bf 100%);
+    border-radius:14px; box-shadow: inset 0 2px 6px rgba(255,255,255,.15), inset 0 -2px 8px rgba(0,0,0,.25);
+  }
+
+  /* 전방 노즈 */
+  .agent .nose{ position:absolute; inset:0; pointer-events:none; }
+  .agent .nose::before{
+    content:""; position:absolute; left:56%; top:50%; width:34%; height:28%;
+    transform: translateY(-50%);
+    clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+    background: var(--nose);
+    box-shadow: 0 0 10px var(--nose-shadow), 0 0 18px var(--nose-shadow);
+    border-radius:3px; opacity:.95;
+  }
+
+  /* 얇은 시야선 */
+  .agent .heading-lines{ position:absolute; inset:0; pointer-events:none; }
+  .agent .heading-lines::before,
+  .agent .heading-lines::after{
+    content:""; position:absolute; left:70%; top:50%; width:30%; height:2px; transform: translateY(-50%);
+    background: linear-gradient(90deg, transparent 0%, var(--heading-strong) 40%, var(--heading) 100%);
+    border-radius:2px; filter: blur(.2px);
+  }
+  .agent .heading-lines::after{ top:42%; height:1.5px; opacity:.8; left:68%; width:28%; }
+
+  .turn-badge{position:absolute; transform:translate(-20%, -40%); background:#0f1430; border:1px solid #3a4b8a; color:#c7d2fe; font-size:12px; padding:2px 6px; border-radius:999px; pointer-events:none; box-shadow:0 4px 10px rgba(0,0,0,.3)}
+
+  .status{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap}
+  .badget{background:#1a2148;border:1px solid #33407a;padding:8px 10px;border-radius:12px;color:#c7d2fe;font-weight:600}
+
+  /* 프로그램 영역 */
+  .program{background:var(--panel);border:1px solid #273066;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .dropzone{
+    min-height:248px;border:2.5px dashed #3b4684;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:10px;background:#0f163a;
+    max-height:40vh; overflow:auto;
+  }
+  .step{
+    display:flex;align-items:center;border:2px solid #3a4476;background:#121a49;
+    font-weight:700; letter-spacing:.2px; box-shadow:0 2px 10px rgba(0,0,0,.18);
+  }
+  .step.current{outline:3px solid #60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.25) inset}
+  .step .badge{flex:0 0 auto; background:rgba(255,255,255,.06)}
+  .step.move{color:var(--c-move); border-color:#22d3ee}
+  .step.turn{color:var(--c-turn); border-color:#c4b5fd}
+  .step.jump{color:var(--c-jump); border-color:#60a5fa}
+  .step.loop{color:var(--c-loop); border-color:#34d399}
+  .step.end{color:var(--c-end); border-color:#f59e0b}
+  .step.cond{color:var(--c-cond); border-color:#f472b6}
+
+  .controls{display:flex;gap:10px;flex-wrap:wrap}
+  .hint{font-size:13px;color:#c7d2fe}
+
+  .log{height:180px;overflow:auto;background:#0f1430;border:1px solid #283062;border-radius:12px;padding:10px;font-size:13px}
+  .log .ok{color:#34d399}.log .err{color:#f87171}.log .warn{color:#fbbf24}
+
+  @media (max-width: 1100px){ .speed-wrap{display:none} }
+  @media (max-width: 980px){
+    main{grid-template-columns:1fr;}
+    /* 축소된 블록은 모바일에서도 동일 스케일 유지 */
+  }
+
+  /* 랭킹 다이얼로그 */
+  dialog{border:none;border-radius:16px;padding:0;overflow:hidden;background:#0f1430;color:var(--text)}
+  dialog::backdrop{background:rgba(0,0,0,.45)}
+  .dlg{padding:16px 18px;border:1px solid #283062;min-width:520px}
+  .dlg h3{margin:0 0 8px;font-size:18px}
+  .rank-table{width:100%;border-collapse:collapse;margin-top:10px}
+  .rank-table th,.rank-table td{border-bottom:1px solid #26315e;padding:8px 10px;text-align:left;font-size:14px}
+  .rank-me{background:rgba(96,165,250,.10)}
+  .dlg .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .dlg input[type="text"]{padding:8px 10px;border:1.5px solid #3a457e;border-radius:10px;background:#0f1636;color:#e5e7eb}
+</style>
+</head>
+<body>
+  <header>
+    <h1>코드 박스 · 블록 축소판</h1>
+    <div class="right">
+      <div class="speed-wrap" style="display:flex;align-items:center;gap:8px">
+        <label for="speed" style="font-size:12px;color:#a5b4fc">속도</label>
+        <input id="speed" class="slider" type="range" min="80" max="600" value="220" />
+      </div>
+      <button id="prevStage" class="btn">이전 스테이지</button>
+      <div class="badget">스테이지 <span id="stageIdx">1</span>/<span id="stageTotal">6</span></div>
+      <button id="nextStage" class="btn">다음 스테이지</button>
+      <button id="openRank" class="btn">랭킹</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="palette">
+      <h2>명령어 박스 (드래그하여 프로그램에 놓기)</h2>
+      <div id="palette" class="group"></div>
+      <p class="hint">LOOP 안에 여러 블록을 넣고 마지막에 END를 붙이세요. 조건 명령은 단독으로 사용.</p>
+      <div class="controls" style="margin-top:10px">
+        <button id="shuffle" class="btn">스테이지 리셋</button>
+        <button id="help" class="btn">도움말</button>
+      </div>
+
+      <!-- 미니 랭킹 보드 -->
+      <div class="mini-rank" id="miniRankPanel">
+        <div class="mini-head">
+          <span class="title">미니 랭킹 (현재 스테이지 Top5)</span>
+          <div style="display:flex;gap:6px">
+            <button id="miniOpenFull" class="btn" style="padding:6px 10px;font-size:12px">전체 랭킹</button>
+            <button id="miniRefresh" class="btn ghost" style="padding:6px 10px;font-size:12px">새로고침</button>
+          </div>
+        </div>
+        <div id="miniEmpty" class="mini-empty" style="display:none">아직 기록이 없습니다.</div>
+        <table aria-label="미니 랭킹" id="miniRankTable">
+          <thead><tr><th style="width:32px">#</th><th>이름</th><th style="width:64px">블록</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="stage">
+      <h2>보드</h2>
+      <div class="board">
+        <div class="grid" id="grid"></div>
+        <div id="trailLayer"></div>
+        <div class="agent" id="agent" style="--left:0%;--top:0%;--rot:0deg">
+          <div class="body"></div>
+          <div class="nose" aria-hidden="true"></div>
+          <div class="heading-lines" aria-hidden="true"></div>
+          <div class="turn-badge" id="turnBadge">T0</div>
+        </div>
+      </div>
+      <div class="status">
+        <div class="badget">목표: <span id="objective">골에 도달</span></div>
+        <div class="badget">설명: <span id="desc">—</span></div>
+        <div class="badget">목표 최소 블록: <span id="targetMin">—</span></div>
+        <div class="badget">시도: <span id="tries">0</span></div>
+        <div class="badget">내 최고: <span id="myBest">—</span></div>
+      </div>
+    </section>
+
+    <section class="program">
+      <h2>내 프로그램</h2>
+      <div class="dropzone" id="dropzone" data-empty="true" aria-label="프로그램 영역"></div>
+      <div class="controls">
+        <button id="run" class="btn primary">실행</button>
+        <button id="step" class="btn ok">한 단계</button>
+        <button id="stop" class="btn bad">정지</button>
+        <button id="clear" class="btn">프로그램 비우기</button>
+        <button id="hint" class="btn warn">힌트</button>
+        <button id="reveal" class="btn ghost" disabled>정답 채우기</button>
+      </div>
+      <div class="hint">실행 중에도 화면이 프로그램 블록으로 스크롤되지 않습니다. 보드에 집중하세요.</div>
+      <h2>실행 로그</h2>
+      <div class="log" id="log" role="log" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <!-- 도움말 -->
+  <dialog id="helpDlg"><form method="dialog" class="dlg">
+    <h3>게임 방법</h3>
+    <ol>
+      <li>명령어를 드래그하여 "내 프로그램"에 배치</li>
+      <li>LOOP ×N 다음에 여러 명령을 넣고 END로 닫기(중첩 가능)</li>
+      <li>조건 명령(IFWALL, IFLAVA)은 상황에 따라 한 동작만 수행</li>
+      <li>힌트는 단계적으로 공개, 3단계에서 정답 블록 자동 배치</li>
+      <li>랭킹은 최소 블록 사용 수 기준으로 기록</li>
+    </ol>
+    <button class="btn" value="close">닫기</button>
+  </form></dialog>
+
+  <!-- 이름 입력 -->
+  <dialog id="nameDlg"><form method="dialog" class="dlg">
+    <h3>플레이어 이름 설정</h3>
+    <div class="row">
+      <input id="playerNameInput" type="text" placeholder="예: 홍길동" maxlength="24" />
+      <button id="saveNameBtn" class="btn ok" value="ok" type="button">저장</button>
+      <button class="btn" value="cancel" type="button" onclick="this.closest('dialog').close()">취소</button>
+    </div>
+    <p style="font-size:12px;color:#a5b4fc;margin-top:6px">브라우저 로컬에만 저장됩니다.</p>
+  </form></dialog>
+
+  <!-- 랭킹 보기 -->
+  <dialog id="rankDlg"><form method="dialog" class="dlg">
+    <h3>스테이지 <span id="rankStageNo">1</span> 랭킹</h3>
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <span>플레이어: <strong id="playerNameText">—</strong></span>
+        <button id="changeNameBtn" class="btn" type="button">이름 변경</button>
+      </div>
+      <div class="row">
+        <button id="exportRankBtn" class="btn ghost" type="button">내보내기</button>
+        <button id="clearRankBtn" class="btn bad" type="button">랭킹 초기화</button>
+      </div>
+    </div>
+    <table class="rank-table" id="rankTable">
+      <thead><tr><th>#</th><th>이름</th><th>블록</th><th>기록 시각</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button class="btn" value="close">닫기</button>
+    </div>
+  </form></dialog>
+
+<script>
+/* ===================== 스테이지 데이터 ===================== */
+const STAGES = [
+  /* 1~3: 8x8 */
+  {
+    name:"1. 직선과 한 번의 회전",
+    objective:"골(★)에 도달",
+    desc:"수평 직선 → 좌/우 회전 1회 → 수직 직선. LOOP 사용 유도.",
+    expectedMin: 5, size:8, start:{x:0,y:7,dir:0},
+    tiles:[
+      "########","########","########","#####★##",
+      "#####.##","#####.##","#####.##","A.....##",
+    ], coins:[], lava:[]
+  },
+  {
+    name:"2. 수집 후 마무리 점프",
+    objective:"모든 코인(●) 수집 후 골 도달",
+    desc:"코인 순서 유도 통로 + 마지막 벽 점프.",
+    expectedMin: null, size:8, start:{x:0,y:7,dir:0},
+    tiles:[
+      "..o...#★","..#..o#.","..#.....","..#..#..",
+      "..#..#..","..#..o..",".......#","A....#..",
+    ],
+    coins:[{x:2,y:0},{x:5,y:1},{x:5,y:5}], lava:[]
+  },
+  {
+    name:"3. 이중 점프와 수집",
+    objective:"모든 코인(●) 수집 + 용암(~) 회피",
+    desc:"상단 연속 용암 2회 점프.",
+    expectedMin: null, size:8, start:{x:0,y:7,dir:0},
+    tiles:[
+      "..~~~..★","..#~~#..",".o#..#..","..#..#..",
+      "..#..#..","..#..#..","..#..o#.","A....#.."
+    ],
+    coins:[{x:1,y:2},{x:5,y:6}],
+    lava:[{x:2,y:0},{x:3,y:0},{x:4,y:0},{x:3,y:1},{x:4,y:1}],
+  },
+
+  /* 4~6: 확대 보드 + 고난도 + 테마 */
+  {
+    name:"4. 사막의 회랑 (10×10)",
+    objective:"코인을 모두 모으고 골에 도달",
+    desc:"지그재그 회랑 + 용암 간헐천. 점프 타이밍 중요.",
+    expectedMin: null, size:10, start:{x:0,y:9,dir:0},
+    tiles:[
+      "..~..#..★.", ".##~.#.##.", "..o..#....", "###..#..#.",
+      "..#~~#.#..", "..#..#.#..", ".##..#..#.", "..#..o..#.",
+      ".###.##...", "A....#...."
+    ],
+    coins:[{x:2,y:2},{x:6,y:7}], lava:[]
+  },
+  {
+    name:"5. 설원 미로 (12×12)",
+    objective:"코인을 모두 모으고 골에 도달",
+    desc:"설원 지형 + 긴 벽. 점프/턴 최적화 요구.",
+    expectedMin: null, size:12, start:{x:0,y:11,dir:0},
+    tiles:[
+      "...~~..#..★."," .##.##.#.##.", "..o....#....", "####..###..#",
+      "..#..~..#..#", "..#..~~.#..o", "..#..#..#..#", ".o#..#..#..#",
+      ".##..####..#", "..#..#..#..#", "..#..o..#..#", "A.....#....."
+    ].map(s=>s.replace(/^ /,'')),
+    coins:[{x:2,y:2},{x:11,y:5},{x:1,y:7},{x:5,y:10}], lava:[]
+  },
+  {
+    name:"6. 네온 래더 (14×14)",
+    objective:"코인을 모두 모으고 용암을 건너 골에 도달",
+    desc:"넓은 격자 + 다중 용암띠. 조건 블록 활용 가능.",
+    expectedMin: null, size:14, start:{x:0,y:13,dir:0},
+    tiles:[
+      "...~~~...#..★.", ".####..###..##", "..o...#...o..#", "##..##..##..##",
+      "..#..~~..#..#.", "..#..#..~..#..", ".o#..#..#..#o.", "##..####..####",
+      "..#..#..#..#..", "..#..o..#..#..", ".###..###..###", "..#..#..##..#.",
+      "...#....#.....", "A......#......"
+    ]
+  },
+];
+
+/* ===================== 테마 시스템 ===================== */
+function applyThemeForStage(i){
+  const root = document.documentElement.style;
+  if(i<=2){
+    root.setProperty('--tile','#1a2041');
+    root.setProperty('--grid','#2a335a');
+    root.setProperty('--wall-1','#3a4a86');
+    root.setProperty('--wall-2','#2e3a74');
+    root.setProperty('--wall-line','#7ea6ff');
+    root.setProperty('--wall-glow','rgba(152,189,255,.18)');
+    return;
+  }
+  if(i===3){ // 4: 사막
+    root.setProperty('--tile','#2b2316');
+    root.setProperty('--grid','#4a3a22');
+    root.setProperty('--wall-1','#a07a3a');
+    root.setProperty('--wall-2','#7a5a2e');
+    root.setProperty('--wall-line','#ffd08a');
+    root.setProperty('--wall-glow','rgba(255,208,138,.18)');
+    return;
+  }
+  if(i===4){ // 5: 설원
+    root.setProperty('--tile','#122034');
+    root.setProperty('--grid','#2a3e66');
+    root.setProperty('--wall-1','#7fb6ff');
+    root.setProperty('--wall-2','#5a8fd6');
+    root.setProperty('--wall-line','#cfe6ff');
+    root.setProperty('--wall-glow','rgba(207,230,255,.22)');
+    return;
+  }
+  if(i===5){ // 6: 네온
+    root.setProperty('--tile','#0e0f1d');
+    root.setProperty('--grid','#262a52');
+    root.setProperty('--wall-1','#5d2abf');
+    root.setProperty('--wall-2','#3a1f82');
+    root.setProperty('--wall-line','#c59dff');
+    root.setProperty('--wall-glow','rgba(197,157,255,.22)');
+    return;
+  }
+}
+
+/* ===================== 팔레트 명령 ===================== */
+const COMMANDS = [
+  {type:'MOVE',  label:'전진',              short:'MOVE',  css:'move'},
+  {type:'LEFT',  label:'좌회전',            short:'LEFT',  css:'turn'},
+  {type:'RIGHT', label:'우회전',            short:'RIGHT', css:'turn'},
+  {type:'JUMP',  label:'점프',              short:'JUMP',  css:'jump'},
+  {type:'BACK',  label:'뒤로가기',          short:'BACK',  css:'move'},
+  {type:'TURNAROUND', label:'유턴(180°)',   short:'U-TURN',css:'turn'},
+  {type:'WAIT',  label:'대기',              short:'WAIT',  css:'move'},
+  {type:'IFWALL',label:'IF 벽 앞→우회전, 아니면 전진', short:'IFWALL', css:'cond'},
+  {type:'IFLAVA',label:'IF 용암 앞→점프, 아니면 전진', short:'IFLAVA', css:'cond'},
+  {type:'LOOP',  label:'반복 ×N', short:'LOOP',  css:'loop', needsValue:true, min:2, max:50, default:3},
+  {type:'END',   label:'블록 종료', short:'END', css:'end'},
+];
+
+/* ===================== 전역 상태/요소 ===================== */
+let stageIndex=0, running=false, tries=0, turn=0;
+const gridEl=document.getElementById('grid');
+const agentEl=document.getElementById('agent');
+const trailLayer=document.getElementById('trailLayer');
+const turnBadge=document.getElementById('turnBadge');
+const speedEl=document.getElementById('speed');
+const logEl=document.getElementById('log');
+const dropEl=document.getElementById('dropzone');
+const triesEl=document.getElementById('tries');
+const objectiveEl=document.getElementById('objective');
+const descEl=document.getElementById('desc');
+const targetMinEl=document.getElementById('targetMin');
+const myBestEl=document.getElementById('myBest');
+const hintBtn=document.getElementById('hint');
+const revealBtn=document.getElementById('reveal');
+
+/* 다이얼로그/랭킹 엘리먼트 */
+const helpDlg=document.getElementById('helpDlg');
+const nameDlg=document.getElementById('nameDlg');
+const rankDlg=document.getElementById('rankDlg');
+const openRankBtn=document.getElementById('openRank');
+const saveNameBtn=document.getElementById('saveNameBtn');
+const playerNameInput=document.getElementById('playerNameInput');
+const playerNameText=document.getElementById('playerNameText');
+const changeNameBtn=document.getElementById('changeNameBtn');
+const exportRankBtn=document.getElementById('exportRankBtn');
+const clearRankBtn=document.getElementById('clearRankBtn');
+const rankStageNo=document.getElementById('rankStageNo');
+const rankTableBody=document.querySelector('#rankTable tbody');
+
+/* 미니 랭킹 */
+const miniRankTableBody = document.querySelector('#miniRankTable tbody');
+const miniEmpty = document.getElementById('miniEmpty');
+const miniOpenFullBtn = document.getElementById('miniOpenFull');
+const miniRefreshBtn = document.getElementById('miniRefresh');
+
+/* 힌트/정답 상태 */
+const hintTierByStage=new Map();
+const solutionCache=new Map();
+
+/* ===================== 유틸 ===================== */
+const keyPlayerName = `codebox_player_name`;
+const keyLeaderboard = (i)=>`codebox_lb_${i}`;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+const dirVec=[[1,0],[0,1],[-1,0],[0,-1]];
+const stepDelay=()=>Number(speedEl?.value||220);
+function writeLog(msg,cls=''){const p=document.createElement('div');p.textContent=msg;if(cls)p.classList.add(cls);logEl.appendChild(p);logEl.scrollTop=logEl.scrollHeight;}
+function clearLog(){logEl.innerHTML='';}
+function highlightClear(){[...dropEl.querySelectorAll('.step.current')].forEach(n=>n.classList.remove('current'))}
+function highlightIdx(i){highlightClear(); const node = dropEl.querySelectorAll('.step')[i]; if(node){ node.classList.add('current'); }}
+function updateTurnBadge(){turnBadge.textContent=`T${turn}`;}
+function nextTurn(){turn+=1; updateTurnBadge();}
+
+/* 이름 저장 & 랭킹 */
+function getPlayerName(){ return localStorage.getItem(keyPlayerName) || ''; }
+function setPlayerName(name){ if(name && name.trim()){ localStorage.setItem(keyPlayerName, name.trim()); } }
+function loadLB(i){ try{ return JSON.parse(localStorage.getItem(keyLeaderboard(i))||'[]'); }catch{ return []; } }
+function saveLB(i,list){ localStorage.setItem(keyLeaderboard(i), JSON.stringify(list)); }
+function upsertScore(i, name, blocks){
+  const now=Date.now();
+  let list=loadLB(i);
+  const idx=list.findIndex(r=>r.name===name);
+  if(idx>=0){ if(blocks < list[idx].blocks){ list[idx]={name, blocks, time:now}; } else { return list; } }
+  else { list.push({name, blocks, time:now}); }
+  list.sort((a,b)=> a.blocks!==b.blocks ? a.blocks-b.blocks : a.time-b.time);
+  if(list.length>10) list=list.slice(0,10);
+  saveLB(i,list);
+  return list;
+}
+function myBestForStage(i){ const name=getPlayerName(); if(!name) return null; const me=loadLB(i).find(r=>r.name===name); return me?.blocks ?? null; }
+function fmtTime(t){ const d=new Date(t); const pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function refreshMyBestLabel(){ const val=myBestForStage(stageIndex); myBestEl.textContent = (val==null)? '—' : `${val}`; }
+
+/* 미니 랭킹 렌더 */
+function renderMiniRank(){
+  const list = loadLB(stageIndex);
+  miniRankTableBody.innerHTML = '';
+  const me = getPlayerName();
+  if(!list || list.length===0){ miniEmpty.style.display = ''; return; }
+  miniEmpty.style.display = 'none';
+  list.slice(0,5).forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    if(me && r.name===me) tr.classList.add('me');
+    tr.innerHTML = `<td>${i+1}</td><td>${r.name}</td><td>${r.blocks}</td>`;
+    miniRankTableBody.appendChild(tr);
+  });
+}
+
+/* ===================== 스테이지 렌더 ===================== */
+function renderStage(){
+  const st=STAGES[stageIndex];
+  document.getElementById('stageIdx').textContent=stageIndex+1;
+  document.getElementById('stageTotal').textContent=STAGES.length;
+  objectiveEl.textContent=st.objective;
+  descEl.textContent=st.desc || '—';
+  targetMinEl.textContent=st.expectedMin ?? '—';
+
+  applyThemeForStage(stageIndex);
+  gridEl.innerHTML=''; trailLayer.innerHTML='';
+  gridEl.style.gridTemplateColumns=`repeat(${st.size},1fr)`;
+  gridEl.style.gridTemplateRows=`repeat(${st.size},1fr)`;
+
+  const walls=[], coins=new Set(), lava=new Set(); let goal=null; let agentPos={x:st.start.x,y:st.start.y,dir:st.start.dir};
+
+  st.tiles.forEach((row,y)=>{[...row].forEach((ch,x)=>{
+    const cell=document.createElement('div'); cell.className='cell';
+    if(ch==='#'){cell.classList.add('wall'); walls.push(`${x},${y}`)}
+    if(ch==='o'){cell.classList.add('coin'); coins.add(`${x},${y}`)}
+    if(ch==='~'){cell.classList.add('lava'); lava.add(`${x},${y}`)}
+    if(ch==='★'){cell.classList.add('goal'); goal={x,y}}
+    if(ch==='A'){agentPos={x,y,dir:st.start.dir}; cell.classList.add('start')}
+    gridEl.appendChild(cell);
+  })});
+
+  (st.coins||[]).forEach(c=>coins.add(`${c.x},${c.y}`));
+  (st.lava||[]).forEach(c=>lava.add(`${c.x},${c.y}`));
+
+  gridEl.dataset.walls=[...walls].join(';');
+  gridEl.dataset.coins=[...coins].join(';');
+  gridEl.dataset.lava=[...lava].join(';');
+  gridEl.dataset.goal=goal?`${goal.x},${goal.y}`:'';
+
+  [...coins].forEach(s=>{
+    const [x,y]=s.split(',').map(Number);
+    const idx=y*st.size+x; gridEl.children[idx]?.classList.add('coin');
+  });
+
+  placeAgent(agentPos.x,agentPos.y,agentPos.dir,st.size);
+
+  const pct=100/st.size;
+  agentEl.style.width=pct+'%'; agentEl.style.height=pct+'%';
+
+  tries=Number(localStorage.getItem(`codebox_tries_${stageIndex}`)||0);
+  triesEl.textContent=tries;
+
+  turn=0; updateTurnBadge(); clearLog();
+  writeLog(`스테이지 로드: ${st.name}`);
+
+  hintTierByStage.set(stageIndex, 0);
+  revealBtn.disabled = true;
+  refreshMyBestLabel();
+  renderMiniRank();
+}
+
+function cellHas(setName,x,y){
+  const setStr=gridEl.dataset[setName]; if(!setStr) return false;
+  const set=new Set(setStr.split(';').filter(Boolean));
+  return set.has(`${x},${y}`);
+}
+function removeCoin(x,y){
+  const list=(gridEl.dataset.coins||'').split(';').filter(Boolean);
+  const i=list.indexOf(`${x},${y}`); if(i>=0){list.splice(i,1); gridEl.dataset.coins=list.join(';');
+    const idx=y*STAGES[stageIndex].size+x; gridEl.children[idx].classList.remove('coin');
+  }
+}
+function placeAgent(x,y,dir,size){
+  const pct=100/size;
+  agentEl.style.setProperty('--left',`${x*pct}%`);
+  agentEl.style.setProperty('--top', `${y*pct}%`);
+  agentEl.style.setProperty('--rot', `${dir*90+180}deg`);
+  agentEl.style.setProperty('--spd', `${stepDelay()/1000}s`);
+  agentEl.dataset.x=x; agentEl.dataset.y=y; agentEl.dataset.dir=dir;
+}
+function addTrail(x,y){
+  const st=STAGES[stageIndex], pct=100/st.size, dot=document.createElement('div');
+  dot.className='foot'; dot.style.left=`${x*pct}%`; dot.style.top=`${y*pct}%`; dot.style.width=pct+'%'; dot.style.height=pct+'%';
+  trailLayer.appendChild(dot); requestAnimationFrame(()=>dot.classList.add('fade')); setTimeout(()=>dot.remove(),1200);
+}
+
+/* ===================== 팔레트 / 드래그 ===================== */
+function renderPalette(){
+  const host=document.getElementById('palette'); host.innerHTML='';
+  COMMANDS.forEach(c=>{
+    const el=document.createElement('button');
+    el.className=`cmd ${c.css}`; el.draggable=true; el.dataset.type=c.type; el.type='button';
+    el.innerHTML=`<span class="tag">${c.short}</span><span class="title">${c.label}</span>`;
+    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify(c));});
+    el.addEventListener('click',()=>addStepFromCommand(c));
+    host.appendChild(el);
+  });
+}
+function addStepFromCommand(c){
+  const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type=c.type;
+  const badge=document.createElement('span'); badge.className='badge'; badge.textContent=c.short;
+  const title=document.createElement('span'); title.className='title'; title.textContent=c.label;
+  step.appendChild(badge); step.appendChild(title);
+  if(c.needsValue){
+    const input=document.createElement('input'); input.type='number'; input.min=c.min; input.max=c.max; input.value=c.default;
+    step.appendChild(document.createTextNode(' ')); step.appendChild(input);
+  }
+  const del=document.createElement('button'); del.className='del'; del.type='button'; del.textContent='삭제';
+  del.addEventListener('click',()=>step.remove());
+  step.appendChild(del);
+  dropEl.appendChild(step); dropEl.dataset.empty=false;
+}
+dropEl.addEventListener('dragover',e=>{e.preventDefault(); dropEl.style.background='#12184a';});
+dropEl.addEventListener('dragleave',()=>{dropEl.style.background='#0f163a'});
+dropEl.addEventListener('drop',e=>{
+  e.preventDefault(); dropEl.style.background='#0f163a';
+  try{const c=JSON.parse(e.dataTransfer.getData('text/plain')); addStepFromCommand(c);}catch{}
+});
+
+/* ===================== 프로그램 컴파일 (LOOP…END) ===================== */
+function compileProgram(){
+  const nodes=[...dropEl.querySelectorAll('.step')].map((node,idx)=>{
+    const type=node.dataset.type;
+    const val=node.querySelector('input')?.valueAsNumber??null;
+    return {type, val, idx};
+  });
+  const root={type:'ROOT', body:[]}; const stack=[root];
+  let openLoops=0;
+  for(const tok of nodes){
+    if(tok.type==='LOOP'){
+      const n=clamp(tok.val||0,2,50);
+      const grp={type:'LOOP', val:n, idx:tok.idx, body:[]};
+      stack.at(-1).body.push(grp);
+      stack.push(grp); openLoops++;
+    }else if(tok.type==='END'){
+      if(stack.length>1){ stack.pop(); openLoops=Math.max(0,openLoops-1); }
+    }else{
+      stack.at(-1).body.push({type:tok.type, idx:tok.idx, val:null});
+    }
+  }
+  if(openLoops>0){ writeLog('END가 부족합니다. 자동으로 블록을 닫습니다.', 'warn'); }
+  return root.body;
+}
+
+/* ===================== 원자 실행 ===================== */
+function forwardBlocked(x,y,dir){
+  const st=STAGES[stageIndex]; const [dx,dy]=dirVec[dir]; const nx=x+dx, ny=y+dy;
+  if(nx<0||ny<0||nx>=st.size||ny>=st.size) return true;
+  if(cellHas('walls',nx,ny)) return true;
+  return false;
+}
+function lavaAhead(x,y,dir){
+  const st=STAGES[stageIndex]; const [dx,dy]=dirVec[dir]; const nx=x+dx, ny=y+dy;
+  if(nx<0||ny<0||nx>=st.size||ny>=st.size) return false;
+  return cellHas('lava',nx,ny);
+}
+async function execPrimitive(step){
+  const st=STAGES[stageIndex]; let x=+agentEl.dataset.x, y=+agentEl.dataset.y, dir=+agentEl.dataset.dir;
+  const delay=stepDelay();
+  const go = async (nx,ny,ndir=dir)=>{
+    if(nx<0||ny<0||nx>=st.size||ny>=st.size || cellHas('walls',nx,ny)){
+      writeLog('벽/경계에 막혔습니다.','warn'); return false;
+    }
+    if(cellHas('lava',nx,ny)){ writeLog('용암에 빠졌습니다.','err'); addTrail(x,y); placeAgent(nx,ny,ndir,st.size); await sleep(delay); resetAgent(); return false; }
+    addTrail(x,y); placeAgent(nx,ny,ndir,st.size); await sleep(delay);
+    if(cellHas('coins',nx,ny)){ removeCoin(nx,ny); writeLog('코인 획득.','ok'); }
+    nextTurn(); return true;
+  };
+
+  if(step.type==='MOVE'){ const [dx,dy]=dirVec[dir]; return await go(x+dx,y+dy,dir); }
+  if(step.type==='BACK'){ const [dx,dy]=dirVec[dir]; return await go(x-dx,y-dy,dir); }
+  if(step.type==='LEFT'){ placeAgent(x,y,(dir+3)%4,st.size); await sleep(delay*.6); nextTurn(); return true; }
+  if(step.type==='RIGHT'){ placeAgent(x,y,(dir+1)%4,st.size); await sleep(delay*.6); nextTurn(); return true; }
+  if(step.type==='TURNAROUND'){ placeAgent(x,y,(dir+2)%4,st.size); await sleep(delay*.6); nextTurn(); return true; }
+  if(step.type==='WAIT'){ await sleep(delay*.6); nextTurn(); return true; }
+  if(step.type==='JUMP'){
+    const [dx,dy]=dirVec[dir]; const nx=x+dx, ny=y+dy; const jx=x+2*dx, jy=y+2*dy;
+    if(nx<0||ny<0||nx>=st.size||ny>=st.size){ writeLog('점프 실패: 경계','warn'); return false; }
+    const need = forwardBlocked(x,y,dir) || cellHas('lava',nx,ny);
+    if(!need){ writeLog('점프는 장애물/용암 앞에서만 가능합니다.','warn'); return false; }
+    if(jx<0||jy<0||jx>=st.size||jy>=st.size || cellHas('walls',jx,jy)){ writeLog('점프 실패: 착지 불가','warn'); return false; }
+    addTrail(x,y); placeAgent(nx,ny,dir,st.size); await sleep(delay*.4);
+    placeAgent(jx,jy,dir,st.size); await sleep(delay*.7);
+    if(cellHas('lava',jx,jy)){ writeLog('착지 지점이 용암입니다.','err'); resetAgent(); return false; }
+    if(cellHas('coins',jx,jy)){ removeCoin(jx,jy); writeLog('코인 획득.','ok'); }
+    nextTurn(); return true;
+  }
+  if(step.type==='IFWALL'){
+    if(forwardBlocked(x,y,dir)){ placeAgent(x,y,(dir+1)%4,st.size); await sleep(delay*.5); nextTurn(); return true; }
+    const [dx,dy]=dirVec[dir]; return await go(x+dx,y+dy,dir);
+  }
+  if(step.type==='IFLAVA'){
+    if(lavaAhead(x,y,dir)){
+      const j={type:'JUMP'}; return await execPrimitive(j);
+    }else{
+      const m={type:'MOVE'}; return await execPrimitive(m);
+    }
+  }
+  return true;
+}
+
+/* ===================== 성공 조건 ===================== */
+function success(){
+  const [gx,gy]=(gridEl.dataset.goal||',').split(',').map(n=>+n);
+  const x=+agentEl.dataset.x, y=+agentEl.dataset.y;
+  const coinsLeft=(gridEl.dataset.coins||'').trim();
+  const onGoal=(gx===x && gy===y);
+  const stageHasCoins = (STAGES[stageIndex].coins?.length || STAGES[stageIndex].tiles.some(r=>r.includes('o')));
+  return stageHasCoins ? (onGoal && coinsLeft.length===0) : onGoal;
+}
+
+/* ===================== AST 실행 ===================== */
+let stepBudget=Infinity;
+async function execNodes(nodes){
+  for(const node of nodes){
+    highlightIdx(node.idx ?? -1);
+    if(node.type==='LOOP'){
+      const n=node.val||0;
+      for(let i=0;i<n;i++){
+        const ok=await execNodes(node.body); if(!ok) return false;
+        if(--stepBudget<=0) return true;
+        if(success()) return true;
+      }
+    }else{
+      const ok=await execPrimitive(node); if(!ok) return false;
+      if(--stepBudget<=0) return true;
+      if(success()) return true;
+    }
+  }
+  return true;
+}
+
+/* 블록 수(END=0, LOOP=1) */
+function programBlockCount(){
+  return [...dropEl.querySelectorAll('.step')].reduce((sum,el)=>{
+    const t=el.dataset.type; if(t==='END') return sum; return sum+1;
+  },0);
+}
+
+/* ===================== 실행 컨트롤 ===================== */
+function resetAgent(){
+  const st=STAGES[stageIndex]; placeAgent(st.start.x,st.start.y,st.start.dir,st.size);
+  trailLayer.innerHTML=''; turn=0; updateTurnBadge();
+}
+async function runProgram(stepOnce=false){
+  if(running) return; running=true; clearLog(); highlightClear(); writeLog('실행 시작'); resetAgent();
+  const ast=compileProgram();
+  tries++; triesEl.textContent=tries; localStorage.setItem(`codebox_tries_${stageIndex}`, String(tries));
+  if(ast.length===0){ writeLog('프로그램이 비어 있습니다. 명령을 추가하세요.','warn'); running=false; return; }
+
+  stepBudget = stepOnce ? 1 : Infinity;
+  const ok = await execNodes(ast);
+  if(!ok){ writeLog('실패. 다시 시도해 보세요.','err'); running=false; highlightClear(); return; }
+  if(success()){
+    const usedBlocks=programBlockCount();
+    writeLog('스테이지 달성.','ok');
+    ensurePlayerNameThenUpdate(usedBlocks);
+  }else if(stepOnce){
+    writeLog('한 단계 실행 완료.','warn');
+  }else{
+    writeLog('목표 미달성. 프로그램을 개선하세요.','warn');
+  }
+  running=false; highlightClear();
+}
+
+/* ===================== 이름/랭킹 처리 ===================== */
+let afterNameCallback = null;
+function openNameDialog(after){
+  afterNameCallback = typeof after === 'function' ? after : null;
+  playerNameInput.value = getPlayerName() || '';
+  nameDlg.showModal();
+}
+saveNameBtn.addEventListener('click', ()=>{
+  const val = (playerNameInput.value||'').trim();
+  if(!val){ alert('이름을 입력하세요.'); return; }
+  setPlayerName(val); nameDlg.close();
+  if(afterNameCallback){ try{ afterNameCallback(); } finally{ afterNameCallback = null; } }
+});
+function ensurePlayerNameThenUpdate(usedBlocks){
+  const name=getPlayerName();
+  const finalize = ()=>{
+    const player=getPlayerName() || '익명';
+    const list=upsertScore(stageIndex, player, usedBlocks);
+    const mine=myBestForStage(stageIndex);
+    refreshMyBestLabel();
+    renderMiniRank();
+    writeLog(`이번 기록: ${usedBlocks}블록 / 내 최고: ${mine ?? usedBlocks}블록`, 'ok');
+
+    const target=STAGES[stageIndex].expectedMin ?? null;
+    if(target){
+      if(usedBlocks>target) writeLog(`최소보다 깁니다. 현재 ${usedBlocks}블록 / 목표 ${target}블록.`, 'warn');
+      else if(usedBlocks===target) writeLog(`최소 블록 달성. (${usedBlocks}블록)`, 'ok');
+      else writeLog(`기록 갱신 의심: ${usedBlocks}블록 (목표 ${target}보다 작음)`, 'ok');
+    }
+    const rankIndex = list.findIndex(r=>r.name===player);
+    if(rankIndex>-1 && rankIndex<3){ openRank(); }
+  };
+  if(!name){ openNameDialog(finalize); } else { finalize(); }
+}
+
+/* ===================== 힌트/정답 (BFS; 확장명령 비의존) ===================== */
+function parseStage(idx){
+  const st = STAGES[idx];
+  const walls=new Set(), lava=new Set(), coins=new Set();
+  let goal=null, start={x:st.start.x,y:st.start.y,dir:st.start.dir};
+  st.tiles.forEach((row,y)=>{
+    [...row].forEach((ch,x)=>{
+      if(ch==='#') walls.add(`${x},${y}`);
+      else if(ch==='~') lava.add(`${x},${y}`);
+      else if(ch==='o') coins.add(`${x},${y}`);
+      else if(ch==='★') goal={x,y};
+      else if(ch==='A'){ start={x,y,dir:st.start.dir}; }
+    });
+  });
+  (st.coins||[]).forEach(c=>coins.add(`${c.x},${c.y}`));
+  (st.lava||[]).forEach(c=>lava.add(`${c.x},${c.y}`));
+  return {size:st.size, walls, lava, coins, goal, start};
+}
+function moveForward(s, size, walls, lava){
+  const [dx,dy]=[[1,0],[0,1],[-1,0],[0,-1]][s.dir];
+  const nx=s.x+dx, ny=s.y+dy;
+  if(nx<0||ny<0||nx>=size||ny>=size) return null;
+  if(walls.has(`${nx},${ny}`)) return null;
+  if(lava.has(`${nx},${ny}`)) return null;
+  return {x:nx, y:ny, dir:s.dir};
+}
+function jumpForward(s, size, walls, lava){
+  const [dx,dy]=[[1,0],[0,1],[-1,0],[0,-1]][s.dir];
+  const nx=s.x+dx, ny=s.y+dy, jx=s.x+2*dx, jy=s.y+2*dy;
+  if(nx<0||ny<0||nx>=size||ny>=size) return null;
+  const forwardBlocked = (nx<0||ny<0||nx>=size) || walls.has(`${nx},${ny}`);
+  const need = forwardBlocked || lava.has(`${nx},${ny}`);
+  if(!need) return null;
+  if(jx<0||jy<0||jx>=size||jy>=size) return null;
+  if(walls.has(`${jx},${jy}`)) return null;
+  if(lava.has(`${jx},${jy}`)) return null;
+  return {x:jx, y:jy, dir:s.dir};
+}
+function encodeState(s, coinsLeft){
+  return `${s.x},${s.y},${s.dir}|${[...coinsLeft].sort().join(';')}`;
+}
+function bfsSolve(stageIdx){
+  const {size,walls,lava,coins,goal,start} = parseStage(stageIdx);
+  if(!goal) return {found:false, reason:'goal-missing'};
+  const startCoins = new Set(coins);
+  const q = []; const seen = new Map();
+  const startKey = encodeState(start, startCoins);
+  q.push({s:start, coinsLeft:startCoins, path:[], d:0}); seen.set(startKey, 0);
+
+  const solutions = []; let minDepth = Infinity;
+  const CAP_SOLUTIONS=400, CAP_STEPS=900;
+
+  while(q.length){
+    const cur = q.shift();
+    if(cur.d > CAP_STEPS) break;
+    if(cur.coinsLeft.size===0 && cur.s.x===goal.x && cur.s.y===goal.y){
+      if(cur.d <= minDepth){
+        if(cur.d < minDepth){ solutions.length = 0; minDepth = cur.d; }
+        solutions.push(cur.path);
+        if(solutions.length >= CAP_SOLUTIONS) break;
+      }
+      continue;
+    }
+    if(cur.d >= minDepth) continue;
+
+    const ops = [
+      {name:'MOVE', next: moveForward(cur.s,size,walls,lava)},
+      {name:'LEFT', next: {...cur.s, dir:(cur.s.dir+3)%4}},
+      {name:'RIGHT',next: {...cur.s, dir:(cur.s.dir+1)%4}},
+      {name:'JUMP', next: jumpForward(cur.s,size,walls,lava)},
+    ];
+
+    for(const op of ops){
+      if(!op.next) continue;
+      let nextCoins = cur.coinsLeft;
+      if(op.name==='MOVE' || op.name==='JUMP'){
+        const key = `${op.next.x},${op.next.y}`;
+        if(nextCoins.has(key)){
+          nextCoins = new Set(nextCoins);
+          nextCoins.delete(key);
+        }
+      }
+      const key = encodeState(op.next, nextCoins);
+      const nd = cur.d+1;
+      const prev = seen.get(key);
+      if(prev!==undefined && prev <= nd) continue;
+      seen.set(key, nd);
+      q.push({s:op.next, coinsLeft:nextCoins, path:[...cur.path, op.name], d:nd});
+    }
+  }
+  if(solutions.length===0) return {found:false, reason:'no-solution'};
+  return {found:true, depth:minDepth, count:solutions.length, sample:solutions[0], capped:solutions.length>=CAP_SOLUTIONS};
+}
+function compressOpsToBlocks(ops){
+  const blocks=[]; let i=0;
+  while(i<ops.length){
+    const op=ops[i]; let j=i+1; while(j<ops.length && ops[j]===op) j++;
+    const cnt=j-i;
+    if(cnt>=2){ blocks.push({type:'LOOP', val:cnt, body:[op]}); }
+    else { blocks.push(op); }
+    i=j;
+  }
+  return blocks;
+}
+function blocksToReadable(blocks){
+  return blocks.map(b=>{
+    if(typeof b==='string') return b;
+    if(b.type==='LOOP') return `LOOP×${b.val} → ${b.body.join(' , ')} → END`;
+    return '?';
+  }).join(' | ');
+}
+function fillProgramWithBlocks(blocks){
+  dropEl.innerHTML='';
+  for(const b of blocks){
+    if(typeof b==='string'){
+      const c=COMMANDS.find(c=>c.type===b); if(!c) continue;
+      const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type=c.type;
+      step.innerHTML = `<span class="badge">${c.short}</span><span class="title">${c.label}</span><button class="del">삭제</button>`;
+      step.querySelector('.del').addEventListener('click',()=>step.remove());
+      dropEl.appendChild(step);
+    }else if(b.type==='LOOP'){
+      const c=COMMANDS.find(c=>c.type==='LOOP');
+      const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type='LOOP';
+      const input=`<input type="number" min="${c.min}" max="${c.max}" value="${b.val}">`;
+      step.innerHTML = `<span class="badge">LOOP</span><span class="title">반복 ×N</span> ${input} <button class="del">삭제</button>`;
+      step.querySelector('.del').addEventListener('click',()=>step.remove());
+      dropEl.appendChild(step);
+      for(const inner of b.body){
+        const ic=COMMANDS.find(cc=>cc.type===inner); if(!ic) continue;
+        const innerStep=document.createElement('div'); innerStep.className=`step ${ic.css}`; innerStep.dataset.type=ic.type;
+        innerStep.innerHTML=`<span class="badge">${ic.short}</span><span class="title">${ic.label}</span><button class="del">삭제</button>`;
+        innerStep.querySelector('.del').addEventListener('click',()=>innerStep.remove());
+        dropEl.appendChild(innerStep);
+      }
+      const ec=COMMANDS.find(c=>c.type==='END');
+      const end=document.createElement('div'); end.className=`step ${ec.css}`; end.dataset.type='END';
+      end.innerHTML=`<span class="badge">END</span><span class="title">블록 종료</span><button class="del">삭제</button>`;
+      end.querySelector('.del').addEventListener('click',()=>end.remove());
+      dropEl.appendChild(end);
+    }
+  }
+}
+
+/* ===================== 힌트/정답 버튼 ===================== */
+async function onHint(){
+  if(!solutionCache.has(stageIndex)){
+    const res=bfsSolve(stageIndex);
+    if(!res.found){ writeLog(res.reason==='no-solution'?'해 없음: 스테이지를 점검하세요.':'목표(★) 없음', 'err'); return; }
+    const blocks=compressOpsToBlocks(res.sample);
+    solutionCache.set(stageIndex, {...res, blocks});
+  }
+  const info = solutionCache.get(stageIndex);
+  const tier = (hintTierByStage.get(stageIndex) ?? 0) + 1;
+  hintTierByStage.set(stageIndex, Math.min(tier, 3));
+
+  if(tier===1){
+    writeLog(`[힌트1] 최단 실행 길이: ${info.depth} 스텝. 직선 구간은 LOOP로 압축하세요.`, 'ok');
+    if(info.count>1) writeLog(`동일 길이 해가 ${info.count}개 존재.`, 'warn');
+  }else if(tier===2){
+    const preview = info.sample.slice(0, Math.min(8, info.sample.length)).join(' → ');
+    writeLog(`[힌트2] 시작 부분: ${preview}${info.sample.length>8?' …':''}`, 'ok');
+  }else{
+    writeLog(`[힌트3] 권장 블록 해(자동 압축): ${blocksToReadable(info.blocks)}`, 'ok');
+    revealBtn.disabled = false;
+  }
+}
+function onReveal(){
+  const info=solutionCache.get(stageIndex);
+  if(!info){ writeLog('먼저 힌트를 한 번 이상 눌러 주세요.', 'warn'); return; }
+  fillProgramWithBlocks(info.blocks);
+  writeLog('정답 블록을 프로그램 영역에 채웠습니다. 실행해 보세요.', 'ok');
+}
+
+/* ===================== 랭킹 UI ===================== */
+function openRank(){
+  rankStageNo.textContent = String(stageIndex+1);
+  playerNameText.textContent = getPlayerName() || '—';
+  const list=loadLB(stageIndex);
+  rankTableBody.innerHTML='';
+  list.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    if(r.name === getPlayerName()) tr.classList.add('rank-me');
+    tr.innerHTML = `<td>${i+1}</td><td>${r.name}</td><td>${r.blocks}</td><td>${fmtTime(r.time)}</td>`;
+    rankTableBody.appendChild(tr);
+  });
+  if(list.length===0){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="4" style="color:#a5b4fc">아직 기록이 없습니다. 먼저 클리어해 보세요.</td>';
+    rankTableBody.appendChild(tr);
+  }
+  rankDlg.showModal();
+}
+
+/* ===================== 이벤트 바인딩 & 부트 ===================== */
+document.getElementById('run').addEventListener('click',()=>runProgram(false));
+document.getElementById('step').addEventListener('click',()=>runProgram(true));
+document.getElementById('stop').addEventListener('click',()=>{running=false; writeLog('정지했습니다.','warn')});
+document.getElementById('clear').addEventListener('click',()=>{dropEl.innerHTML=''; dropEl.dataset.empty=true; highlightClear()});
+document.getElementById('shuffle').addEventListener('click',()=>{resetAgent(); clearLog(); writeLog('스테이지를 초기화했습니다.')});
+document.getElementById('help').addEventListener('click',()=>helpDlg.showModal());
+document.getElementById('prevStage').addEventListener('click',()=>{stageIndex=Math.max(0,stageIndex-1); renderStage();});
+document.getElementById('nextStage').addEventListener('click',()=>{stageIndex=Math.min(STAGES.length-1, stageIndex+1); renderStage();});
+hintBtn.addEventListener('click', onHint);
+revealBtn.addEventListener('click', onReveal);
+speedEl.addEventListener('input',()=>{agentEl.style.setProperty('--spd',`${stepDelay()/1000}s`)});
+openRankBtn.addEventListener('click', openRank);
+miniOpenFullBtn.addEventListener('click', openRank);
+miniRefreshBtn.addEventListener('click', renderMiniRank);
+
+/* 초기화 */
+(function boot(){
+  renderPalette();
+  renderStage();
+})();
+</script>
+</body>
+</html>
