@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>코드 박스(한림고등학교)</title>
+<title>코드 박스-(한림고등학교)</title>
 <style>
   :root{
     --bg:#0f1220; --panel:#11162b; --panel-2:#1a2141; --text:#eef2ff; --muted:#a5b4fc;
@@ -35,7 +35,20 @@
   .btn.warn{background:linear-gradient(180deg,#f59e0b,#eab308)}
   .btn.bad{background:linear-gradient(180deg,#ef4444,#dc2626)}
   .btn.ghost{background:transparent;border:1.5px dashed #3a457e}
+  .btn.sm{padding:6px 10px;font-size:12px;border-radius:10px}
   .slider{accent-color:#60a5fa}
+
+  /* 상단 타이머 */
+  .timer{
+    display:flex;align-items:center;gap:8px;
+    background:#0f1636;border:1.5px solid #3a457e;
+    padding:6px 10px;border-radius:12px
+  }
+  .timer .time{
+    font-variant-numeric: tabular-nums;
+    font-weight:700;letter-spacing:.5px;
+    min-width:86px;text-align:center
+  }
 
   main{display:grid;grid-template-columns: 360px 1fr 460px;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
 
@@ -45,7 +58,6 @@
 
   /* 블록 공통 축소 스타일 */
   .cmd, .step{
-    /* 원래 기준값들을 스케일로 축소 */
     font-size: calc(15px * var(--block-scale));
     padding: calc(12px * var(--block-scale)) calc(14px * var(--block-scale));
     border-radius: calc(14px * var(--block-scale));
@@ -194,6 +206,10 @@
   .step.end{color:var(--c-end); border-color:#f59e0b}
   .step.cond{color:var(--c-cond); border-color:#f472b6}
 
+  /* 드래그 삽입 안내선 */
+  .step.drop-before{box-shadow: inset 4px 0 0 #60a5fa;}
+  .step.drop-after{box-shadow: inset -4px 0 0 #60a5fa;}
+
   .controls{display:flex;gap:10px;flex-wrap:wrap}
   .hint{font-size:13px;color:#c7d2fe}
 
@@ -203,7 +219,6 @@
   @media (max-width: 1100px){ .speed-wrap{display:none} }
   @media (max-width: 980px){
     main{grid-template-columns:1fr;}
-    /* 축소된 블록은 모바일에서도 동일 스케일 유지 */
   }
 
   /* 랭킹 다이얼로그 */
@@ -220,8 +235,16 @@
 </head>
 <body>
   <header>
-    <h1>코드 박스 · 블록 축소판</h1>
+    <h1>코드 박스 </h1>
     <div class="right">
+
+      <!-- 15분 카운트다운 타이머 -->
+      <div class="timer" id="timerBox" role="timer" aria-live="polite">
+        <span class="time" id="timerText">15:00.0</span>
+        <button id="timerStartPause" class="btn sm">시작</button>
+        <button id="timerReset" class="btn sm ghost">초기화</button>
+      </div>
+
       <div class="speed-wrap" style="display:flex;align-items:center;gap:8px">
         <label for="speed" style="font-size:12px;color:#a5b4fc">속도</label>
         <input id="speed" class="slider" type="range" min="80" max="600" value="220" />
@@ -330,7 +353,7 @@
         <span>플레이어: <strong id="playerNameText">—</strong></span>
         <button id="changeNameBtn" class="btn" type="button">이름 변경</button>
       </div>
-      <div class="row">
+        <div class="row">
         <button id="exportRankBtn" class="btn ghost" type="button">내보내기</button>
         <button id="clearRankBtn" class="btn bad" type="button">랭킹 초기화</button>
       </div>
@@ -518,6 +541,69 @@ const miniRefreshBtn = document.getElementById('miniRefresh');
 const hintTierByStage=new Map();
 const solutionCache=new Map();
 
+/* ===================== 15분 카운트다운 타이머 ===================== */
+const COUNTDOWN_TOTAL_MS = 15 * 60 * 1000;
+let timerInterval=null, timerStart=0, remainingMs=COUNTDOWN_TOTAL_MS, timerRunning=false, timeExpired=false;
+const timerTextEl = document.getElementById('timerText');
+const timerStartPauseBtn = document.getElementById('timerStartPause');
+const timerResetBtn = document.getElementById('timerReset');
+
+function fmtTimer(ms){
+  let t = Math.max(0, Math.floor(ms));
+  const m = Math.floor(t/60000); t -= m*60000;
+  const s = Math.floor(t/1000); t -= s*1000;
+  const d = Math.floor(t/100); // 0.1초
+  const pad = n=>String(n).padStart(2,'0');
+  return `${pad(m)}:${pad(s)}.${d}`;
+}
+function renderTimer(){ timerTextEl.textContent = fmtTimer(remainingMs); }
+function tickTimer(){
+  const elapsed = performance.now() - timerStart;
+  const left = COUNTDOWN_TOTAL_MS - elapsed;
+  remainingMs = Math.max(0, left);
+  renderTimer();
+  if(remainingMs<=0){
+    timeExpired = true;
+    pauseTimer();
+    writeLog('시간 종료: 15분이 경과했습니다.','warn');
+    running = false; // 실행 루프 중지 신호
+    highlightClear();
+  }
+}
+function startTimer(){
+  if(timerRunning) return;
+  timerRunning = true;
+  timeExpired = false;
+  // 남은 시간 기준으로 재시작
+  const used = COUNTDOWN_TOTAL_MS - remainingMs;
+  timerStart = performance.now() - used;
+  timerInterval = setInterval(tickTimer, 100);
+  timerStartPauseBtn.textContent = '일시정지';
+}
+function pauseTimer(){
+  if(!timerRunning) return;
+  timerRunning = false;
+  clearInterval(timerInterval); timerInterval=null;
+  // remainingMs는 tick에서 갱신되므로 마지막으로 한 번 반영
+  const elapsed = performance.now() - timerStart;
+  remainingMs = Math.max(0, COUNTDOWN_TOTAL_MS - elapsed);
+  renderTimer();
+  timerStartPauseBtn.textContent = '시작';
+}
+function resetTimer(){
+  timeExpired = false;
+  timerRunning = false;
+  remainingMs = COUNTDOWN_TOTAL_MS;
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  renderTimer();
+  timerStartPauseBtn.textContent = '시작';
+}
+/* 버튼 바인딩 */
+timerStartPauseBtn.addEventListener('click', ()=>{ timerRunning ? pauseTimer() : startTimer(); });
+timerResetBtn.addEventListener('click', resetTimer);
+/* 초기 표시 */
+renderTimer();
+
 /* ===================== 유틸 ===================== */
 const keyPlayerName = `codebox_player_name`;
 const keyLeaderboard = (i)=>`codebox_lb_${i}`;
@@ -531,6 +617,7 @@ function highlightClear(){[...dropEl.querySelectorAll('.step.current')].forEach(
 function highlightIdx(i){highlightClear(); const node = dropEl.querySelectorAll('.step')[i]; if(node){ node.classList.add('current'); }}
 function updateTurnBadge(){turnBadge.textContent=`T${turn}`;}
 function nextTurn(){turn+=1; updateTurnBadge();}
+function isTimeUp(){ return timeExpired; }
 
 /* 이름 저장 & 랭킹 */
 function getPlayerName(){ return localStorage.getItem(keyPlayerName) || ''; }
@@ -648,20 +735,25 @@ function addTrail(x,y){
   trailLayer.appendChild(dot); requestAnimationFrame(()=>dot.classList.add('fade')); setTimeout(()=>dot.remove(),1200);
 }
 
-/* ===================== 팔레트 / 드래그 ===================== */
+/* ===================== 팔레트 / 드래그: 삽입/재배열 지원 ===================== */
 function renderPalette(){
   const host=document.getElementById('palette'); host.innerHTML='';
   COMMANDS.forEach(c=>{
     const el=document.createElement('button');
     el.className=`cmd ${c.css}`; el.draggable=true; el.dataset.type=c.type; el.type='button';
     el.innerHTML=`<span class="tag">${c.short}</span><span class="title">${c.label}</span>`;
-    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify(c));});
-    el.addEventListener('click',()=>addStepFromCommand(c));
+    el.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('text/plain',JSON.stringify(c));
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    el.addEventListener('click',()=>addStepFromCommand(c)); // 클릭은 끝에 추가(기존 동작)
     host.appendChild(el);
   });
 }
+
+/* 새 스텝 생성 + DnD 바인딩 */
 function addStepFromCommand(c){
-  const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type=c.type;
+  const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type=c.type; step.draggable=true;
   const badge=document.createElement('span'); badge.className='badge'; badge.textContent=c.short;
   const title=document.createElement('span'); title.className='title'; title.textContent=c.label;
   step.appendChild(badge); step.appendChild(title);
@@ -672,12 +764,73 @@ function addStepFromCommand(c){
   const del=document.createElement('button'); del.className='del'; del.type='button'; del.textContent='삭제';
   del.addEventListener('click',()=>step.remove());
   step.appendChild(del);
+  attachStepDnD(step);
   dropEl.appendChild(step); dropEl.dataset.empty=false;
 }
+
+/* 내부 재배열/팔레트 삽입 모두 지원 */
+function attachStepDnD(step){
+  step.addEventListener('dragstart',e=>{
+    // 내부 드래그
+    e.dataTransfer.setData('application/x-internal', '1');
+    e.dataTransfer.setData('text/step-index', String([...dropEl.querySelectorAll('.step')].indexOf(step)));
+    e.dataTransfer.effectAllowed='move';
+  });
+  step.addEventListener('dragover',e=>{
+    e.preventDefault();
+    const rect = step.getBoundingClientRect();
+    const before = (e.clientX - rect.left) < rect.width/2; // 가로 기준
+    step.classList.toggle('drop-before', before);
+    step.classList.toggle('drop-after', !before);
+  });
+  step.addEventListener('dragleave',()=>{
+    step.classList.remove('drop-before','drop-after');
+  });
+  step.addEventListener('drop',e=>{
+    e.preventDefault();
+    const before = step.classList.contains('drop-before');
+    step.classList.remove('drop-before','drop-after');
+
+    // 내부 이동인가?
+    const isInternal = e.dataTransfer.getData('application/x-internal')==='1';
+    if(isInternal){
+      const fromIdx = Number(e.dataTransfer.getData('text/step-index'));
+      const nodes=[...dropEl.querySelectorAll('.step')];
+      const dragged = nodes[fromIdx];
+      if(!dragged || dragged===step) return;
+      if(before) dropEl.insertBefore(dragged, step);
+      else dropEl.insertBefore(dragged, step.nextSibling);
+      return;
+    }
+
+    // 팔레트에서 복사 삽입
+    try{
+      const c = JSON.parse(e.dataTransfer.getData('text/plain'));
+      const newStep = document.createElement('div'); newStep.className=`step ${c.css}`; newStep.dataset.type=c.type; newStep.draggable=true;
+      newStep.innerHTML = `<span class="badge">${c.short}</span><span class="title">${c.label}</span>` + (c.needsValue?` <input type="number" min="${c.min}" max="${c.max}" value="${c.default}">`:'') + ` <button class="del" type="button">삭제</button>`;
+      newStep.querySelector('.del').addEventListener('click',()=>newStep.remove());
+      attachStepDnD(newStep);
+      if(before) dropEl.insertBefore(newStep, step);
+      else dropEl.insertBefore(newStep, step.nextSibling);
+      dropEl.dataset.empty=false;
+    }catch{}
+  });
+}
+
+/* 드롭존 빈 공간에 드롭 시(끝에 추가) */
 dropEl.addEventListener('dragover',e=>{e.preventDefault(); dropEl.style.background='#12184a';});
 dropEl.addEventListener('dragleave',()=>{dropEl.style.background='#0f163a'});
 dropEl.addEventListener('drop',e=>{
   e.preventDefault(); dropEl.style.background='#0f163a';
+  // 내부 이동이면서 드롭존에 떨어진 경우: 맨 끝으로
+  if(e.dataTransfer.getData('application/x-internal')==='1'){
+    const fromIdx = Number(e.dataTransfer.getData('text/step-index'));
+    const nodes=[...dropEl.querySelectorAll('.step')];
+    const dragged = nodes[fromIdx];
+    if(dragged){ dropEl.appendChild(dragged); }
+    return;
+  }
+  // 팔레트에서 끝에 추가
   try{const c=JSON.parse(e.dataTransfer.getData('text/plain')); addStepFromCommand(c);}catch{}
 });
 
@@ -719,6 +872,7 @@ function lavaAhead(x,y,dir){
   return cellHas('lava',nx,ny);
 }
 async function execPrimitive(step){
+  if(isTimeUp()) return false;
   const st=STAGES[stageIndex]; let x=+agentEl.dataset.x, y=+agentEl.dataset.y, dir=+agentEl.dataset.dir;
   const delay=stepDelay();
   const go = async (nx,ny,ndir=dir)=>{
@@ -777,17 +931,20 @@ function success(){
 let stepBudget=Infinity;
 async function execNodes(nodes){
   for(const node of nodes){
+    if(isTimeUp()) return false;
     highlightIdx(node.idx ?? -1);
     if(node.type==='LOOP'){
       const n=node.val||0;
       for(let i=0;i<n;i++){
         const ok=await execNodes(node.body); if(!ok) return false;
         if(--stepBudget<=0) return true;
+        if(isTimeUp()) return false;
         if(success()) return true;
       }
     }else{
       const ok=await execPrimitive(node); if(!ok) return false;
       if(--stepBudget<=0) return true;
+      if(isTimeUp()) return false;
       if(success()) return true;
     }
   }
@@ -808,13 +965,22 @@ function resetAgent(){
 }
 async function runProgram(stepOnce=false){
   if(running) return; running=true; clearLog(); highlightClear(); writeLog('실행 시작'); resetAgent();
+
+  // 카운트다운 자동 시작: 이미 동작 중이 아니면 시작
+  if(!timerRunning && remainingMs===COUNTDOWN_TOTAL_MS) startTimer();
+  timeExpired = false;
+
   const ast=compileProgram();
   tries++; triesEl.textContent=tries; localStorage.setItem(`codebox_tries_${stageIndex}`, String(tries));
   if(ast.length===0){ writeLog('프로그램이 비어 있습니다. 명령을 추가하세요.','warn'); running=false; return; }
 
   stepBudget = stepOnce ? 1 : Infinity;
   const ok = await execNodes(ast);
-  if(!ok){ writeLog('실패. 다시 시도해 보세요.','err'); running=false; highlightClear(); return; }
+  if(!ok){
+    if(isTimeUp()){ writeLog('실행 중단: 제한 시간 종료.','warn'); }
+    else { writeLog('실패. 다시 시도해 보세요.','err'); }
+    running=false; highlightClear(); return;
+  }
   if(success()){
     const usedBlocks=programBlockCount();
     writeLog('스테이지 달성.','ok');
@@ -978,28 +1144,32 @@ function fillProgramWithBlocks(blocks){
   for(const b of blocks){
     if(typeof b==='string'){
       const c=COMMANDS.find(c=>c.type===b); if(!c) continue;
-      const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type=c.type;
+      const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type=c.type; step.draggable=true;
       step.innerHTML = `<span class="badge">${c.short}</span><span class="title">${c.label}</span><button class="del">삭제</button>`;
       step.querySelector('.del').addEventListener('click',()=>step.remove());
+      attachStepDnD(step);
       dropEl.appendChild(step);
     }else if(b.type==='LOOP'){
       const c=COMMANDS.find(c=>c.type==='LOOP');
-      const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type='LOOP';
+      const step=document.createElement('div'); step.className=`step ${c.css}`; step.dataset.type='LOOP'; step.draggable=true;
       const input=`<input type="number" min="${c.min}" max="${c.max}" value="${b.val}">`;
       step.innerHTML = `<span class="badge">LOOP</span><span class="title">반복 ×N</span> ${input} <button class="del">삭제</button>`;
       step.querySelector('.del').addEventListener('click',()=>step.remove());
+      attachStepDnD(step);
       dropEl.appendChild(step);
       for(const inner of b.body){
         const ic=COMMANDS.find(cc=>cc.type===inner); if(!ic) continue;
-        const innerStep=document.createElement('div'); innerStep.className=`step ${ic.css}`; innerStep.dataset.type=ic.type;
+        const innerStep=document.createElement('div'); innerStep.className=`step ${ic.css}`; innerStep.dataset.type=ic.type; innerStep.draggable=true;
         innerStep.innerHTML=`<span class="badge">${ic.short}</span><span class="title">${ic.label}</span><button class="del">삭제</button>`;
         innerStep.querySelector('.del').addEventListener('click',()=>innerStep.remove());
+        attachStepDnD(innerStep);
         dropEl.appendChild(innerStep);
       }
       const ec=COMMANDS.find(c=>c.type==='END');
-      const end=document.createElement('div'); end.className=`step ${ec.css}`; end.dataset.type='END';
+      const end=document.createElement('div'); end.className=`step ${ec.css}`; end.dataset.type='END'; end.draggable=true;
       end.innerHTML=`<span class="badge">END</span><span class="title">블록 종료</span><button class="del">삭제</button>`;
       end.querySelector('.del').addEventListener('click',()=>end.remove());
+      attachStepDnD(end);
       dropEl.appendChild(end);
     }
   }
@@ -1058,7 +1228,9 @@ function openRank(){
 /* ===================== 이벤트 바인딩 & 부트 ===================== */
 document.getElementById('run').addEventListener('click',()=>runProgram(false));
 document.getElementById('step').addEventListener('click',()=>runProgram(true));
-document.getElementById('stop').addEventListener('click',()=>{running=false; writeLog('정지했습니다.','warn')});
+document.getElementById('stop').addEventListener('click',()=>{
+  running=false; writeLog('정지했습니다.','warn');
+});
 document.getElementById('clear').addEventListener('click',()=>{dropEl.innerHTML=''; dropEl.dataset.empty=true; highlightClear()});
 document.getElementById('shuffle').addEventListener('click',()=>{resetAgent(); clearLog(); writeLog('스테이지를 초기화했습니다.')});
 document.getElementById('help').addEventListener('click',()=>helpDlg.showModal());
@@ -1071,6 +1243,16 @@ openRankBtn.addEventListener('click', openRank);
 miniOpenFullBtn.addEventListener('click', openRank);
 miniRefreshBtn.addEventListener('click', renderMiniRank);
 
+/* 랭킹 초기화 버튼 동작 */
+clearRankBtn.addEventListener('click', ()=>{
+  const ok = confirm('현재 스테이지의 랭킹을 모두 삭제할까요?');
+  if(!ok) return;
+  saveLB(stageIndex, []);
+  renderMiniRank();
+  if(rankDlg.open) openRank();
+  writeLog('랭킹이 초기화되었습니다.','warn');
+});
+
 /* 초기화 */
 (function boot(){
   renderPalette();
@@ -1079,4 +1261,3 @@ miniRefreshBtn.addEventListener('click', renderMiniRank);
 </script>
 </body>
 </html>
-
