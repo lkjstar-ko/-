@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C언어: 사용자 정의 함수와 변수 범위</title>
+    <style>
+        /* CSS 변수 설정 */
+        :root {
+            --main-color: #3b82f6; /* 파란색 */
+            --bg-color: #f3f4f6; /* 밝은 회색 */
+            --code-bg-color: #1f2937; /* 어두운 회색 */
+            --code-text-color: #f9fafb; /* 밝은 텍스트 */
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 기본 스타일 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding-top: 60px; /* 고정 네비게이션바 높이만큼 공간 확보 */
+            background-color: var(--bg-color);
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        /* 네비게이션 바 (고정 목차) */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        .navbar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .navbar li {
+            margin: 0 15px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--main-color);
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* 섹션 스타일 (슬라이드 형태) */
+        section {
+            min-height: 100vh; /* 각 섹션을 화면 전체 높이로 */
+            padding: 80px 5% 40px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            box-shadow: var(--shadow);
+            scroll-margin-top: 80px; /* 네비게이션바에 가려지지 않도록 */
+        }
+
+        /* 섹션 제목 */
+        section h2 {
+            font-size: 2.5em;
+            color: var(--main-color);
+            border-bottom: 3px solid var(--main-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        section h3 {
+            font-size: 1.8em;
+            color: #1f2937;
+            margin-top: 30px;
+        }
+        
+        /* 코드 블록 */
+        pre {
+            background-color: var(--code-bg-color);
+            color: var(--code-text-color);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 20px 0;
+        }
+
+        /* 테이블 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--main-color);
+            color: white;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        /* 강조 텍스트 */
+        strong {
+            color: var(--main-color);
+        }
+        
+        /* 실습 영역 스타일 */
+        .interactive-code {
+            border: 1px solid #d1d5db;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #ffffff;
+        }
+        
+        .code-input textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 1em;
+            background-color: var(--code-bg-color);
+            color: var(--code-text-color);
+            margin-bottom: 10px;
+        }
+        
+        .code-output {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            padding: 10px;
+            min-height: 50px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            margin-top: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .run-button {
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .run-button:hover {
+            background-color: #2563eb;
+        }
+        
+        /* 체크리스트 */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="#section1">1. 사용자 정의 함수</a></li>
+            <li><a href="#section2">2. 변수 범위</a></li>
+            <li><a href="#section3">3. 실습 예제</a></li>
+            <li><a href="#section4">4. 주요 개념 정리</a></li>
+            <li><a href="#section5">5. 연습 문제</a></li>
+            <li><a href="#section6">6. 학습 확인</a></li>
+        </ul>
+    </nav>
+
+    <section id="section1">
+        <h2>1. 🛠️ 사용자 정의 함수 (User-Defined Functions)</h2>
+        
+        <h3>1.1 함수란?</h3>
+        <p>함수는 **특정 작업을 수행하는 코드 블록**입니다. 코드의 **재사용성**을 높이고 프로그램을 **모듈화**하여 관리하기 쉽게 만듭니다.</p>
+
+        <h3>1.2 함수의 구조</h3>
+        <pre><code>반환타입 함수명(매개변수) {
+    // 함수 본문: 특정 작업을 수행하는 코드
+    return 값;  // 반환타입이 void가 아닌 경우, 결과 값을 반환
+}</code></pre>
+        
+        <h3>1.3 함수의 종류</h3>
+        <ul>
+            <li>**반환값이 있는 함수**: 계산 결과를 `return`하여 호출한 곳으로 돌려줍니다. (예: `int add(int a, int b)`)</li>
+            <li>**반환값이 없는 함수 (void)**: 작업만 수행하고 결과를 돌려주지 않습니다. (예: `void printResult(int result)`)</li>
+            <li>**매개변수가 있는 함수**: 외부로부터 **입력값**을 받아 처리합니다. (예: `add(int a, int b)`)</li>
+            <li>**매개변수가 없는 함수**: 입력 없이 자체적으로 동작합니다. (예: `void showMenu()`)</li>
+        </ul>
+
+        <h3>1.4 함수 선언과 정의</h3>
+        <p>C언어에서는 함수를 사용하기 전에 알려줘야 합니다.</p>
+        <pre><code>// 함수 선언 (프로토타입): 함수의 존재와 형태를 컴파일러에게 미리 알림
+int add(int a, int b); 
+
+// 함수 정의: 함수가 실제로 어떤 작업을 할지 구현
+int add(int a, int b) {
+    return a + b;
+}</code></pre>
+    </section>
+
+    <hr>
+
+    <section id="section2">
+        <h2>2. 🌳 전역변수와 지역변수</h2>
+        <p>변수가 어디에서 선언되었는지에 따라 사용 가능한 범위와 생명 주기가 결정됩니다. 이를 **변수의 범위(Scope)**라고 합니다.</p>
+
+        <h3>2.1 지역변수 (Local Variable)</h3>
+        <ul>
+            <li>**선언 위치**: **함수 내부** 또는 특정 코드 블록( `{}` ) 내부에서 선언됩니다.</li>
+            <li>**사용 범위**: 선언된 **함수 또는 블록 내에서만** 사용 가능합니다.</li>
+            <li>**생명 주기**: 해당 함수나 블록이 끝나면 **메모리에서 제거**됩니다.</li>
+            <li>**초기화**: 자동으로 초기화되지 않아 쓰레기 값(Garbage Value)을 가집니다.</li>
+        </ul>
+
+        <h3>2.2 전역변수 (Global Variable)</h3>
+        <ul>
+            <li>**선언 위치**: **함수 외부**, 주로 파일의 맨 위에서 선언됩니다.</li>
+            <li>**사용 범위**: 프로그램 **전체**에서 접근 가능합니다.</li>
+            <li>**생명 주기**: 프로그램이 시작될 때 생성되어 **종료될 때까지** 메모리에 유지됩니다.</li>
+            <li>**초기화**: 명시적으로 초기화하지 않아도 자동으로 **0**으로 초기화됩니다.</li>
+        </ul>
+
+        <h3>2.3 변수 범위 비교표</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>특성</th>
+                    <th>지역변수</th>
+                    <th>전역변수</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>**선언 위치**</td>
+                    <td>함수 내부 / 블록 내부</td>
+                    <td>함수 외부 (파일 맨 위)</td>
+                </tr>
+                <tr>
+                    <td>**사용 범위**</td>
+                    <td>선언된 함수 / 블록 내</td>
+                    <td>**프로그램 전체**</td>
+                </tr>
+                <tr>
+                    <td>**생명 주기**</td>
+                    <td>함수 실행 시 생성, 종료 시 제거</td>
+                    <td>프로그램 전체</td>
+                </tr>
+                <tr>
+                    <td>**초기화**</td>
+                    <td>자동 초기화 안됨 (쓰레기 값)</td>
+                    <td>**자동으로 0 초기화**</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <hr>
+
+    <section id="section3">
+        <h2>3. 🚀 실습 예제</h2>
+        <p>다음 예제 코드를 읽어보고 '코드 실행'을 눌러 결과를 확인해 보세요.</p>
+        
+        <h3>예제 1: 기본 함수 사용 (반환값/매개변수 유무)</h3>
+        <div class="interactive-code">
+            <p><strong>코드:</strong> 세 함수(add, subtract: 반환값 O, printResult: 반환값 X)를 사용하는 기본 예제입니다.</p>
+            <pre id="code1-pre"><code>#include &lt;stdio.h&gt;
+
+// 함수 선언
+int add(int a, int b);
+int subtract(int a, int b);
+void printResult(int result);
+
+int main() {
+    int x = 10, y = 5;
+    int sum, diff;
+    
+    sum = add(x, y);
+    diff = subtract(x, y);
+    
+    printf("합계: ");
+    printResult(sum);
+    
+    printf("차이: ");
+    printResult(diff);
+    
+    return 0;
+}
+
+// 함수 정의
+int add(int a, int b) {
+    return a + b;
+}
+
+int subtract(int a, int b) {
+    return a - b;
+}
+
+void printResult(int result) {
+    printf("%d\n", result);
+}</code></pre>
+            <button class="run-button" onclick="runCode(1)">코드 실행</button>
+            <p><strong>출력 결과:</strong></p>
+            <div id="output1" class="code-output">합계: 15
+차이: 5</div>
+        </div>
+
+        <h3>예제 2: 지역변수와 전역변수</h3>
+        <div class="interactive-code">
+            <p><strong>코드:</strong> 전역변수 `globalVar`의 값 변화와 각 함수의 지역변수가 독립적임을 확인하세요.</p>
+            <pre id="code2-pre"><code>#include &lt;stdio.h&gt;
+
+// 전역변수 선언
+int globalVar = 100;
+
+void function1() {
+    int localVar = 10;  // 지역변수
+    printf("function1 - 지역변수: %d\n", localVar);
+    printf("function1 - 전역변수: %d\n", globalVar);
+    globalVar = 200;  // 전역변수 값 변경 (프로그램 전체에 영향을 줌)
+}
+
+void function2() {
+    int localVar = 20;  // 다른 함수의 지역변수 (독립적)
+    printf("function2 - 지역변수: %d\n", localVar);
+    printf("function2 - 전역변수: %d\n", globalVar); // 변경된 전역변수 값 확인
+}
+
+int main() {
+    printf("초기 전역변수: %d\n\n", globalVar);
+    
+    function1();
+    printf("\n");
+    
+    function2();
+    
+    return 0;
+}</code></pre>
+            <button class="run-button" onclick="runCode(2)">코드 실행</button>
+            <p><strong>출력 결과:</strong></p>
+            <div id="output2" class="code-output">초기 전역변수: 100
+
+function1 - 지역변수: 10
+function1 - 전역변수: 100
+
+function2 - 지역변수: 20
+function2 - 전역변수: 200</div>
+        </div>
+    </section>
+
+    <hr>
+
+    <section id="section4">
+        <h2>4. 💡 주요 개념 정리</h2>
+        
+        <h3>함수 사용의 장점</h3>
+        <ul>
+            <li>**코드 재사용성**: 같은 코드를 반복 작성하지 않고 함수 호출만으로 사용 가능.</li>
+            <li>**모듈화**: 프로그램을 논리적 단위로 분할하여 복잡도를 낮춤.</li>
+            <li>**유지보수성**: 특정 기능 수정이 필요한 경우 해당 함수만 수정하면 됨.</li>
+            <li>**가독성**: 프로그램의 전체 흐름을 이해하기 쉬워짐.</li>
+        </ul>
+
+        <h3>전역변수 사용 시 주의사항</h3>
+        <ul>
+            <li>**과도한 사용 금지**: 프로그램이 복잡해지고 여러 함수에서 값을 변경하면 **추적과 디버깅이 어려워**집니다.</li>
+            <li>**제한적 사용 권장**: 프로그램 전반에서 공유해야 하는 **설정 값, 상태 값, 카운터** 등 필요한 경우에만 제한적으로 사용합니다.</li>
+            <li>**지역변수/매개변수 우선**: 데이터를 전달할 때는 가급적 **함수의 매개변수와 반환값**을 사용하는 것이 안전합니다.</li>
+        </ul>
+
+        <h3>변수 명명 규칙</h3>
+        <p>변수의 범위를 쉽게 파악할 수 있도록 이름을 명확히 짓는 것이 중요합니다.</p>
+        <ul>
+            <li>**지역변수**: 짧고 명확한 이름 사용 (예: `i`, `count`, `result`)</li>
+            <li>**전역변수**: 의미를 명확히 나타내는 긴 이름 사용. 필요하다면 전역변수임을 나타내는 **접두사** 사용 가능 (예: `g_count`, `GLOBAL_MAX`)</li>
+        </ul>
+    </section>
+    
+    <hr>
+    
+    <section id="section5">
+        <h2>5. ✍️ 연습 문제</h2>
+        <p>제시된 문제를 해결하는 C 코드를 아래 입력창에 작성하고 '코드 실행' 버튼을 눌러보세요. (예상 결과가 표시됩니다.)</p>
+
+        <h3>문제 1: 최댓값 함수</h3>
+        <p>세 개의 정수를 받아 최댓값을 반환하는 함수 **`findMax(int a, int b, int c)`**를 작성하세요.</p>
+        <div class="interactive-code">
+            <div class="code-input">
+                <textarea id="challenge-code-1">
+#include <stdio.h>
+
+// TODO: findMax 함수를 여기에 작성하세요.
+int findMax(int a, int b, int c) {
+    int max = a;
+    if (b > max) max = b;
+    if (c > max) max = c;
+    return max;
+}
+
+int main() {
+    int result = findMax(10, 50, 30);
+    printf("최댓값: %d\n", result);
+    return 0;
+}
+                </textarea>
+            </div>
+            <button class="run-button" onclick="runChallenge(1)">코드 실행</button>
+            <p><strong>예상 출력:</strong></p>
+            <div id="challenge-output-1" class="code-output">최댓값: 50</div>
+        </div>
+
+        <h3>문제 3: 함수 호출 횟수 추적 (전역변수 활용)</h3>
+        <p>전역변수 **`callCount`**를 사용하여 프로그램에서 임의의 함수(예: `increaseCount()`)가 호출된 총 횟수를 추적하는 프로그램을 작성하세요.</p>
+        <div class="interactive-code">
+            <div class="code-input">
+                <textarea id="challenge-code-3">
+#include <stdio.h>
+
+// TODO: 전역변수와 함수를 여기에 작성하세요.
+int callCount = 0; // 전역변수
+
+void increaseCount() {
+    callCount++;
+}
+
+int main() {
+    increaseCount();
+    increaseCount();
+    increaseCount();
+    
+    printf("함수 호출 횟수: %d\n", callCount);
+    return 0;
+}
+                </textarea>
+            </div>
+            <button class="run-button" onclick="runChallenge(3)">코드 실행</button>
+            <p><strong>예상 출력:</strong></p>
+            <div id="challenge-output-3" class="code-output">함수 호출 횟수: 3</div>
+        </div>
+    </section>
+    
+    <hr>
+
+    <section id="section6">
+        <h2>6. ✅ 학습 확인</h2>
+        <p>오늘 학습한 주요 개념을 스스로 점검해 보세요.</p>
+        
+        <ul class="checklist">
+            <li>[ ] 함수의 선언과 정의를 **구분**할 수 있다</li>
+            <li>[ ] 매개변수와 반환값의 개념을 **이해**한다</li>
+            <li>[ ] 지역변수와 전역변수의 차이를 **설명**할 수 있다</li>
+            <li>[ ] 변수의 범위(scope)와 생명주기를 **이해**한다</li>
+            <li>[ ] 함수를 활용하여 **모듈화된 프로그램**을 작성할 수 있다</li>
+        </ul>
+        <p>모든 항목에 체크할 수 있다면 C언어 함수와 변수 범위의 기초를 완벽히 이해한 것입니다!</p>
+    </section>
+
+    <script>
+        // 코드 실행 (Run Code) 함수 - 시뮬레이션
+        function runCode(exampleNumber) {
+            let outputElement = document.getElementById(`output${exampleNumber}`);
+            let predefinedOutputs = {
+                1: "합계: 15\n차이: 5",
+                2: "초기 전역변수: 100\n\nfunction1 - 지역변수: 10\nfunction1 - 전역변수: 100\n\nfunction2 - 지역변수: 20\nfunction2 - 전역변수: 200",
+            };
+            outputElement.innerText = predefinedOutputs[exampleNumber] || "실행 결과를 미리 준비하지 않았습니다.";
+            alert(`예제 ${exampleNumber}의 코드를 실행했습니다. 출력 결과를 확인하세요.`);
+        }
+
+        // 연습 문제 실행 (Run Challenge) 함수 - 시뮬레이션
+        function runChallenge(challengeNumber) {
+            let outputElement = document.getElementById(`challenge-output-${challengeNumber}`);
+            let codeInput = document.getElementById(`challenge-code-${challengeNumber}`).value;
+            let expectedOutput = "";
+
+            if (challengeNumber === 1) {
+                // 문제 1: findMax(10, 50, 30)의 결과는 50
+                expectedOutput = "최댓값: 50";
+            } else if (challengeNumber === 3) {
+                // 문제 3: increaseCount() 3번 호출의 결과는 3
+                expectedOutput = "함수 호출 횟수: 3";
+            } else {
+                 expectedOutput = "예상 결과가 준비되지 않은 문제입니다.";
+            }
+
+            // 사용자가 입력한 코드를 검증하는 기능은 서버 측 컴파일러가 필요하므로, 여기서는 시뮬레이션 결과만 표시합니다.
+            outputElement.innerText = expectedOutput;
+            alert(`문제 ${challengeNumber}의 코드를 실행했습니다. \n\n*주의: 이 기능은 입력하신 코드를 실제로 컴파일하지 않으며, 미리 정의된 '예상 출력'을 보여주는 시뮬레이션입니다.`);
+        }
+    </script>
+
+</body>
+</html>
