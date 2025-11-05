@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로그래밍 보고서 평가 안내 (업데이트)</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+        /* 헤더 스타일 */
+        header {
+            background-color: #dc3545; /* 색상 변경 */
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        /* 컨테이너 및 섹션 스타일 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            color: #dc3545; /* 색상 변경 */
+            border-bottom: 3px solid #dc3545;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        /* 평가 표 스타일 */
+        .evaluation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .evaluation-table th, .evaluation-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            transition: background-color 0.3s;
+        }
+
+        .evaluation-table th {
+            background-color: #f8d7da; /* 헤더 배경색 변경 */
+            color: #491217;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .evaluation-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .evaluation-table tr:hover td {
+            background-color: #fff0f0; /* 마우스 오버 시 배경색 변경 */
+        }
+
+        /* 등급별 색상 강조 */
+        .grade-excellent { background-color: #d4edda; color: #155724; }
+        .grade-good { background-color: #fff3cd; color: #856404; }
+        .grade-average { background-color: #e2e3e5; color: #383d41; }
+        .grade-poor { background-color: #f8d7da; color: #721c24; }
+
+        /* 채점 기준 상세 스타일 */
+        .criteria-detail {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff0f0; /* 배경색 변경 */
+            border-left: 5px solid #dc3545;
+            border-radius: 4px;
+        }
+
+        /* JavaScript 버튼 스타일 */
+        .criteria-button {
+            background-color: #007bff; /* 색상 변경 */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .criteria-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 하이라이트 스타일 */
+        .highlight {
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        /* 총점 섹션 스타일 */
+        .total-score {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔥 프로그래밍 보고서 평가 기준 (업데이트) 🔥</h1>
+        <p>총 5가지 평가 요소, 총점 **100점** 기준</p>
+    </header>
+
+    <div class="container">
+        <section>
+            <h2>📝 평가 척도 및 채점 기준 상세</h2>
+            <p>각 평가 요소(20점 만점)에 따라 **매우 우수(20점), 우수(16점), 보통(11점), 미흡(6점)** 4단계로 평가됩니다.</p>
+            
+            <div class="total-score">
+                총 배점: 5개 요소 × 20점 = **100점**
+            </div>
+
+            <table class="evaluation-table" id="evaluation-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">평가 요소 (배점)</th>
+                        <th colspan="4">평가 척도 및 채점 기준</th>
+                    </tr>
+                    <tr>
+                        <th class="grade-excellent">매우 우수 (20점)</th>
+                        <th class="grade-good">우수 (16점)</th>
+                        <th class="grade-average">보통 (11점)</th>
+                        <th class="grade-poor">미흡 (6점)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-factor="주제 선정 및 목차 구성">
+                        <td>주제 선정 및 목차 구성하기 (20)</td>
+                        <td>흥미롭고 구체적인 프로그래밍 주제를 선정하고, 서론–본론–결론 체계에 맞는 목차를 논리적으로 구성함.</td>
+                        <td>프로그래밍 주제를 선정하고 목차를 작성하였으나 일부 구성이 미흡하거나 구체성이 부족함.</td>
+                        <td>주제 선정은 이루어졌으나 목차 구성이 단순하거나 논리성이 약함.</td>
+                        <td>주제를 선정하지 못했거나 목차 구성을 하지 못함.</td>
+                    </tr>
+                    <tr data-factor="자료 수집 및 핵심 요소 추출">
+                        <td>자료 수집 및 핵심 요소 추출 (20)</td>
+                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 등 개발 과정 전반을 충실히 수행하고, 관련 기술 요소를 적극적으로 반영함.</td>
+                        <td>설계와 개발 활동을 수행했으나 과정 일부(문제 정의·알고리즘·구조 설계 중 일부)가 미흡함.</td>
+                        <td>제한적인 설계나 개발 활동만 이루어졌으며 핵심 요소 반영이 부족함.</td>
+                        <td>설계 및 개발 활동을 수행하지 못함.</td>
+                    </tr>
+                    <tr data-factor="프로그래밍 보고서 제작">
+                        <td>프로그래밍 보고서 제작하기 (20)</td>
+                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 과정을 포함하여 보고서를 체계적으로 작성하고, 서론–본론–결론 형식을 충실히 갖추어 독창적으로 완성함.</td>
+                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 중 일부가 미흡하거나 서론–본론–결론 형식은 갖추었으나 내용이 부족함.</td>
+                        <td>프로그래밍 설계 보고서를 작성하였으나 핵심 요소(문제 정의, 알고리즘 구상, 코드 구조 설계) 대부분이 누락되었거나 불완전함.</td>
+                        <td>프로그래밍 설계 보고서를 작성하지 못함.</td>
+                    </tr>
+                    <tr data-factor="프로그래밍 보고서 발표">
+                        <td>프로그래밍 보고서 발표하기 (20)</td>
+                        <td>자신이 설계한 프로그래밍 아이디어와 과정(문제 정의 → 알고리즘 구상 → 코드 구조 설계)을 체계적으로 발표하고, 발표 자료를 충실히 공유함.</td>
+                        <td>자신이 설계한 프로그래밍 아이디어와 과정을 발표하였으나 일부 과정 설명이 미흡하거나 발표 자료 공유가 불완전함.</td>
+                        <td>자신이 설계한 프로그래밍 아이디어나 과정 중 일부만 발표하거나 자료 공유가 부족함.</td>
+                        <td>프로그래밍 설계 발표를 하지 못하였으며, 자료도 공유하지 못함.</td>
+                    </tr>
+                    <tr data-factor="코드 품질 및 가독성">
+                        <td>코드 품질 및 가독성 (20)</td>
+                        <td>변수명·함수명이 의미 있게 작성되고, 주석·들여쓰기·모듈화가 규칙적으로 잘 지켜진 경우</td>
+                        <td>전반적인 코드 구조는 읽기 쉽지만 일부 함수명·주석·들여쓰기가 일관되지 않은 경우</td>
+                        <td>코드 실행은 가능하나 가독성이 떨어지고 주석이나 구조적 분리가 부족한 경우</td>
+                        <td>코드가 복잡하고 변수명·함수명이 모호하여 읽기 어렵거나 수정·확장이 곤란한 경우</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>✅ 핵심 평가 요소 요약 및 가이드</h2>
+            <div id="criteria-summary">
+                <p>궁금한 평가 요소를 선택하여 만점을 위한 핵심 가이드라인을 확인해보세요.</p>
+                <button class="criteria-button" onclick="showSummary('주제 선정 및 목차 구성')">1. 주제 선정 & 목차</button>
+                <button class="criteria-button" onclick="showSummary('자료 수집 및 핵심 요소 추출')">2. 자료 수집 & 핵심 요소</button>
+                <button class="criteria-button" onclick="showSummary('프로그래밍 보고서 제작')">3. 보고서 제작</button>
+                <button class="criteria-button" onclick="showSummary('프로그래밍 보고서 발표')">4. 보고서 발표</button>
+                <button class="criteria-button" onclick="showSummary('코드 품질 및 가독성')">5. 코드 품질 & 가독성</button>
+
+                <div id="summary-output" class="criteria-detail" style="display:none; margin-top: 20px;">
+                    </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p style="text-align: center; font-size: 0.9em; color: #6c757d; padding: 10px 0;">
+            © 2025 프로그래밍 보고서 평가 안내 자료. (업데이트 버전)
+        </p>
+    </footer>
+
+    <script>
+        // JavaScript 함수: 평가 요소별 요약 정보를 표시
+        function showSummary(factor) {
+            const summaryOutput = document.getElementById('summary-output');
+            let content = '';
+
+            switch (factor) {
+                case '주제 선정 및 목차 구성':
+                    content = `
+                        <h3>✅ ${factor} - 만점(20점) 가이드</h3>
+                        <p><strong>핵심:</strong> <span class="highlight">흥미롭고 구체적인 주제</span> 선정 및 <span class="highlight">서론–본론–결론 체계</span>의 논리적 구성.</p>
+                        <p><strong>팁:</strong> 프로젝트가 해결하고자 하는 **실질적인 문제**를 명확히 정의하고, 목차에서 각 단계(분석, 설계, 구현, 결과)가 매끄럽게 연결되도록 구성해야 합니다.</p>
+                    `;
+                    break;
+                case '자료 수집 및 핵심 요소 추출':
+                    content = `
+                        <h3>✅ ${factor} - 만점(20점) 가이드</h3>
+                        <p><strong>핵심:</strong> 개발 과정 전반의 <span class="highlight">충실한 수행</span> (문제 정의, 알고리즘 구상, 코드 구조 설계) 및 <span class="highlight">기술 요소 반영</span>.</p>
+                        <p><strong>팁:</strong> 개발의 3단계(**문제 정의, 알고리즘, 코드 구조**)를 모두 시각 자료와 함께 문서화하고, 주제와 관련된 <span class="highlight">최신 기술이나 고급 개념</span>을 통합하여 보여주세요.</p>
+                    `;
+                    break;
+                case '프로그래밍 보고서 제작':
+                    content = `
+                        <h3>✅ ${factor} - 만점(20점) 가이드</h3>
+                        <p><strong>핵심:</strong> 문제 정의, 알고리즘 구상, 코드 구조 설계를 포함한 <span class="highlight">체계적인 보고서 작성</span> 및 <span class="highlight">독창적인 완성</span>.</p>
+                        <p><strong>팁:</strong> 보고서 내에 설계 과정(순서도, UML 다이어그램 등)을 포함하고, **서론-본론-결론** 형식을 완벽하게 갖추어 **주제 선정부터 최종 결과까지**의 논리적 흐름이 끊기지 않아야 합니다.</p>
+                    `;
+                    break;
+                case '프로그래밍 보고서 발표':
+                    content = `
+                        <h3>✅ ${factor} - 만점(20점) 가이드</h3>
+                        <p><strong>핵심:</strong> 아이디어와 <span class="highlight">과정(정의 → 구상 → 설계)의 체계적 발표</span> 및 <span class="highlight">발표 자료 충실한 공유</span>.</p>
+                        <p><strong>팁:</strong> 발표는 단순히 코드 설명을 넘어, 프로젝트의 **가치**와 **과정의 논리성**에 중점을 두고 진행해야 합니다. 발표 자료는 시각적으로 풍부하고 이해하기 쉬워야 합니다.</p>
+                    `;
+                    break;
+                case '코드 품질 및 가독성':
+                    content = `
+                        <h3>✅ ${factor} - 만점(20점) 가이드</h3>
+                        <p><strong>핵심:</strong> 변수명·함수명이 <span class="highlight">의미 있게 작성</span>되고, 주석·들여쓰기·모듈화가 <span class="highlight">규칙적으로 잘 지켜진</span> 경우.</p>
+                        <p><strong>팁:</strong> **일관된 코딩 컨벤션**을 적용하고, 복잡한 로직 앞에는 충분한 주석을 달며, 역할에 따라 함수나 모듈로 명확하게 분리해야 합니다. **유지보수**와 **확장성**을 고려한 코드가 만점의 핵심입니다.</p>
+                    `;
+                    break;
+                default:
+                    content = '<p>선택된 평가 요소에 대한 요약 정보가 없습니다.</p>';
+            }
+
+            summaryOutput.innerHTML = content;
+            summaryOutput.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
