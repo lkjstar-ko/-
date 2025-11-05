@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로그래밍 보고서 평가 안내 (업데이트)</title>
+    <title>프로그래밍 보고서 평가 기준 (최종 버전)</title>
     <style>
         /* 기본 스타일 */
         body {
@@ -17,7 +17,7 @@
 
         /* 헤더 스타일 */
         header {
-            background-color: #dc3545; /* 색상 변경 */
+            background-color: #17a2b8; /* 핵심 색상 */
             color: white;
             padding: 20px 0;
             text-align: center;
@@ -51,8 +51,8 @@
         }
 
         h2 {
-            color: #dc3545; /* 색상 변경 */
-            border-bottom: 3px solid #dc3545;
+            color: #17a2b8; /* 핵심 색상 */
+            border-bottom: 3px solid #17a2b8;
             padding-bottom: 5px;
             margin-bottom: 20px;
             font-size: 1.8em;
@@ -70,11 +70,12 @@
             padding: 12px;
             text-align: left;
             transition: background-color 0.3s;
+            vertical-align: top;
         }
 
         .evaluation-table th {
-            background-color: #f8d7da; /* 헤더 배경색 변경 */
-            color: #491217;
+            background-color: #d1ecf1; 
+            color: #0c5460;
             font-weight: bold;
             text-align: center;
         }
@@ -84,27 +85,27 @@
         }
 
         .evaluation-table tr:hover td {
-            background-color: #fff0f0; /* 마우스 오버 시 배경색 변경 */
+            background-color: #e2f4ff; /* 마우스 오버 시 배경색 변경 */
         }
 
         /* 등급별 색상 강조 */
-        .grade-excellent { background-color: #d4edda; color: #155724; }
-        .grade-good { background-color: #fff3cd; color: #856404; }
-        .grade-average { background-color: #e2e3e5; color: #383d41; }
-        .grade-poor { background-color: #f8d7da; color: #721c24; }
+        .grade-excellent { background-color: #d4edda; color: #155724; } /* 매우 우수 (20점) */
+        .grade-good { background-color: #fff3cd; color: #856404; }      /* 우수 (16점) */
+        .grade-average { background-color: #e2e3e5; color: #383d41; }   /* 보통 (11점) */
+        .grade-poor { background-color: #f8d7da; color: #721c24; }      /* 미흡 (6점) */
 
         /* 채점 기준 상세 스타일 */
         .criteria-detail {
             margin-top: 10px;
-            padding: 10px;
-            background-color: #fff0f0; /* 배경색 변경 */
-            border-left: 5px solid #dc3545;
+            padding: 15px;
+            background-color: #e6f7ff; /* 배경색 변경 */
+            border-left: 5px solid #17a2b8;
             border-radius: 4px;
         }
 
         /* JavaScript 버튼 스타일 */
         .criteria-button {
-            background-color: #007bff; /* 색상 변경 */
+            background-color: #17a2b8;
             color: white;
             border: none;
             padding: 8px 15px;
@@ -119,7 +120,7 @@
         }
 
         .criteria-button:hover {
-            background-color: #0056b3;
+            background-color: #117a8b;
         }
 
         /* 하이라이트 스타일 */
@@ -144,18 +145,20 @@
 </head>
 <body>
     <header>
-        <h1>🔥 프로그래밍 보고서 평가 기준 (업데이트) 🔥</h1>
-        <p>총 5가지 평가 요소, 총점 **100점** 기준</p>
+        <h1>🚀 프로그래밍 보고서 평가 기준 (최종 업데이트) 🚀</h1>
+        <p>총 5가지 평가 요소, 총점 100점 기준</p>
     </header>
 
     <div class="container">
         <section>
             <h2>📝 평가 척도 및 채점 기준 상세</h2>
-            <p>각 평가 요소(20점 만점)에 따라 **매우 우수(20점), 우수(16점), 보통(11점), 미흡(6점)** 4단계로 평가됩니다.</p>
+            <p>각 평가 요소(20점 만점)에 따라 매우 우수(20점), 우수(16점), 보통(11점), 미흡(6점) 4단계로 평가됩니다.</p>
             
             <div class="total-score">
-                총 배점: 5개 요소 × 20점 = **100점**
+                총 배점: 5개 요소 × 20점 = 100점
             </div>
+            
+            <hr>
 
             <table class="evaluation-table" id="evaluation-table">
                 <thead>
@@ -173,38 +176,38 @@
                 <tbody>
                     <tr data-factor="주제 선정 및 목차 구성">
                         <td>주제 선정 및 목차 구성하기 (20)</td>
-                        <td>흥미롭고 구체적인 프로그래밍 주제를 선정하고, 서론–본론–결론 체계에 맞는 목차를 논리적으로 구성함.</td>
-                        <td>프로그래밍 주제를 선정하고 목차를 작성하였으나 일부 구성이 미흡하거나 구체성이 부족함.</td>
-                        <td>주제 선정은 이루어졌으나 목차 구성이 단순하거나 논리성이 약함.</td>
-                        <td>주제를 선정하지 못했거나 목차 구성을 하지 못함.</td>
+                        <td>흥미롭고 구체적인 프로그래밍 주제를 선정하고, 서론–본론–결론 체계에 맞는 목차를 논리적으로 구성하며, 프로젝트의 전체적인 화면을 효과적으로 소개함.</td>
+                        <td>프로그래밍 주제를 선정하고 목차를 작성하였으나 일부 구성이 미흡하거나 구체성이 부족하며, 화면 소개가 불완전함.</td>
+                        <td>주제 선정은 이루어졌으나 목차 구성이 단순하거나 논리성이 약하며, 화면 소개가 미흡함.</td>
+                        <td>주제를 선정하지 못했거나 목차 구성을 하지 못했으며, 화면 소개가 없음.</td>
                     </tr>
                     <tr data-factor="자료 수집 및 핵심 요소 추출">
                         <td>자료 수집 및 핵심 요소 추출 (20)</td>
-                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 등 개발 과정 전반을 충실히 수행하고, 관련 기술 요소를 적극적으로 반영함.</td>
-                        <td>설계와 개발 활동을 수행했으나 과정 일부(문제 정의·알고리즘·구조 설계 중 일부)가 미흡함.</td>
-                        <td>제한적인 설계나 개발 활동만 이루어졌으며 핵심 요소 반영이 부족함.</td>
-                        <td>설계 및 개발 활동을 수행하지 못함.</td>
+                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 등 개발 과정 전반을 충실히 수행하고, 관련 기술 요소를 적극적으로 반영하며, 부분별 작동 원리를 코드를 통해 상세히 설명함.</td>
+                        <td>설계와 개발 활동을 수행했으나 과정 일부가 미흡하거나, 작동 원리 설명이 코드와 충분히 연계되지 않음.</td>
+                        <td>제한적인 설계나 개발 활동만 이루어졌으며 핵심 요소 반영이 부족하고, 작동 원리 설명이 피상적임.</td>
+                        <td>설계 및 개발 활동을 수행하지 못했으며, 작동 원리 설명이 없음.</td>
                     </tr>
                     <tr data-factor="프로그래밍 보고서 제작">
                         <td>프로그래밍 보고서 제작하기 (20)</td>
-                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 과정을 포함하여 보고서를 체계적으로 작성하고, 서론–본론–결론 형식을 충실히 갖추어 독창적으로 완성함.</td>
-                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 중 일부가 미흡하거나 서론–본론–결론 형식은 갖추었으나 내용이 부족함.</td>
-                        <td>프로그래밍 설계 보고서를 작성하였으나 핵심 요소(문제 정의, 알고리즘 구상, 코드 구조 설계) 대부분이 누락되었거나 불완전함.</td>
-                        <td>프로그래밍 설계 보고서를 작성하지 못함.</td>
+                        <td>문제 정의, 알고리즘 구상, 코드 구조 설계 과정을 포함하여 보고서를 체계적으로 작성하고, 서론–본론–결론 형식을 충실히 갖추어 독창적으로 완성하며, 프로그래밍 내용을 파워포인트에 완벽하게 녹여낸 정도가 매우 우수함.</td>
+                        <td>보고서를 작성했으나 설계 중 일부가 미흡하거나, 파워포인트 자료의 완성도가 우수하지만 일부 내용 반영이 부족함.</td>
+                        <td>보고서를 작성하였으나 핵심 요소 대부분이 누락되었거나 불완전하며, 파워포인트 자료가 단순 나열 수준에 그침.</td>
+                        <td>프로그래밍 설계 보고서를 작성하지 못하거나, 파워포인트 자료 제작이 미흡함.</td>
                     </tr>
                     <tr data-factor="프로그래밍 보고서 발표">
                         <td>프로그래밍 보고서 발표하기 (20)</td>
-                        <td>자신이 설계한 프로그래밍 아이디어와 과정(문제 정의 → 알고리즘 구상 → 코드 구조 설계)을 체계적으로 발표하고, 발표 자료를 충실히 공유함.</td>
-                        <td>자신이 설계한 프로그래밍 아이디어와 과정을 발표하였으나 일부 과정 설명이 미흡하거나 발표 자료 공유가 불완전함.</td>
-                        <td>자신이 설계한 프로그래밍 아이디어나 과정 중 일부만 발표하거나 자료 공유가 부족함.</td>
+                        <td>자신이 설계한 아이디어와 과정(문제 정의 → 알고리즘 구상 → 코드 구조 설계)을 체계적으로 발표하고, 발표 자료를 충실히 공유하며, 모든 내용을 완전히 이해하고 막힘없이 발표함.</td>
+                        <td>자신이 설계한 프로그래밍 아이디어와 과정을 발표하였으나 일부 과정 설명이 미흡하거나 발표 자료 공유가 불완전하며, 발표 중 일부 내용 이해도가 부족함.</td>
+                        <td>자신이 설계한 프로그래밍 아이디어나 과정 중 일부만 발표하거나 자료 공유가 부족하며, 발표 내용에 대한 이해도가 낮음.</td>
                         <td>프로그래밍 설계 발표를 하지 못하였으며, 자료도 공유하지 못함.</td>
                     </tr>
                     <tr data-factor="코드 품질 및 가독성">
                         <td>코드 품질 및 가독성 (20)</td>
-                        <td>변수명·함수명이 의미 있게 작성되고, 주석·들여쓰기·모듈화가 규칙적으로 잘 지켜진 경우</td>
-                        <td>전반적인 코드 구조는 읽기 쉽지만 일부 함수명·주석·들여쓰기가 일관되지 않은 경우</td>
-                        <td>코드 실행은 가능하나 가독성이 떨어지고 주석이나 구조적 분리가 부족한 경우</td>
-                        <td>코드가 복잡하고 변수명·함수명이 모호하여 읽기 어렵거나 수정·확장이 곤란한 경우</td>
+                        <td>변수명·함수명이 의미 있게 작성되고, 주석·들여쓰기·모듈화가 규칙적으로 잘 지켜지며, 코드의 내용과 프로그래밍 실현 정도가 매우 높음.</td>
+                        <td>전반적인 코드 구조는 읽기 쉽지만 일부 함수명·주석·들여쓰기가 일관되지 않으며, 프로그래밍 실현에 일부 미흡한 부분이 있음.</td>
+                        <td>코드 실행은 가능하나 가독성이 떨어지고 주석이나 구조적 분리가 부족하며, 프로그래밍 실현 정도가 제한적임.</td>
+                        <td>코드가 복잡하고 변수명·함수명이 모호하여 읽기 어렵거나 수정·확장이 곤란하며, 프로그래밍 실현이 거의 이루어지지 못함.</td>
                     </tr>
                 </tbody>
             </table>
@@ -214,11 +217,11 @@
             <h2>✅ 핵심 평가 요소 요약 및 가이드</h2>
             <div id="criteria-summary">
                 <p>궁금한 평가 요소를 선택하여 만점을 위한 핵심 가이드라인을 확인해보세요.</p>
-                <button class="criteria-button" onclick="showSummary('주제 선정 및 목차 구성')">1. 주제 선정 & 목차</button>
-                <button class="criteria-button" onclick="showSummary('자료 수집 및 핵심 요소 추출')">2. 자료 수집 & 핵심 요소</button>
-                <button class="criteria-button" onclick="showSummary('프로그래밍 보고서 제작')">3. 보고서 제작</button>
-                <button class="criteria-button" onclick="showSummary('프로그래밍 보고서 발표')">4. 보고서 발표</button>
-                <button class="criteria-button" onclick="showSummary('코드 품질 및 가독성')">5. 코드 품질 & 가독성</button>
+                <button class="criteria-button" onclick="showSummary('주제 선정 및 목차 구성')">1. 주제 선정 & 목차 (화면 소개 포함)</button>
+                <button class="criteria-button" onclick="showSummary('자료 수집 및 핵심 요소 추출')">2. 자료 수집 & 핵심 요소 (코드 작동 원리)</button>
+                <button class="criteria-button" onclick="showSummary('프로그래밍 보고서 제작')">3. 보고서 제작 (PPT 연동)</button>
+                <button class="criteria-button" onclick="showSummary('프로그래밍 보고서 발표')">4. 보고서 발표 (완전 이해도)</button>
+                <button class="criteria-button" onclick="showSummary('코드 품질 및 가독성')">5. 코드 품질 & 가독성 (실현 정도)</button>
 
                 <div id="summary-output" class="criteria-detail" style="display:none; margin-top: 20px;">
                     </div>
@@ -228,12 +231,12 @@
 
     <footer>
         <p style="text-align: center; font-size: 0.9em; color: #6c757d; padding: 10px 0;">
-            © 2025 프로그래밍 보고서 평가 안내 자료. (업데이트 버전)
+            © 2025 프로그래밍 보고서 평가 안내 자료. (최종 버전)
         </p>
     </footer>
 
     <script>
-        // JavaScript 함수: 평가 요소별 요약 정보를 표시
+        // JavaScript 함수: 평가 요소별 요약 정보를 표시 (수정됨)
         function showSummary(factor) {
             const summaryOutput = document.getElementById('summary-output');
             let content = '';
@@ -242,36 +245,36 @@
                 case '주제 선정 및 목차 구성':
                     content = `
                         <h3>✅ ${factor} - 만점(20점) 가이드</h3>
-                        <p><strong>핵심:</strong> <span class="highlight">흥미롭고 구체적인 주제</span> 선정 및 <span class="highlight">서론–본론–결론 체계</span>의 논리적 구성.</p>
-                        <p><strong>팁:</strong> 프로젝트가 해결하고자 하는 **실질적인 문제**를 명확히 정의하고, 목차에서 각 단계(분석, 설계, 구현, 결과)가 매끄럽게 연결되도록 구성해야 합니다.</p>
+                        <p><strong>핵심:</strong> <span class="highlight">흥미롭고 구체적인 주제</span> 선정, <span class="highlight">논리적인 서론–본론–결론 목차</span> 구성, 그리고 프로젝트의 전체적인 화면을 효과적으로 소개함.</p>
+                        <p><strong>팁:</strong> 프로젝트의 시각적인 결과물을 목차 서론 부분에 명확하게 포함하고, 완성된 프로그램 화면 구성의 의도를 간략히 설명하세요.</p>
                     `;
                     break;
                 case '자료 수집 및 핵심 요소 추출':
                     content = `
                         <h3>✅ ${factor} - 만점(20점) 가이드</h3>
-                        <p><strong>핵심:</strong> 개발 과정 전반의 <span class="highlight">충실한 수행</span> (문제 정의, 알고리즘 구상, 코드 구조 설계) 및 <span class="highlight">기술 요소 반영</span>.</p>
-                        <p><strong>팁:</strong> 개발의 3단계(**문제 정의, 알고리즘, 코드 구조**)를 모두 시각 자료와 함께 문서화하고, 주제와 관련된 <span class="highlight">최신 기술이나 고급 개념</span>을 통합하여 보여주세요.</p>
+                        <p><strong>핵심:</strong> 문제 정의, 알고리즘, 코드 구조 설계의 충실한 수행과, 부분별 작동 원리를 핵심 코드를 통해 상세히 설명하는 것이 필수입니다.</p>
+                        <p><strong>팁:</strong> 보고서에서 주요 기능별로 관련 코드를 첨부하고, 그 코드가 어떻게 해당 기능을 실현하는지 주석이나 다이어그램으로 명확하게 설명해야 합니다.</p>
                     `;
                     break;
                 case '프로그래밍 보고서 제작':
                     content = `
                         <h3>✅ ${factor} - 만점(20점) 가이드</h3>
-                        <p><strong>핵심:</strong> 문제 정의, 알고리즘 구상, 코드 구조 설계를 포함한 <span class="highlight">체계적인 보고서 작성</span> 및 <span class="highlight">독창적인 완성</span>.</p>
-                        <p><strong>팁:</strong> 보고서 내에 설계 과정(순서도, UML 다이어그램 등)을 포함하고, **서론-본론-결론** 형식을 완벽하게 갖추어 **주제 선정부터 최종 결과까지**의 논리적 흐름이 끊기지 않아야 합니다.</p>
+                        <p><strong>핵심:</strong> 문제 정의, 알고리즘, 코드 구조 설계 과정을 포함한 <span class="highlight">체계적인 보고서 작성</span>과 프로그래밍 내용을 파워포인트에 완벽하게 녹여낸 정도가 평가됩니다.</p>
+                        <p><strong>팁:</strong> 보고서와 발표 자료(PPT)가 유기적으로 연동되어야 하며, PPT는 단순 텍스트 나열이 아닌, 핵심 설계 과정과 최종 결과물을 효과적으로 시각화하여 보고서 내용을 보완해야 합니다.</p>
                     `;
                     break;
                 case '프로그래밍 보고서 발표':
                     content = `
                         <h3>✅ ${factor} - 만점(20점) 가이드</h3>
-                        <p><strong>핵심:</strong> 아이디어와 <span class="highlight">과정(정의 → 구상 → 설계)의 체계적 발표</span> 및 <span class="highlight">발표 자료 충실한 공유</span>.</p>
-                        <p><strong>팁:</strong> 발표는 단순히 코드 설명을 넘어, 프로젝트의 **가치**와 **과정의 논리성**에 중점을 두고 진행해야 합니다. 발표 자료는 시각적으로 풍부하고 이해하기 쉬워야 합니다.</p>
+                        <p><strong>핵심:</strong> 아이디어와 전 과정의 체계적인 발표와, 모든 내용을 완전히 이해하고 질문에 막힘없이 답변하는 능력입니다.</p>
+                        <p><strong>팁:</strong> 발표 시 각 과정(정의 → 구상 → 설계)을 중심으로 진행하되, 발표 내용 전반에 대한 깊은 이해도를 보여주어야 합니다. 질문에 대한 답변이 자신의 설계 의도와 일치해야 만점입니다.</p>
                     `;
                     break;
                 case '코드 품질 및 가독성':
                     content = `
                         <h3>✅ ${factor} - 만점(20점) 가이드</h3>
-                        <p><strong>핵심:</strong> 변수명·함수명이 <span class="highlight">의미 있게 작성</span>되고, 주석·들여쓰기·모듈화가 <span class="highlight">규칙적으로 잘 지켜진</span> 경우.</p>
-                        <p><strong>팁:</strong> **일관된 코딩 컨벤션**을 적용하고, 복잡한 로직 앞에는 충분한 주석을 달며, 역할에 따라 함수나 모듈로 명확하게 분리해야 합니다. **유지보수**와 **확장성**을 고려한 코드가 만점의 핵심입니다.</p>
+                        <p><strong>핵심:</strong> 의미 있는 변수명, 주석, 모듈화 준수와 함께, 코드의 내용과 프로그래밍 실현 정도가 프로젝트의 목표를 완벽하게 달성했음을 입증하는 것입니다.</p>
+                        <p><strong>팁:</strong> 변수명 및 함수명이 의미 있게 작성되고, 주석 등이 규칙적으로 잘 지켜지며, 코드가 구현된 기능이 보고서 내용과 일치하도록 프로그래밍 실현의 완성도를 높여야 합니다. 코드를 모듈화 하여 유지보수가 용이한 구조도 중요합니다.</p>
                     `;
                     break;
                 default:
