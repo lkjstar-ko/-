@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바이어스가 결정 경계에 미치는 영향 - 시각화 데모</title>
+<style>
+  :root {
+    --bg:#0b1020; --ink:#e6e8ef; --muted:#9aa3b2; --accent:#6ea8fe; --panel:#111a33; --border:#1f2a46;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0b1020,#0a0f1f);color:var(--ink);
+       font:14px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',Arial}
+  .container{max-width:1100px;margin:0 auto;padding:18px}
+  .header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6ea8fe,#88e1ff);
+        color:#0b1020;font-weight:800;display:flex;align-items:center;justify-content:center}
+  h1{font-size:18px;margin:0}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; margin-top:12px}
+  .grid{display:grid;grid-template-columns:1fr 320px;gap:12px}
+  .controls .row{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
+  label{color:var(--muted)}
+  input[type=range]{width:160px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);
+       background:#0c142c;color:var(--ink);cursor:pointer}
+  .btn.primary{background:#6ea8fe;color:#0b1020;border-color:transparent;font-weight:700}
+  .stat{font-variant-numeric:tabular-nums}
+  canvas{width:100%;height:520px;border:1px solid var(--border);background:#0c142c;border-radius:12px}
+  code{background:#0c142c;border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+  .small{color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">AI</div>
+      <div>
+        <h1>바이어스(임계값)가 결정 경계에 미치는 영향</h1>
+        <div class="small">로지스틱 회귀(2D) 실시간 학습 시각화 · 바이어스 on/off 비교</div>
+      </div>
+    </div>
+
+    <div class="panel grid">
+      <div>
+        <canvas id="plot" width="700" height="520" aria-label="학습 시각화 캔버스"></canvas>
+      </div>
+      <div class="controls">
+        <div class="row"><label>학습률 η</label>
+          <input id="lr" type="range" min="0.001" max="0.5" step="0.001" value="0.03">
+          <span id="lrVal" class="stat">0.03</span>
+        </div>
+        <div class="row"><label>배치 크기</label>
+          <select id="batch">
+            <option value="full">전체</option>
+            <option value="stochastic">확률적(1개)</option>
+            <option value="mini">미니배치(8)</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>바이어스 사용</label>
+          <input id="useBias" type="checkbox" checked>
+        </div>
+        <div class="row" style="gap:8px">
+          <button id="startBtn" class="btn primary">시작</button>
+          <button id="pauseBtn" class="btn">일시정지</button>
+          <button id="resetBtn" class="btn">초기화</button>
+        </div>
+        <div class="panel">
+          <div><b>모델</b> <span class="small">시그모이드 로지스틱 회귀</span></div>
+          <div style="margin-top:6px"><code>ŷ = σ(w₁x + w₂y + b)</code></div>
+          <div class="small" style="margin-top:6px">결정 경계: <code>w₁x + w₂y + b = 0</code> → <code>y = -(w₁/w₂)x - b/w₂</code></div>
+        </div>
+        <div class="panel">
+          <div><b>통계</b></div>
+          <div class="row"><span>손실(L):</span> <span id="loss" class="stat">-</span></div>
+          <div class="row"><span>정확도:</span> <span id="acc" class="stat">-</span></div>
+          <div class="row"><span>가중치 w:</span> <span id="w" class="stat">[0, 0]</span></div>
+          <div class="row"><span>바이어스 b:</span> <span id="b" class="stat">0</span></div>
+          <div class="row"><span>스텝:</span> <span id="step" class="stat">0</span></div>
+        </div>
+        <div class="small">
+          팁: 바이어스를 끄면(<code>b=0</code>) 직선이 원점을 반드시 지나야 하므로, 데이터가 원점에서 떨어진 경우 손실이 낮아지지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <b>데이터셋 설명</b>
+      <div class="small">
+        파란색(0)은 원점 근처, 주황색(1)은 y축으로 +1.2만큼 이동한 분포로 생성했습니다.
+        최적 경계는 y축 절편(<code>-b/w₂</code>)이 0이 아닌 값이 필요합니다.
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  const lrEl = document.getElementById('lr');
+  const lrVal = document.getElementById('lrVal');
+  const batchSel = document.getElementById('batch');
+  const useBiasEl = document.getElementById('useBias');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const lossEl = document.getElementById('loss');
+  const accEl = document.getElementById('acc');
+  const wEl = document.getElementById('w');
+  const bEl = document.getElementById('b');
+  const stepEl = document.getElementById('step');
+
+  let W = [Math.random()*0.2-0.1, Math.random()*0.2-0.1]; // w1, w2
+  let b = (Math.random()*0.2-0.1);
+  let running = false;
+  let step = 0;
+
+  // Generate a simple separable dataset with bias needed
+  // Class 0: around (x ~ N(0,1), y ~ N(0,1))
+  // Class 1: around (x ~ N(1.0,1), y ~ N(2.2,1)) -> shifted up so intercept needed
+  const N = 120;
+  const data = [];
+  function randn() {
+    // Box-Muller
+    let u=0, v=0;
+    while(u===0) u=Math.random();
+    while(v===0) v=Math.random();
+    return Math.sqrt(-2.0*Math.log(u)) * Math.cos(2.0*Math.PI*v);
+  }
+  for(let i=0;i<N;i++){
+    if(i < N/2){
+      data.push({x: randn()*0.9, y: randn()*0.9, ytrue: 0});
+    }else{
+      data.push({x: 1.0 + randn()*0.9, y: 2.2 + randn()*0.9, ytrue: 1});
+    }
+  }
+
+  // Scale & transform to canvas
+  const PAD = 30;
+  const xMin = -3, xMax = 4;
+  const yMin = -3, yMax = 5;
+  const sx = x => PAD + (x - xMin) * (canvas.width - 2*PAD) / (xMax - xMin);
+  const sy = y => canvas.height - (PAD + (y - yMin) * (canvas.height - 2*PAD) / (yMax - yMin));
+
+  function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+  function predict(p){
+    const z = W[0]*p.x + W[1]*p.y + (useBiasEl.checked ? b : 0);
+    return sigmoid(z);
+  }
+
+  function lossAndGrad(batchIdxs){
+    let L = 0;
+    let dW = [0,0];
+    let db = 0;
+    let correct = 0;
+    for(const idx of batchIdxs){
+      const p = data[idx];
+      const yhat = predict(p);
+      // BCE loss
+      const eps = 1e-8;
+      L += -(p.ytrue*Math.log(yhat+eps) + (1-p.ytrue)*Math.log(1-yhat+eps));
+      // Gradients
+      const dz = (yhat - p.ytrue); // derivative for logistic
+      dW[0] += dz * p.x;
+      dW[1] += dz * p.y;
+      db += dz;
+      // accuracy
+      const predLabel = yhat >= 0.5 ? 1 : 0;
+      if(predLabel === p.ytrue) correct++;
+    }
+    const m = batchIdxs.length;
+    return {
+      L: L/m,
+      dW: [dW[0]/m, dW[1]/m],
+      db: db/m,
+      acc: correct/m
+    };
+  }
+
+  function draw(){
+    // clear
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // axes grid
+    ctx.strokeStyle = '#1f2a46';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let gx=Math.ceil(xMin); gx<=xMax; gx++){
+      const X = sx(gx);
+      ctx.moveTo(X, sy(yMin)); ctx.lineTo(X, sy(yMax));
+    }
+    for(let gy=Math.ceil(yMin); gy<=yMax; gy++){
+      const Y = sy(gy);
+      ctx.moveTo(sx(xMin), Y); ctx.lineTo(sx(xMax), Y);
+    }
+    ctx.stroke();
+
+    // points
+    for(const p of data){
+      ctx.beginPath();
+      ctx.arc(sx(p.x), sy(p.y), 4, 0, Math.PI*2);
+      ctx.fillStyle = p.ytrue ? '#f59e0b' : '#60a5fa'; // orange vs blue
+      ctx.fill();
+    }
+
+    // decision boundary: w1*x + w2*y + b = 0 -> y = -(w1/w2)x - b/w2
+    if (Math.abs(W[1]) > 1e-6){
+      const x1 = xMin, x2 = xMax;
+      const y1 = (-(W[0]/W[1]))*x1 - (useBiasEl.checked ? (b/W[1]) : 0);
+      const y2 = (-(W[0]/W[1]))*x2 - (useBiasEl.checked ? (b/W[1]) : 0);
+      ctx.strokeStyle = '#eab308'; // amber
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(sx(x1), sy(y1));
+      ctx.lineTo(sx(x2), sy(y2));
+      ctx.stroke();
+    }
+
+    // text
+    ctx.fillStyle = '#e6e8ef';
+    ctx.font = '12px ui-sans-serif, system-ui';
+    ctx.fillText('결정 경계', 40, 24);
+  }
+
+  function stepOnce(){
+    const mode = batchSel.value;
+    let batchIdxs;
+    if(mode === 'full'){
+      batchIdxs = [...data.keys()];
+    }else if(mode === 'stochastic'){
+      const k = Math.floor(Math.random()*data.length);
+      batchIdxs = [k];
+    }else{ // mini (size 8)
+      batchIdxs = [];
+      const seen = new Set();
+      while(batchIdxs.length < 8){
+        const k = Math.floor(Math.random()*data.length);
+        if(!seen.has(k)){ seen.add(k); batchIdxs.push(k); }
+      }
+    }
+    const {L, dW, db, acc} = lossAndGrad(batchIdxs);
+    const lr = parseFloat(lrEl.value);
+    // update
+    W[0] -= lr * dW[0];
+    W[1] -= lr * dW[1];
+    if(useBiasEl.checked){ b -= lr * db; } else { b = 0; }
+    step++;
+    // stats
+    lossEl.textContent = L.toFixed(4);
+    accEl.textContent = (acc*100).toFixed(1) + '%';
+    wEl.textContent = `[${W[0].toFixed(3)}, ${W[1].toFixed(3)}]`;
+    bEl.textContent = `${(useBiasEl.checked ? b : 0).toFixed(3)}${useBiasEl.checked?'':' (고정 0)'}`;
+    stepEl.textContent = step;
+    draw();
+  }
+
+  let rafId = null;
+  function loop(){
+    if(!running) return;
+    for(let i=0;i<2;i++) stepOnce(); // speed up a bit
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function start(){ if(!running){ running = true; loop(); } }
+  function pause(){ running = false; if(rafId) cancelAnimationFrame(rafId); }
+  function reset(){
+    pause();
+    W = [Math.random()*0.2-0.1, Math.random()*0.2-0.1];
+    b = (Math.random()*0.2-0.1);
+    step = 0;
+    lossEl.textContent = '-'; accEl.textContent='-'; wEl.textContent='[0, 0]'; bEl.textContent='0'; stepEl.textContent='0';
+    draw();
+  }
+
+  // init UI
+  lrEl.addEventListener('input', ()=> lrVal.textContent = lrEl.value);
+  startBtn.addEventListener('click', start);
+  pauseBtn.addEventListener('click', pause);
+  resetBtn.addEventListener('click', reset);
+  useBiasEl.addEventListener('change', ()=>{});
+
+  // initial render
+  draw();
+})();
+</script>
+</body>
+</html>
