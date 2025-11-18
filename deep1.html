@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>인공신경망으로 음식 분류하기 - 슬라이드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #ffffff;
+      color: #000000;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    header {
+      border-bottom: 3px solid #000000;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      font-size: 18px;
+      color: #333333;
+    }
+
+    .slide {
+      display: none;
+      font-size: 20px;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #000000;
+    }
+
+    .kicker {
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #444444;
+      margin-bottom: 4px;
+    }
+
+    pre {
+      background: #000000;
+      color: #ffffff;
+      padding: 16px;
+      border-radius: 6px;
+      font-size: 18px;
+      overflow-x: auto;
+      margin-bottom: 14px;
+      white-space: pre;
+    }
+
+    code {
+      background: #eeeeee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 18px;
+    }
+
+    ul {
+      margin-top: 8px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      font-size: 20px;
+    }
+
+    .side-box {
+      margin-top: 14px;
+      padding: 14px;
+      font-size: 20px;
+      background: #f3f3f3;
+      border-left: 6px solid #000000;
+    }
+
+    .side-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 8px;
+      width: 100%;
+      font-size: 18px;
+    }
+
+    th, td {
+      border: 1px solid #000000;
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+    th {
+      background: #e5e5e5;
+    }
+
+    footer {
+      margin-top: 40px;
+      border-top: 2px solid #000000;
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 18px;
+      color: #333333;
+      gap: 12px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 6px;
+      border: 2px solid #000000;
+      background: #ffffff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.primary {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .key-hint code {
+      background: #ddd;
+      font-size: 18px;
+    }
+
+    /* 퀴즈용 스타일 */
+    .quiz-item {
+      margin-bottom: 18px;
+    }
+
+    .quiz-options {
+      margin-top: 6px;
+      margin-left: 8px;
+    }
+
+    .quiz-options label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .quiz-options input[type="radio"] {
+      margin-right: 6px;
+      transform: scale(1.1);
+    }
+
+    .quiz-result {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 2px solid #000000;
+      background: #fdf6e3;
+      font-size: 18px;
+    }
+
+    .quiz-correct {
+      background: #e0ffe0;
+    }
+
+    .quiz-wrong {
+      background: #ffe0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>인공신경망으로 음식 분류하기</h1>
+      <div class="subtitle">sweet, crunchy 두 특징으로 음식 class 예측하기</div>
+    </header>
+
+    <!-- 슬라이드들 -->
+    <main id="slides">
+      <!-- 1. 개요 -->
+      <section class="slide active">
+        <div class="kicker">Lesson 01</div>
+        <div class="slide-title">음식 분류 인공신경망 실습</div>
+        <p>
+          이 수업에서는 <strong>달콤함(sweet)</strong>과 
+          <strong>바삭함(crunchy)</strong> 두 가지 특징만으로  
+          음식의 <strong>class</strong>를 예측하는 인공신경망을 만들어 봅니다.
+        </p>
+        <ul>
+          <li>CSV 파일 불러오기</li>
+          <li>X(입력)와 y(정답) 분리</li>
+          <li>신경망 구조 설계</li>
+          <li>학습, 평가, 예측까지 흐름 이해하기</li>
+        </ul>
+      </section>
+
+      <!-- 2. CSV 불러오기 -->
+      <section class="slide">
+        <div class="kicker">Step 1</div>
+        <div class="slide-title">CSV → DataFrame 불러오기</div>
+        <pre>import pandas as pd
+df = pd.read_csv('food_nn.csv')</pre>
+        <ul>
+          <li><code>df</code>는 행과 열로 구성된 표 형태의 데이터입니다.</li>
+          <li>엑셀 표와 비슷한 구조라고 생각하면 됩니다.</li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">CSV에 들어 있는 열(컬럼) 예시</div>
+          <table>
+            <thead>
+              <tr>
+                <th>ingredient</th>
+                <th>sweet</th>
+                <th>crunchy</th>
+                <th>class</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>apple</td>
+                <td>10</td>
+                <td>9</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>bacon</td>
+                <td>1</td>
+                <td>4</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>banana</td>
+                <td>10</td>
+                <td>1</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>carrot</td>
+                <td>7</td>
+                <td>10</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>celery</td>
+                <td>3</td>
+                <td>10</td>
+                <td>2</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin-top:10px;">
+            각 행은 하나의 음식, 각 열은 그 음식의 특징(또는 정답)을 나타냅니다.
+          </p>
+        </div>
+      </section>
+
+      <!-- 3. X, y 분리 + CSV 예시 -->
+      <section class="slide">
+        <div class="kicker">Step 2</div>
+        <div class="slide-title">특징(X)와 타깃(y) 분리</div>
+        <p>
+          모델이 <strong>보고 배우는 정보</strong>는 X, 
+          <strong>맞혀야 할 정답</strong>은 y로 나눕니다.
+        </p>
+        <pre>X = df[['sweet','crunchy']]
+y = df['class']</pre>
+        <ul>
+          <li>X: sweet, crunchy 두 열 → 모델이 보는 입력 정보</li>
+          <li>y: class 열 → 모델이 맞혀야 할 정답(0, 1, 2)</li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">CSV에서 X와 y가 되는 부분</div>
+          <table>
+            <thead>
+              <tr>
+                <th>ingredient</th>
+                <th>sweet (X)</th>
+                <th>crunchy (X)</th>
+                <th>class (y)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>apple</td>
+                <td>10</td>
+                <td>9</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>bacon</td>
+                <td>1</td>
+                <td>4</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>banana</td>
+                <td>10</td>
+                <td>1</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin-top:10px;">
+            ingredient 열은 이름 정보일 뿐이고,<br>
+            실제 학습에는 sweet, crunchy(입력)와 class(정답)만 사용합니다.
+          </p>
+        </div>
+      </section>
+
+      <!-- 4. 모델 설계 + 비유 -->
+      <section class="slide">
+        <div class="kicker">Step 3</div>
+        <div class="slide-title">신경망 모델 설계</div>
+        <pre>from keras.models import Sequential
+from keras.layers import Dense
+
+model = Sequential()
+model.add(Dense(32, input_dim=2, activation='relu'))
+model.add(Dense(16, activation='relu'))
+model.add(Dense(3, activation='softmax'))</pre>
+        <ul>
+          <li>입력층 2 → 은닉층 32, 16 → 출력층 3</li>
+          <li>입력 특징이 2개이므로 <code>input_dim=2</code></li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">명령어 쉬운 설명</div>
+          <ul>
+            <li><strong>Sequential</strong>: 층을 위에서 아래로 순서대로 쌓는 틀<br>
+              → 레고 블록을 한 층씩 차곡차곡 쌓는 느낌
+            </li>
+            <li><strong>Dense</strong>: 모든 입력이 모든 출력과 연결되는 층<br>
+              → 모든 학생이 서로에게 쪽지를 건네는 상황
+            </li>
+            <li><strong>activation='relu'</strong>: 0 이하는 0으로 버리고, 0 이상만 통과<br>
+              → 불량품은 걸러내고 정상 제품만 통과시키는 공장 필터
+            </li>
+            <li><strong>activation='softmax'</strong>: 출력값을 0~1 사이 확률로 바꿔서 합이 1이 되게 함<br>
+              → 여러 후보에게 득표율을 나눠 주는 투표 결과표
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 5. 컴파일 + 비유 -->
+      <section class="slide">
+        <div class="kicker">Step 4</div>
+        <div class="slide-title">모델 컴파일</div>
+        <pre>model.compile(loss='sparse_categorical_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])</pre>
+        <ul>
+          <li><code>loss</code>: 틀린 정도를 계산하는 방법</li>
+          <li><code>optimizer</code>: 가중치를 어떻게 바꿀지 정하는 알고리즘</li>
+          <li><code>metrics</code>: 학습 중에 보고 싶은 지표 (여기서는 정확도)</li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">명령어 쉬운 설명</div>
+          <ul>
+            <li><strong>loss='sparse_categorical_crossentropy'</strong><br>
+              → 정답이 0,1,2처럼 정수일 때 쓰는 다중 분류용 손실함수<br>
+              → 시험을 보고 틀린 정도를 점수로 매기는 채점 기준
+            </li>
+            <li><strong>optimizer='adam'</strong><br>
+              → 빠르고 똑똑하게 내려가는 경사하강법<br>
+              → 계단을 내려갈 때 발 밑을 보면서 가장 빨리 내려가는 길을 찾아주는 내비게이션
+            </li>
+            <li><strong>metrics=['accuracy']</strong><br>
+              → “맞힌 문제 비율도 같이 보여 달라”는 의미<br>
+              → 성적표에서 점수(%)를 함께 보는 것
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 6. 학습 + 비유 -->
+      <section class="slide">
+        <div class="kicker">Step 5</div>
+        <div class="slide-title">모델 학습</div>
+        <pre>model.fit(X, y, epochs=500)</pre>
+        <ul>
+          <li><code>fit</code>: X와 y로 모델을 실제로 공부시키는 명령</li>
+          <li><code>epochs=500</code>: 같은 데이터를 500번 반복해서 보여줌</li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">명령어 쉬운 설명</div>
+          <ul>
+            <li><strong>fit</strong><br>
+              → 문제(X)와 정답(y)을 계속 보여주며 공부시키는 과정<br>
+              → 학원에서 문제집을 풀면서 선생님이 채점해 주는 시간
+            </li>
+            <li><strong>epochs=500</strong><br>
+              → 똑같은 문제집을 500번 복습하는 것<br>
+              → 너무 많이 하면 외워버려서 다른 문제에 약해지는 과적합이 생길 수 있음
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 7. 평가 + 비유 -->
+      <section class="slide">
+        <div class="kicker">Step 6</div>
+        <div class="slide-title">성능 평가</div>
+        <pre>model.evaluate(X, y)</pre>
+        <ul>
+          <li>학습된 모델이 X, y에서 얼마나 잘 맞추는지 확인</li>
+          <li>결과: <code>[loss, accuracy]</code> 형식으로 나옴</li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">명령어 쉬운 설명</div>
+          <ul>
+            <li><strong>evaluate</strong><br>
+              → 지금까지 공부한 실력을 시험 쳐 보는 것<br>
+              → 모의고사를 봐서 현재 실력을 점수로 확인하는 느낌
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 8. 예측 (전체 데이터) + 비유 -->
+      <section class="slide">
+        <div class="kicker">Step 7</div>
+        <div class="slide-title">예측하기 (기존 데이터)</div>
+        <pre>model.predict(X)</pre>
+        <ul>
+          <li>X의 각 행에 대해 class 0, 1, 2가 될 확률을 출력</li>
+          <li>예: <code>[[0.1, 0.7, 0.2], [0.9, 0.05, 0.05], ...]</code></li>
+        </ul>
+
+        <div class="side-box">
+          <div class="side-title">명령어 쉬운 설명</div>
+          <ul>
+            <li><strong>predict</strong><br>
+              → “이 음식은 어떤 class일 것 같니?”라고 물어보는 것<br>
+              → “과자일 확률 70%, 반찬일 확률 20%, 디저트일 확률 10%”처럼 대답
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 9. 새로운 데이터 예측 + 비유 -->
+      <section class="slide">
+        <div class="kicker">Step 8</div>
+        <div class="slide-title">새로운 데이터 예측</div>
+        <pre>import numpy as np
+
+X_new = np.array([[0.9, 0.9],   # 매우 달고, 매우 바삭한 음식
+                  [0.1, 0.2]])  # 안 달고, 안 바삭한 음식
+
+preds = model.predict(X_new)
+print(preds)
+print(preds.argmax(axis=1))</pre>
+
+        <div class="side-box">
+          <div class="side-title">명령어 쉬운 설명</div>
+          <ul>
+            <li><strong>X_new</strong><br>
+              → 모델이 처음 보는 새로운 음식의 특징들<br>
+              → “만들어 본 적 없는 새로운 메뉴”의 달콤함, 바삭함 점수
+            </li>
+            <li><strong>preds.argmax(axis=1)</strong><br>
+              → 예측된 확률 중에서 가장 큰 값을 가진 class 번호 선택<br>
+              → 투표에서 가장 많은 표를 얻은 후보를 최종 당선자로 뽑는 것
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 10. 정리 -->
+      <section class="slide">
+        <div class="kicker">Review</div>
+        <div class="slide-title">정리</div>
+        <ul>
+          <li>X: sweet, crunchy → 모델이 보는 입력</li>
+          <li>y: class(0,1,2) → 모델이 맞혀야 할 정답</li>
+          <li>모델 구조: 입력 2 → 은닉층 32, 16 → 출력층 3(softmax)</li>
+          <li>compile: 손실함수, optimizer, 평가 지표 설정</li>
+          <li>fit: epochs 만큼 반복 학습</li>
+          <li>evaluate: loss와 accuracy로 실력 확인</li>
+          <li>predict: 확률로 class 예측, argmax로 최종 class 선택</li>
+        </ul>
+      </section>
+
+      <!-- 11. 형성평가 (학생 선택 + 자동 채점) -->
+      <section class="slide">
+        <div class="kicker">Review</div>
+        <div class="slide-title">형성평가</div>
+        <p>
+          오늘 배운 내용을 바탕으로 다음 4지선다 문제를 풀어 봅시다. (정답을 고른 뒤, 아래의 “정답 확인” 버튼을 눌러 보세요.)
+        </p>
+
+        <ol>
+          <li class="quiz-item" data-q="1">
+            <strong>문제 1</strong><br>
+            이 수업에서 말하는 <strong>X(입력 데이터)</strong> 에 들어가는 열만 알맞게 모아 놓은 것은?
+            <div class="quiz-options">
+              <label><input type="radio" name="q1" value="1"> ① <code>ingredient</code>, <code>class</code></label>
+              <label><input type="radio" name="q1" value="2"> ② <code>sweet</code>, <code>crunchy</code></label>
+              <label><input type="radio" name="q1" value="3"> ③ <code>ingredient</code>, <code>sweet</code>, <code>crunchy</code>, <code>class</code></label>
+              <label><input type="radio" name="q1" value="4"> ④ <code>class</code></label>
+            </div>
+          </li>
+
+          <li class="quiz-item" data-q="2">
+            <strong>문제 2</strong><br>
+            다음 중 <strong>Sequential 모델</strong>에 대한 설명으로 가장 알맞은 것은?
+            <div class="quiz-options">
+              <label><input type="radio" name="q2" value="1"> ① 여러 개의 모델을 동시에 학습시키는 역할이다.</label>
+              <label><input type="radio" name="q2" value="2"> ② 층들을 위에서 아래로 순서대로 차곡차곡 쌓는 틀이다.</label>
+              <label><input type="radio" name="q2" value="3"> ③ 데이터를 섞어서 무작위로 섞어 주는 역할이다.</label>
+              <label><input type="radio" name="q2" value="4"> ④ 손실함수를 계산해서 정확도를 올리는 역할이다.</label>
+            </div>
+          </li>
+
+          <li class="quiz-item" data-q="3">
+            <strong>문제 3</strong><br>
+            다음 코드에서 <code>input_dim=2</code>가 의미하는 것은?
+            <pre>model.add(Dense(32, input_dim=2, activation='relu'))</pre>
+            <div class="quiz-options">
+              <label><input type="radio" name="q3" value="1"> ① 은닉층의 노드 개수가 2개라는 뜻</label>
+              <label><input type="radio" name="q3" value="2"> ② 출력층의 class가 2개라는 뜻</label>
+              <label><input type="radio" name="q3" value="3"> ③ 입력 특징(열)의 개수가 2개라는 뜻</label>
+              <label><input type="radio" name="q3" value="4"> ④ 은닉층이 2층이라는 뜻</label>
+            </div>
+          </li>
+
+          <li class="quiz-item" data-q="4">
+            <strong>문제 4</strong><br>
+            다음 중 <strong>ReLU 활성화 함수</strong>에 대한 설명으로 가장 알맞은 것은?
+            <div class="quiz-options">
+              <label><input type="radio" name="q4" value="1"> ① 모든 입력을 0과 1 사이 확률로 바꾼다.</label>
+              <label><input type="radio" name="q4" value="2"> ② 입력이 크든 작든 그대로 통과시킨다.</label>
+              <label><input type="radio" name="q4" value="3"> ③ 입력이 0 이하면 0으로 만들고, 0 이상이면 그대로 통과시킨다.</label>
+              <label><input type="radio" name="q4" value="4"> ④ 항상 가장 큰 값을 가진 입력만 남기고 나머지는 버린다.</label>
+            </div>
+          </li>
+
+          <li class="quiz-item" data-q="5">
+            <strong>문제 5</strong><br>
+            다음 중 <code>optimizer='adam'</code> 의 역할에 대한 설명으로 가장 알맞은 것은?
+            <div class="quiz-options">
+              <label><input type="radio" name="q5" value="1"> ① 학습이 끝난 뒤 정확도를 계산해 준다.</label>
+              <label><input type="radio" name="q5" value="2"> ② 가중치를 어떻게 바꿔 나갈지 정해 주는 “공부 방법” 역할을 한다.</label>
+              <label><input type="radio" name="q5" value="3"> ③ 예측 결과를 정수 레이블(0,1,2)로 바꿔 준다.</label>
+              <label><input type="radio" name="q5" value="4"> ④ 데이터를 훈련용과 테스트용으로 나눠 준다.</label>
+            </div>
+          </li>
+
+          <li class="quiz-item" data-q="6">
+            <strong>문제 6</strong><br>
+            <code>model.fit(X, y, epochs=500)</code>에서 <code>epochs</code>에 대한 설명으로 알맞은 것은?
+            <div class="quiz-options">
+              <label><input type="radio" name="q6" value="1"> ① 한 번 학습할 때 사용하는 배치 크기를 의미한다.</label>
+              <label><input type="radio" name="q6" value="2"> ② 학습할 때 사용하는 입력 노드의 개수를 의미한다.</label>
+              <label><input type="radio" name="q6" value="3"> ③ 동일한 훈련 데이터를 몇 번 반복해서 보여줄지 의미한다.</label>
+              <label><input type="radio" name="q6" value="4"> ④ 모델 안에 있는 은닉층의 개수를 의미한다.</label>
+            </div>
+          </li>
+
+          <li class="quiz-item" data-q="7">
+            <strong>문제 7</strong><br>
+            다음은 새로운 데이터에 대한 예측 코드이다.
+            <pre>preds = model.predict(X_new)
+pred_labels = preds.argmax(axis=1)</pre>
+            <code>pred_labels</code>에 들어가는 값에 대한 설명으로 가장 알맞은 것은?
+            <div class="quiz-options">
+              <label><input type="radio" name="q7" value="1"> ① 각 class가 될 확률 값이 그대로 들어 있다.</label>
+              <label><input type="radio" name="q7" value="2"> ② 항상 0과 1 사이의 소수 값만 들어 있다.</label>
+              <label><input type="radio" name="q7" value="3"> ③ 각 샘플마다 가장 확률이 높은 class의 번호가 들어 있다.</label>
+              <label><input type="radio" name="q7" value="4"> ④ 훈련 데이터의 개수와 상관없이 항상 3개의 값만 들어 있다.</label>
+            </div>
+          </li>
+        </ol>
+
+        <button id="checkAnswersBtn" class="primary" style="margin-top:10px;">
+          정답 확인
+        </button>
+
+        <div id="quizResult" class="quiz-result" style="display:none; margin-top:12px;">
+          <!-- 채점 결과가 여기에 표시됩니다. -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="key-hint">
+        방향키 <code>←</code> <code>→</code> 로 슬라이드 이동
+      </div>
+      <div class="buttons">
+        <button id="prevBtn">이전</button>
+        <button id="nextBtn" class="primary">다음</button>
+        <span id="progress"></span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const total = slides.length;
+    let current = 0;
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progress = document.getElementById("progress");
+
+    function update() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle("active", idx === current);
+      });
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+      progress.textContent = (current + 1) + " / " + total;
+    }
+
+    function go(n) {
+      if (n < 0 || n >= total) return;
+      current = n;
+      update();
+    }
+
+    prevBtn.onclick = () => go(current - 1);
+    nextBtn.onclick = () => go(current + 1);
+
+    document.onkeydown = (e) => {
+      if (e.key === "ArrowRight" || e.key === "PageDown") go(current + 1);
+      if (e.key === "ArrowLeft" || e.key === "PageUp") go(current - 1);
+    };
+
+    // 형성평가 채점 기능
+    const checkBtn = document.getElementById("checkAnswersBtn");
+    const quizResult = document.getElementById("quizResult");
+
+    if (checkBtn && quizResult) {
+      // 각 문제의 정답 (보기 번호) 1~4
+      const answerKey = ["2", "2", "3", "3", "2", "3", "3"]; 
+      // 1)② 2)② 3)③ 4)③ 5)② 6)③ 7)③
+
+      checkBtn.addEventListener("click", () => {
+        let score = 0;
+        const totalQ = answerKey.length;
+
+        // 이전 채점 색 지우기
+        document.querySelectorAll(".quiz-item").forEach(li => {
+          li.classList.remove("quiz-correct", "quiz-wrong");
+        });
+
+        for (let i = 0; i < totalQ; i++) {
+          const qNum = i + 1;
+          const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+          const li = document.querySelector(`.quiz-item[data-q="${qNum}"]`);
+
+          if (!li) continue;
+
+          if (!selected) {
+            // 무응답은 색만 칠하지 않음
+            continue;
+          }
+
+          if (selected.value === answerKey[i]) {
+            score++;
+            li.classList.add("quiz-correct");
+          } else {
+            li.classList.add("quiz-wrong");
+          }
+        }
+
+        quizResult.style.display = "block";
+        quizResult.textContent = `총 ${totalQ}문제 중 ${score}문제 정답입니다.`;
+      });
+    }
+
+    update();
+  </script>
+</body>
+</html>
