@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI는 세상을 어떻게 볼까? - CNN 수업자료</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+/* 1. THE SETUP */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1e1e1e; /* Darker background for presentation mode */
+    margin: 0;
+    height: 100vh;
+    overflow: hidden; /* Hide scrollbars for presentation feel */
+    font-family: 'Noto Sans KR', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Slide Container Layout */
+.slide-deck {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+}
+
+.slide-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    overflow: hidden;
+    padding: 40px 60px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    align-items: center;
+}
+
+.slide-container.active {
+    display: flex;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Background Designs */
+.slide-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.slide-container > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* 2. TYPOGRAPHY */
+.slide-container h1,
+.slide-container h2 {
+    font-family: 'Jua', sans-serif;
+    color: #1e293b;
+}
+
+.slide-container p,
+.slide-container li,
+.slide-container h3,
+.slide-container td,
+.slide-container th {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #333;
+}
+
+.slide-container h1 {
+    font-size: 80px;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.slide-container h3 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.slide-container p,
+.slide-container li {
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.slide-title {
+    font-size: 52px;
+    font-weight: 500;
+    color: #1e293b;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 30px;
+    padding-left: 20px;
+    border-left: 8px solid #ff823a;
+}
+
+/* 3. LAYOUT DEFINITIONS */
+.content-area {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    width: 100%;
+}
+
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    height: 100%;
+    padding: 0 20px;
+}
+
+.two-column .text-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.two-column .image-column {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.image-wrapper {
+    width: 100%;
+    height: 450px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    background-color: #fff;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #eee;
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.two-column .image-wrapper img {
+    object-fit: contain;
+}
+
+/* Content Box */
+.content-box {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 30px;
+    padding: 40px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 2px solid #fff;
+}
+
+/* Tiled Content */
+.tiled-content {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    align-items: stretch;
+    padding: 0 20px;
+}
+
+.tile {
+    flex: 1;
+    border-radius: 30px;
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tile .icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* AI Chat Styles */
+.ai-panel {
+    background: #fff;
+    border-radius: 20px;
+    border: 2px solid #e2e8f0;
+    padding: 20px;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 80%;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.chat-message.user {
+    background-color: #3b82f6;
+    color: white;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.chat-message.ai {
+    background-color: #e2e8f0;
+    color: #1e293b;
+    align-self: flex-start;
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.send-btn {
+    background-color: #8b5cf6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.send-btn:hover { background-color: #7c3aed; }
+.send-btn:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+.quiz-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+.quiz-btn {
+    background: linear-gradient(135deg, #ff823a 0%, #f97316 100%);
+    color: white;
+    font-size: 24px;
+    padding: 20px 40px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(249, 115, 22, 0.3);
+    transition: transform 0.2s;
+    font-family: 'Jua', sans-serif;
+}
+
+.quiz-btn:hover { transform: scale(1.05); }
+
+.quiz-result {
+    margin-top: 20px;
+    font-size: 18px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid #ff823a;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+    text-align: left;
+    display: none;
+}
+
+/* Theme Colors */
+.bg-lime { background-color: #dcfd8b; }
+.bg-peach { background-color: #fdd5bd; }
+.bg-purple { background-color: #bc84ee; }
+.bg-orange { background-color: #ff823a; }
+.bg-blue { background-color: #a5d8ff; }
+.bg-white { background-color: #ffffff; }
+
+/* Custom Grid Table */
+.pixel-grid-container {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+}
+
+.pixel-table {
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.pixel-table td {
+    border: 2px solid #ccc;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #555;
+}
+
+.highlight-cell {
+    background-color: #ff823a;
+    color: white !important;
+    border: 3px solid #e85d04 !important;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 10;
+    position: relative;
+}
+
+.arrow {
+    font-size: 40px;
+    color: #333;
+}
+
+/* Lists */
+ul {
+    padding-left: 20px;
+    list-style-type: none;
+}
+
+ul li::before {
+    content: '🍊';
+    margin-right: 10px;
+}
+
+/* Controls */
+.controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.control-btn:hover {
+    background: rgba(0,0,0,0.8);
+}
+
+.page-number {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    color: rgba(0,0,0,0.5);
+    font-weight: bold;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="slide-deck">
+
+    <!-- Slide 1: Title Slide -->
+    <div class="slide-container bg-lime active" id="slide1">
+        <div class="content-area" style="text-align: center;">
+            <h1>AI는 세상을<br>어떻게 볼까?</h1>
+            <div style="background: #fff; padding: 20px 40px; border-radius: 50px; display: inline-block;">
+                <p style="font-size: 30px; margin:0; color: #1e293b;">합성곱 신경망(CNN)의 비밀 🔍</p>
+            </div>
+            <p style="margin-top: 40px; font-size: 20px;">중학생을 위한 인공지능 교실</p>
+        </div>
+        <div class="page-number">1 / 11</div>
+    </div>
+
+    <!-- Slide 2: Intro - Computer Vision -->
+    <div class="slide-container bg-peach" id="slide2">
+        <h2 class="slide-title">컴퓨터의 눈 vs 사람의 눈</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div class="text-column">
+                    <div class="content-box">
+                        <h3>우리는 "고양이"라고 보지만...</h3>
+                        <ul>
+                            <li>컴퓨터에게 그림은 <strong>숫자 덩어리</strong>일 뿐이에요.</li>
+                            <li>0(검은색)부터 255(흰색)까지의 숫자가 빽빽하게 적혀있죠.</li>
+                            <li>이 숫자들을 보고 "이건 고양이야!"라고 맞춰야 해요.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="image-column">
+                    <div class="image-wrapper">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/640px-Cat_November_2010-1a.jpg" 
+                             onerror="this.src='https://placehold.co/600x400/white/333?text=Cat+Image+Error'; this.style.objectFit='contain';" 
+                             alt="고양이 얼굴 사진">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">2 / 11</div>
+    </div>
+
+    <!-- Slide 3: The Problem -->
+    <div class="slide-container bg-blue" id="slide3">
+        <h2 class="slide-title">그냥 숫자를 외우면 될까?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div class="image-column">
+                    <div class="image-wrapper" style="flex-direction: column; gap: 10px;">
+                        <div style="display: flex; gap: 10px; width: 90%; height: 45%;">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/320px-Cat_November_2010-1a.jpg" style="width: 50%; object-fit: cover; border-radius: 10px;">
+                             <div style="display:flex; align-items:center; justify-content:center; width: 50%; font-size: 20px; font-weight:bold; background:#eee; border-radius:10px;">
+                                 숫자: [12, 55, ...]
+                             </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; width: 90%; height: 45%;">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/320px-Cat_November_2010-1a.jpg" style="width: 50%; object-fit: cover; border-radius: 10px; transform: rotate(90deg);">
+                             <div style="display:flex; align-items:center; justify-content:center; width: 50%; font-size: 20px; font-weight:bold; background:#ffcccc; border-radius:10px; color: red;">
+                                 숫자: [??, ??, ...] <br>완전 달라짐!
+                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-column">
+                    <div class="content-box">
+                        <h3>❌ 안돼요! 문제가 생겨요.</h3>
+                        <ul>
+                            <li>고양이가 옆으로 움직이거나 회전하면 숫자의 위치가 다 바뀝니다.</li>
+                            <li>컴퓨터는 "어? 내가 알던 숫자가 아닌데?" 하고 당황합니다.</li>
+                            <li>그래서 <strong>모양(특징)</strong>을 찾는 방법이 필요해요!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">3 / 11</div>
+    </div>
+
+    <!-- Slide 4: Solution - Analogy -->
+    <div class="slide-container bg-purple" id="slide4">
+        <h2 class="slide-title">해결사: 명탐정 돋보기 (CNN)</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h3>1. 훑어보기</h3>
+                    <p>그림 전체를 한 번에 외우지 않고, 작은 돋보기(필터)로 구석구석 훑어봐요.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-fingerprint"></i></div>
+                    <h3>2. 특징 찾기</h3>
+                    <p>"여기에 뾰족한 귀가 있나?", "동그란 눈이 있나?" 같은 특징을 찾아요.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-check-double"></i></div>
+                    <h3>3. 판결 내리기</h3>
+                    <p>찾은 특징들을 종합해서 "이건 99% 고양이야!"라고 결론을 내려요.</p>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">4 / 11</div>
+    </div>
+
+    <!-- Slide 5: Concept 1 - Convolution -->
+    <div class="slide-container bg-lime" id="slide5">
+        <h2 class="slide-title">1단계: 특징 찾아내기 (합성곱)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div class="text-column">
+                    <h3>필터(Filter)가 하는 일</h3>
+                    <p>작은 돋보기가 그림 위를 쓱~ 쓱~ 지나갑니다.</p>
+                    <p>필터와 모양이 비슷한 부분이 나오면 <strong>높은 점수</strong>를 줘요!</p>
+                    <p style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <i class="fa-regular fa-lightbulb"></i> <strong>비유:</strong><br>
+                        월리를 찾아라 할 때, 눈을 크게 뜨고 월리의 '빨간 줄무늬 옷'만 찾아다니는 것과 같아요.
+                    </p>
+                </div>
+                <div class="image-column">
+                    <div class="image-wrapper">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/2D_Convolution_Animation.gif/480px-2D_Convolution_Animation.gif" 
+                             onerror="this.src='https://placehold.co/600x400/white/orange?text=Scanning+Animation+Error'; this.style.objectFit='contain';" 
+                             alt="필터가 이미지를 스캔하는 애니메이션">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">5 / 11</div>
+    </div>
+
+    <!-- Slide 6: Concept 2 - Pooling -->
+    <div class="slide-container bg-orange" id="slide6">
+        <h2 class="slide-title">2단계: 핵심만 남기기 (풀링)</h2>
+        <div class="content-area">
+            <p style="margin-bottom: 30px; font-size: 22px;">정보가 너무 많으면 헷갈려요! 구역별로 <strong>가장 큰 숫자(대장)</strong>만 남깁니다.</p>
+            
+            <div class="pixel-grid-container">
+                <div style="text-align: center;">
+                    <p>4x4 이미지</p>
+                    <table class="pixel-table">
+                        <tr>
+                            <td class="highlight-cell">9</td> <td>2</td> <td>1</td> <td class="highlight-cell">5</td>
+                        </tr>
+                        <tr>
+                            <td>4</td> <td>6</td> <td>3</td> <td>8</td>
+                        </tr>
+                        <tr>
+                            <td>2</td> <td>1</td> <td>0</td> <td>4</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-cell">5</td> <td>7</td> <td>2</td> <td class="highlight-cell">8</td> 
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <div style="text-align: center;">
+                    <p>2x2 핵심 요약 (Max Pooling)</p>
+                    <table class="pixel-table">
+                        <tr>
+                            <td class="highlight-cell">9</td> <td class="highlight-cell">8</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-cell">7</td> <td class="highlight-cell">8</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <p style="margin-top: 30px; font-size: 18px; color: #444;">
+                * 빨간색 칸: 각 2x2 구역에서 가장 큰 수 (살아남은 특징들)
+            </p>
+        </div>
+        <div class="page-number">6 / 11</div>
+    </div>
+
+    <!-- Slide 7: Hierarchy -->
+    <div class="slide-container bg-peach" id="slide7">
+        <h2 class="slide-title">점점 더 복잡한 것을 알아봐요</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div class="image-column">
+                     <div class="image-wrapper" style="height: 500px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Colored_neural_network.svg/640px-Colored_neural_network.svg.png"
+                             onerror="this.src='https://placehold.co/400x600/white/333?text=Neural+Network+Layers'; this.style.objectFit='contain';"
+                             alt="신경망 계층 구조" style="object-fit: contain; padding: 20px;">
+                    </div>
+                </div>
+                <div class="text-column">
+                    <div class="content-box">
+                        <h3>층(Layer)을 지날수록 똑똑해져요</h3>
+                        <ul style="font-size: 22px;">
+                            <li><strong>앞쪽 층:</strong> 단순한 선(ㅡ, |)이나 점을 찾아요.</li>
+                            <li><strong>중간 층:</strong> 눈, 코, 입 같은 부위를 찾아요. 👀</li>
+                            <li><strong>뒤쪽 층:</strong> 전체 얼굴 윤곽을 완성해요! 👧</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">7 / 11</div>
+    </div>
+
+    <!-- Slide 8: Applications -->
+    <div class="slide-container bg-blue" id="slide8">
+        <h2 class="slide-title">우리 생활 속의 CNN</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="image-wrapper" style="height: 250px; margin-bottom: 20px;">
+                        <!-- 교체된 이미지: 얼굴 인식 시스템 (Wikimedia Commons) -->
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Facial_recognition_system_identification.jpg/640px-Facial_recognition_system_identification.jpg"
+                             onerror="this.src='https://placehold.co/400x300/white/333?text=Face+Filter+Image'; this.style.objectFit='cover';"
+                             alt="얼굴 랜드마크 (스노우 앱 원리)">
+                    </div>
+                    <h3>카메라 필터 (SNOW)</h3>
+                    <p>내 눈, 코, 입 위치를 정확히 찾아서 스티커를 붙여줘요.</p>
+                </div>
+                <div class="tile">
+                    <div class="image-wrapper" style="height: 250px; margin-bottom: 20px;">
+                        <!-- 교체된 이미지: 자율주행 자동차 (Wikimedia Commons) -->
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Google_driverless_car_at_Googleplex.jpg/640px-Google_driverless_car_at_Googleplex.jpg"
+                             onerror="this.src='https://placehold.co/400x300/white/333?text=Autonomous+Car'; this.style.objectFit='cover';"
+                             alt="자율주행 자동차">
+                    </div>
+                    <h3>자율주행 자동차</h3>
+                    <p>표지판, 사람, 다른 차를 구별해서 안전하게 운전해요.</p>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">8 / 11</div>
+    </div>
+
+    <!-- Slide 9: Activity -->
+    <div class="slide-container bg-lime" id="slide9">
+        <div class="content-area section-title-layout">
+            <div class="icon" style="font-size: 80px; color: #1e293b; margin-bottom: 30px;">
+                <i class="fa-solid fa-laptop-code"></i>
+            </div>
+            <h2>직접 해보자!<br>구글 티처블 머신</h2>
+            <p style="font-size: 28px;">나만의 AI 모델을 만들어 봅시다.</p>
+            <div style="background: #fff; padding: 20px; border-radius: 15px; margin-top: 30px; cursor: pointer;" onclick="window.open('https://teachablemachine.withgoogle.com', '_blank')">
+                <p style="font-size: 20px; margin:0; color: #2563eb; text-decoration: underline;">teachablemachine.withgoogle.com <i class="fa-solid fa-external-link-alt" style="font-size: 16px;"></i></p>
+            </div>
+        </div>
+        <div class="page-number">9 / 11</div>
+    </div>
+    
+    <!-- Slide 10: Q&A -->
+    <div class="slide-container bg-purple" id="slide10">
+        <div class="qa-layout">
+            <h2>질문 있나요?</h2>
+            <div style="font-size: 100px; color: #fff; margin: 20px;">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <p>AI는 세상을 픽셀로 보고, 특징으로 기억합니다.</p>
+        </div>
+        <div class="page-number">10 / 11</div>
+    </div>
+
+    <!-- Slide 11: Gemini API Features (NEW) -->
+    <div class="slide-container bg-white" id="slide11">
+        <h2 class="slide-title">AI 선생님에게 물어보세요! ✨</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <!-- Left: Chatbot -->
+                <div class="text-column">
+                    <div class="ai-panel">
+                        <h3 style="text-align: center; margin-top: 0; font-size: 24px;">🤖 궁금한 점 물어보기</h3>
+                        <div class="chat-history" id="chatHistory">
+                            <div class="chat-message ai">안녕하세요! CNN에 대해 궁금한 게 있나요? '풀링이 뭐야?' 처럼 물어보세요!</div>
+                        </div>
+                        <div class="input-area">
+                            <input type="text" id="userQuestion" class="chat-input" placeholder="질문을 입력하세요..." onkeypress="handleKeyPress(event)">
+                            <button class="send-btn" onclick="askGemini()" id="sendBtn">전송</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Quiz Gen -->
+                <div class="image-column">
+                    <div class="content-box quiz-area">
+                        <div class="icon" style="font-size: 60px; margin-bottom: 20px; color: #f97316;">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h3 style="margin-bottom: 20px;">오늘 배운 내용 확인하기</h3>
+                        <button class="quiz-btn" onclick="generateQuiz()" id="quizBtn">
+                            AI 퀴즈 생성하기 ✨
+                        </button>
+                        <div class="quiz-result" id="quizResult">
+                            <!-- Quiz content goes here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">11 / 11</div>
+    </div>
+
+</div>
+
+<div class="controls">
+    <button class="control-btn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i> 이전</button>
+    <button class="control-btn" onclick="nextSlide()">다음 <i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    // API Setup
+    const apiKey = ""; // System provided
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
+
+    // --- Presentation Logic ---
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide-container');
+    const totalSlides = slides.length;
+
+    // Expose functions to window for HTML buttons
+    window.showSlide = function(index) {
+        if (index < 0) index = 0;
+        if (index >= totalSlides) index = totalSlides - 1;
+        
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+    }
+
+    window.nextSlide = function() {
+        window.showSlide(currentSlide + 1);
+    }
+
+    window.prevSlide = function() {
+        window.showSlide(currentSlide - 1);
+    }
+
+    // Fix Slide 6 Table Highlights logically for display
+    const tableRows = document.querySelectorAll('#slide6 .pixel-table:first-of-type tr');
+    if(tableRows.length > 0) {
+        tableRows.forEach(row => Array.from(row.children).forEach(cell => cell.classList.remove('highlight-cell')));
+        tableRows[0].children[0].classList.add('highlight-cell'); 
+        tableRows[1].children[3].classList.add('highlight-cell'); 
+        tableRows[3].children[1].classList.add('highlight-cell'); 
+        tableRows[3].children[3].classList.add('highlight-cell'); 
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Space') {
+            // If focusing on input, don't change slide on Space
+            if (document.activeElement.tagName !== 'INPUT') {
+                window.nextSlide();
+            }
+        } else if (e.key === 'ArrowLeft') {
+            window.prevSlide();
+        }
+    });
+
+    // --- Gemini Features Logic ---
+
+    // 1. Chat Functionality
+    window.handleKeyPress = function(event) {
+        if (event.key === 'Enter') {
+            window.askGemini();
+        }
+    }
+
+    window.askGemini = async function() {
+        const inputEl = document.getElementById('userQuestion');
+        const historyEl = document.getElementById('chatHistory');
+        const btnEl = document.getElementById('sendBtn');
+        const question = inputEl.value.trim();
+
+        if (!question) return;
+
+        // UI Update: Add User Message
+        historyEl.innerHTML += `<div class="chat-message user">${question}</div>`;
+        inputEl.value = '';
+        historyEl.scrollTop = historyEl.scrollHeight;
+        
+        // Loading State
+        btnEl.disabled = true;
+        btnEl.textContent = '...';
+
+        try {
+            const prompt = `당신은 중학생들에게 CNN(합성곱 신경망)과 인공지능을 가르치는 친절하고 재미있는 선생님입니다. 
+            학생의 질문: "${question}"
+            
+            다음 규칙을 지켜서 대답해주세요:
+            1. 중학생이 이해하기 쉽게 쉬운 용어와 비유를 사용하세요.
+            2. 답변은 3문장 이내로 짧고 간결하게 해주세요.
+            3. 전문 용어는 쉽게 풀어서 설명해주세요.`;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            // UI Update: Add AI Message
+            historyEl.innerHTML += `<div class="chat-message ai">${text}</div>`;
+        } catch (error) {
+            console.error("Gemini Error:", error);
+            historyEl.innerHTML += `<div class="chat-message ai" style="color:red;">오류가 발생했습니다. 다시 시도해주세요.</div>`;
+        } finally {
+            btnEl.disabled = false;
+            btnEl.textContent = '전송';
+            historyEl.scrollTop = historyEl.scrollHeight;
+        }
+    }
+
+    // 2. Quiz Functionality
+    window.generateQuiz = async function() {
+        const btnEl = document.getElementById('quizBtn');
+        const resultEl = document.getElementById('quizResult');
+
+        // Loading State
+        const originalText = btnEl.innerHTML;
+        btnEl.innerHTML = `생성 중... <div class="loading-spinner"></div>`;
+        btnEl.disabled = true;
+
+        try {
+            const prompt = `CNN(합성곱 신경망) 수업 내용에 대한 중학생용 퀴즈를 3문제 만들어주세요.
+            주제: 합성곱(Convolution), 풀링(Pooling), 픽셀(Pixel), 필터(Filter) 등.
+            
+            형식은 다음과 같이 해주세요 (마크다운 없이 텍스트만):
+            Q1. [질문 내용]
+            A. [보기1]
+            B. [보기2]
+            정답: [정답]
+            
+            (Q2, Q3도 같은 형식으로)`;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            // Format result slightly for HTML (replace newlines with <br>)
+            const formattedText = text.replace(/\n/g, '<br>');
+
+            resultEl.style.display = 'block';
+            resultEl.innerHTML = `<h4>🎉 오늘의 퀴즈!</h4>${formattedText}`;
+        } catch (error) {
+            console.error("Quiz Gen Error:", error);
+            alert("퀴즈 생성 중 오류가 발생했습니다.");
+        } finally {
+            btnEl.innerHTML = originalText;
+            btnEl.disabled = false;
+        }
+    }
+
+</script>
+
+</body>
+</html>
