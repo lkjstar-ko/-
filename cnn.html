@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>CNN 체험 실습실</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 { color: #2c3e50; }
+        .controls {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+        
+        /* Main Layout */
+        .pipeline {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stage {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .arrow {
+            font-size: 30px;
+            color: #7f8c8d;
+            align-self: center;
+            font-weight: bold;
+        }
+
+        h3 { margin-top: 0; color: #444; }
+        p { font-size: 12px; color: #666; margin-bottom: 10px; }
+
+        /* Grids */
+        .grid {
+            display: grid;
+            gap: 2px;
+            margin: 0 auto;
+            background-color: #ccc;
+            border: 2px solid #ccc;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            user-select: none;
+            cursor: default;
+        }
+
+        /* Input Image Grid */
+        #input-grid { grid-template-columns: repeat(6, 1fr); }
+        #input-grid .cell { cursor: pointer; font-weight: bold; color: #eee; }
+        #input-grid .cell.active { background-color: #2c3e50; color: white; }
+        #input-grid .cell.highlight { border: 2px solid #e74c3c; box-sizing: border-box; z-index: 10; }
+
+        /* Filter Grid */
+        #filter-grid { grid-template-columns: repeat(3, 1fr); margin-bottom: 10px; }
+        #filter-grid .cell { background-color: #fff3cd; width: 40px; height: 40px; }
+        #filter-grid input { 
+            width: 100%; height: 100%; border: none; text-align: center; 
+            background: transparent; font-weight: bold; font-size: 14px;
+        }
+
+        /* Conv Output Grid */
+        #conv-grid { grid-template-columns: repeat(4, 1fr); }
+        #conv-grid .cell { background-color: #d1e7dd; cursor: crosshair; font-weight: bold; }
+        #conv-grid .cell:hover { background-color: #a3cfbb; }
+
+        /* Pool Output Grid */
+        #pool-grid { grid-template-columns: repeat(2, 1fr); }
+        #pool-grid .cell { background-color: #cfe2ff; width: 50px; height: 50px; font-size: 16px; font-weight: bold; }
+
+        .info-badge {
+            display: inline-block;
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>👁️ AI의 시선: 합성곱 & 풀링 시뮬레이터</h1>
+    
+    <div class="controls">
+        <strong>필터 프리셋: </strong>
+        <button onclick="setFilter('vertical')">세로선 찾기 (|)</button>
+        <button onclick="setFilter('horizontal')">가로선 찾기 (―)</button>
+        <button onclick="setFilter('cross')">십자가 (+)</button>
+        <button onclick="clearInput()">이미지 지우기</button>
+    </div>
+
+    <div class="pipeline">
+        <div class="stage">
+            <h3>1. 입력 이미지 (6x6)</h3>
+            <p>클릭해서 그림을 그려보세요.<br>(검정=1, 흰색=0)</p>
+            <div id="input-grid" class="grid"></div>
+        </div>
+
+        <div class="arrow">×</div>
+
+        <div class="stage">
+            <h3>2. 필터 (3x3)</h3>
+            <p>찾고 싶은 특징 패턴입니다.<br>값을 직접 수정할 수 있습니다.</p>
+            <div id="filter-grid" class="grid"></div>
+        </div>
+
+        <div class="arrow">=</div>
+
+        <div class="stage">
+            <h3>3. 특징 맵 (4x4)</h3>
+            <span class="info-badge">합성곱 결과</span>
+            <p>마우스를 올려서<br>계산 과정을 확인하세요!</p>
+            <div id="conv-grid" class="grid"></div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="stage">
+            <h3>4. 맥스 풀링 (2x2)</h3>
+            <span class="info-badge">정보 요약</span>
+            <p>각 2x2 영역에서<br>가장 큰 값만 남깁니다.</p>
+            <div id="pool-grid" class="grid"></div>
+        </div>
+    </div>
+
+<script>
+    const inputSize = 6;
+    const filterSize = 3;
+    const convSize = inputSize - filterSize + 1; // 4
+    const poolSize = convSize / 2; // 2
+
+    let inputData = Array(inputSize * inputSize).fill(0);
+    let filterData = [
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0
+    ]; // Default Vertical
+
+    function init() {
+        createGrid('input-grid', inputSize, inputSize, true);
+        createFilterGrid();
+        createGrid('conv-grid', convSize, convSize, false);
+        createGrid('pool-grid', poolSize, poolSize, false);
+        
+        renderInput();
+        updateAll();
+    }
+
+    function createGrid(id, rows, cols, isInput) {
+        const container = document.getElementById(id);
+        container.innerHTML = '';
+        for (let i = 0; i < rows * cols; i++) {
+            const div = document.createElement('div');
+            div.className = 'cell';
+            div.dataset.index = i;
+            if (isInput) {
+                div.onclick = () => toggleInput(i);
+            }
+            if (id === 'conv-grid') {
+                div.onmouseenter = () => highlightSource(i);
+                div.onmouseleave = () => removeHighlight();
+            }
+            container.appendChild(div);
+        }
+    }
+
+    function createFilterGrid() {
+        const container = document.getElementById('filter-grid');
+        container.innerHTML = '';
+        filterData.forEach((val, i) => {
+            const div = document.createElement('div');
+            div.className = 'cell';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = val;
+            input.onchange = (e) => {
+                filterData[i] = parseInt(e.target.value) || 0;
+                updateAll();
+            };
+            div.appendChild(input);
+            container.appendChild(div);
+        });
+    }
+
+    function toggleInput(index) {
+        inputData[index] = inputData[index] === 0 ? 1 : 0;
+        renderInput();
+        updateAll();
+    }
+
+    function renderInput() {
+        const cells = document.getElementById('input-grid').children;
+        inputData.forEach((val, i) => {
+            cells[i].className = val ? 'cell active' : 'cell';
+            cells[i].innerText = val;
+        });
+    }
+
+    function clearInput() {
+        inputData.fill(0);
+        renderInput();
+        updateAll();
+    }
+
+    function setFilter(type) {
+        const inputs = document.querySelectorAll('#filter-grid input');
+        if (type === 'vertical') filterData = [0,1,0, 0,1,0, 0,1,0];
+        if (type === 'horizontal') filterData = [0,0,0, 1,1,1, 0,0,0];
+        if (type === 'cross') filterData = [0,1,0, 1,1,1, 0,1,0];
+        
+        inputs.forEach((inp, i) => inp.value = filterData[i]);
+        updateAll();
+    }
+
+    function updateAll() {
+        const convResult = calculateConvolution();
+        renderGrid('conv-grid', convResult);
+        
+        const poolResult = calculatePooling(convResult);
+        renderGrid('pool-grid', poolResult);
+    }
+
+    function calculateConvolution() {
+        let result = [];
+        for (let y = 0; y < convSize; y++) {
+            for (let x = 0; x < convSize; x++) {
+                let sum = 0;
+                for (let fy = 0; fy < filterSize; fy++) {
+                    for (let fx = 0; fx < filterSize; fx++) {
+                        const inputVal = inputData[(y + fy) * inputSize + (x + fx)];
+                        const filterVal = filterData[fy * filterSize + fx];
+                        sum += inputVal * filterVal;
+                    }
+                }
+                result.push(sum);
+            }
+        }
+        return result;
+    }
+
+    function calculatePooling(convData) {
+        let result = [];
+        // 2x2 Max Pooling
+        for (let y = 0; y < poolSize; y++) {
+            for (let x = 0; x < poolSize; x++) {
+                // Check 2x2 region in convData (4x4)
+                const startY = y * 2;
+                const startX = x * 2;
+                
+                const val1 = convData[startY * convSize + startX];
+                const val2 = convData[startY * convSize + (startX + 1)];
+                const val3 = convData[(startY + 1) * convSize + startX];
+                const val4 = convData[(startY + 1) * convSize + (startX + 1)];
+                
+                result.push(Math.max(val1, val2, val3, val4));
+            }
+        }
+        return result;
+    }
+
+    function renderGrid(id, data) {
+        const cells = document.getElementById(id).children;
+        // Calculate max value for color intensity normalization
+        const maxVal = Math.max(...data, 1); 
+        
+        Array.from(cells).forEach((cell, i) => {
+            cell.innerText = data[i];
+            // Opacity based on value magnitude
+            const intensity = data[i] / maxVal;
+            if (id === 'conv-grid') cell.style.backgroundColor = `rgba(46, 204, 113, ${0.2 + intensity * 0.8})`;
+            if (id === 'pool-grid') cell.style.backgroundColor = `rgba(52, 152, 219, ${0.2 + intensity * 0.8})`;
+        });
+    }
+
+    // Interactive Visualization Logic
+    function highlightSource(convIndex) {
+        const cy = Math.floor(convIndex / convSize);
+        const cx = convIndex % convSize;
+        
+        const inputCells = document.getElementById('input-grid').children;
+        
+        // Highlight the 3x3 area corresponding to this convolution step
+        for (let fy = 0; fy < filterSize; fy++) {
+            for (let fx = 0; fx < filterSize; fx++) {
+                const idx = (cy + fy) * inputSize + (cx + fx);
+                inputCells[idx].classList.add('highlight');
+            }
+        }
+    }
+
+    function removeHighlight() {
+        const inputCells = document.getElementById('input-grid').children;
+        Array.from(inputCells).forEach(cell => cell.classList.remove('highlight'));
+    }
+
+    // Start
+    init();
+</script>
+</body>
+</html>
