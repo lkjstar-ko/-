@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Master Day 02 - Family 학습기</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg: #f3f4f6;
+            --white: #ffffff;
+            --text: #1f2937;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--white);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stage-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .progress-container {
+            padding: 20px 20px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .question-box {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: var(--text);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Stage 1: Multiple Choice */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        /* Stage 2: Input */
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .answer-input:focus {
+            border-color: var(--primary);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Feedback */
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #dcfce7;
+            color: #166534;
+            display: block;
+        }
+
+        .feedback.wrong {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Word Master Day 02</h1>
+        <div class="stage-badge" id="stageIndicator">Stage 1: 객관식</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-info">
+            <span id="progressText">남은 문제: 20</span>
+            <span id="scoreText"></span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="question-box" id="questionText">문제 로딩중...</div>
+
+        <div id="stage1Interface" class="options-grid">
+            </div>
+
+        <div id="stage2Interface" class="input-area hidden">
+            <input type="text" id="answerInput" class="answer-input" placeholder="정답을 입력하세요" autocomplete="off">
+            <button class="submit-btn" onclick="checkStage2Answer()">확인</button>
+        </div>
+
+        <div id="completionMessage" class="hidden">
+            <h2>🎉 학습 완료! 🎉</h2>
+            <p>모든 단어를 완벽하게 익히셨습니다.</p>
+            <button class="submit-btn" onclick="location.reload()">다시 하기</button>
+        </div>
+
+        <div id="feedbackBox" class="feedback"></div>
+    </div>
+</div>
+
+<script>
+    // 1. 데이터 정의
+    const vocabData = [
+        { en: "family", ko: "가족" },
+        { en: "father", ko: "아버지" },
+        { en: "mother", ko: "어머니" },
+        { en: "son", ko: "아들" },
+        { en: "daughter", ko: "딸" },
+        { en: "brother", ko: "형, 오빠, 남동생" },
+        { en: "sister", ko: "언니, 누나, 여동생" },
+        { en: "marry", ko: "결혼하다" },
+        { en: "husband", ko: "남편" },
+        { en: "wife", ko: "아내, 부인" },
+        { en: "parent", ko: "부모" },
+        { en: "uncle", ko: "삼촌" },
+        { en: "aunt", ko: "고모, 이모, 숙모" },
+        { en: "grandparent", ko: "조부모" },
+        { en: "cousin", ko: "사촌" },
+        { en: "member", ko: "구성원, 일원" },
+        { en: "pet", ko: "반려동물" },
+        { en: "relative", ko: "친척" },
+        { en: "be born", ko: "태어나다" },
+        { en: "take care of", ko: "~을 돌보다" }
+    ];
+
+    // 2. 상태 변수
+    let currentStage = 1;
+    let quizQueue = [];
+    let currentQuestion = null;
+    let initialQueueLength = 0;
+
+    // 3. 유틸리티 함수
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // 4. 게임 초기화
+    function initGame() {
+        // 데이터 복사 및 셔플
+        quizQueue = shuffleArray([...vocabData]);
+        initialQueueLength = quizQueue.length;
+        loadQuestion();
+    }
+
+    function updateProgress() {
+        const remaining = quizQueue.length + (currentQuestion ? 1 : 0); 
+        // Note: currentQuestion is popped, so add 1 if looking at active question
+        // 그러나 단순화를 위해 큐에 다시 넣는 로직을 고려하여 UI 표시
+        document.getElementById('progressText').innerText = `남은 문제: ${quizQueue.length}`;
+        
+        // 역방향 진행바 (남은게 줄어들수록 100%에 가까워짐)
+        // 전체 기준을 고정하지 않고, 남은 개수가 0이 되면 100%가 되도록 시각적 처리만 함
+        // 여기서는 간단히 '초기 개수' 대비 '완료한 개수'로 표현하되, 오답 시 완료가 취소되는 개념
+        const completed = initialQueueLength - quizQueue.length;
+        const percent = Math.max(0, (completed / initialQueueLength) * 100);
+        document.getElementById('progressBar').style.width = `${percent}%`;
+    }
+
+    // 5. 문제 로드
+    function loadQuestion() {
+        document.getElementById('feedbackBox').className = 'feedback';
+        document.getElementById('feedbackBox').innerText = '';
+        document.getElementById('answerInput').value = '';
+
+        if (quizQueue.length === 0) {
+            if (currentStage === 1) {
+                // 1단계 종료 -> 2단계 전환
+                currentStage = 2;
+                document.getElementById('stageIndicator').innerText = "Stage 2: 주관식 (철자 입력)";
+                document.getElementById('stage1Interface').classList.add('hidden');
+                document.getElementById('stage2Interface').classList.remove('hidden');
+                
+                // 2단계용 큐 다시 리필 및 셔플
+                quizQueue = shuffleArray([...vocabData]);
+                initialQueueLength = quizQueue.length;
+                loadQuestion();
+            } else {
+                // 모든 단계 종료
+                showCompletion();
+            }
+            return;
+        }
+
+        currentQuestion = quizQueue.shift();
+        updateProgress();
+
+        const qBox = document.getElementById('questionText');
+        qBox.innerText = currentQuestion.ko;
+
+        if (currentStage === 1) {
+            renderStage1Options();
+        } else {
+            document.getElementById('answerInput').focus();
+        }
+    }
+
+    // 6. Stage 1: 객관식 렌더링
+    function renderStage1Options() {
+        const container = document.getElementById('stage1Interface');
+        container.innerHTML = '';
+
+        // 오답 보기 3개 생성
+        let distractors = vocabData.filter(item => item.en !== currentQuestion.en);
+        distractors = shuffleArray(distractors).slice(0, 3);
+        
+        // 정답 + 오답 합치기
+        let options = [...distractors, currentQuestion];
+        options = shuffleArray(options);
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.en;
+            btn.onclick = () => checkStage1Answer(opt.en, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    // 7. 정답 체크 로직
+    function handleCorrect() {
+        const fb = document.getElementById('feedbackBox');
+        fb.innerText = "정답입니다! ⭕";
+        fb.className = "feedback correct";
+        
+        setTimeout(() => {
+            loadQuestion();
+        }, 800);
+    }
+
+    function handleWrong(userAnswer) {
+        const fb = document.getElementById('feedbackBox');
+        fb.innerText = `틀렸습니다! 정답은 [ ${currentQuestion.en} ] 입니다. (문제 뒤로 이동)`;
+        fb.className = "feedback wrong";
+
+        // 오답 시 큐의 맨 뒤로 다시 추가
+        quizQueue.push(currentQuestion);
+        
+        // 시각적 흔들림 효과
+        const container = document.querySelector('.container');
+        container.classList.add('shake');
+        setTimeout(() => container.classList.remove('shake'), 400);
+
+        updateProgress();
+
+        // 1.5초 후 다음 문제 (또는 같은 문제 사이클)
+        setTimeout(() => {
+            loadQuestion();
+        }, 2000);
+    }
+
+    function checkStage1Answer(selectedEn, btnElement) {
+        // 중복 클릭 방지
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+
+        if (selectedEn === currentQuestion.en) {
+            btnElement.style.background = "#dcfce7";
+            btnElement.style.borderColor = "#22c55e";
+            handleCorrect();
+        } else {
+            btnElement.style.background = "#fee2e2";
+            btnElement.style.borderColor = "#ef4444";
+            // 정답 버튼 표시해주기
+            allBtns.forEach(b => {
+                if(b.innerText === currentQuestion.en) {
+                    b.style.background = "#dcfce7";
+                    b.style.borderColor = "#22c55e";
+                }
+            });
+            handleWrong();
+        }
+    }
+
+    function checkStage2Answer() {
+        const input = document.getElementById('answerInput');
+        const userVal = input.value.trim().toLowerCase();
+        const correctVal = currentQuestion.en.toLowerCase();
+
+        if (userVal === correctVal) {
+            handleCorrect();
+        } else {
+            handleWrong();
+        }
+    }
+
+    // 엔터키 입력 지원
+    document.getElementById('answerInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            checkStage2Answer();
+        }
+    });
+
+    function showCompletion() {
+        document.querySelector('.content').innerHTML = document.getElementById('completionMessage').outerHTML;
+        document.getElementById('completionMessage').classList.remove('hidden');
+        document.querySelector('.header').style.background = "#22c55e";
+        document.getElementById('stageIndicator').innerText = "Mission Complete!";
+        document.getElementById('progressText').innerText = "남은 문제: 0";
+        document.getElementById('progressBar').style.width = "100%";
+    }
+
+    // 시작
+    initGame();
+
+</script>
+
+</body>
+</html>
