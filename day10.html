@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 10: Thoughts 단어 학습</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #f8fafc;
+            --card: #ffffff;
+        }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background: var(--card); width: 100%; max-width: 500px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 30px; text-align: center; }
+        .header { margin-bottom: 20px; }
+        .progress-container { background: #e2e8f0; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; }
+        #progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 0.3s; }
+        .stage-info { font-size: 0.9rem; color: #64748b; font-weight: bold; }
+        .word-korean { font-size: 1.8rem; font-weight: 800; margin: 20px 0; color: #1e293b; }
+        
+        /* 1단계: 4지선다 */
+        .choices { display: grid; gap: 10px; }
+        .choice-btn { border: 2px solid #e2e8f0; background: white; padding: 15px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; }
+        .choice-btn:hover { border-color: var(--primary); background: #eff6ff; }
+        .choice-btn.correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .choice-btn.wrong { background: var(--error) !important; color: white; border-color: var(--error); }
+
+        /* 2단계: 주관식 */
+        .input-area { display: none; }
+        #word-input { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1.2rem; text-align: center; box-sizing: border-box; outline: none; }
+        #word-input:focus { border-color: var(--primary); }
+
+        .message { margin-top: 15px; height: 20px; font-weight: bold; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <div class="header">
+        <div class="stage-info" id="stage-text">STAGE 1: 4지선다</div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div id="counter">0 / 0</div>
+    </div>
+
+    <div class="word-korean" id="question-word">준비중...</div>
+
+    <div class="choices" id="choice-container"></div>
+
+    <div class="input-area" id="input-container">
+        <input type="text" id="word-input" placeholder="영어 단어를 입력하세요" autocomplete="off">
+    </div>
+
+    <div class="message" id="msg"></div>
+</div>
+
+<script>
+    const fullData = [
+        {en: "idea", ko: "생각, 아이디어"}, {en: "dream", ko: "꿈, 꿈꾸다"},
+        {en: "believe", ko: "믿다"}, {en: "think", ko: "생각하다"},
+        {en: "know", ko: "알다"}, {en: "need", ko: "필요하다"},
+        {en: "hope", ko: "희망하다, 바라다"}, {en: "wish", ko: "바라다, 소원"},
+        {en: "decide", ko: "결정하다"}, {en: "forget", ko: "잊다"},
+        {en: "remember", ko: "기억하다"}, {en: "wonder", ko: "궁금해하다"},
+        {en: "keep", ko: "유지하다, 계속하다"}, {en: "understand", ko: "이해하다"},
+        {en: "plan", ko: "계획, 계획하다"}, {en: "mind", ko: "마음, 꺼려하다"},
+        {en: "question", ko: "질문, 의문"}, {en: "feel like -ing", ko: "~하고 싶다"},
+        {en: "give up", ko: "포기하다"}, {en: "guess", ko: "추측하다"}
+    ];
+
+    let currentStage = 1;
+    let quizList = [];
+    let currentIndex = 0;
+    let totalInitialCount = 0;
+    let completedCount = 0;
+
+    function initStage(stage) {
+        currentStage = stage;
+        quizList = [...fullData].sort(() => Math.random() - 0.5);
+        currentIndex = 0;
+        completedCount = 0;
+        totalInitialCount = quizList.length;
+        
+        document.getElementById('stage-text').innerText = stage === 1 ? "STAGE 1: 4지선다" : "STAGE 2: 주관식 직접 쓰기";
+        document.getElementById('choice-container').style.display = stage === 1 ? 'grid' : 'none';
+        document.getElementById('input-container').style.display = stage === 2 ? 'block' : 'none';
+        
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (currentIndex >= quizList.length) {
+            if (currentStage === 1) {
+                alert("1단계를 완료했습니다! 2단계 주관식을 시작합니다.");
+                initStage(2);
+            } else {
+                alert("축하합니다! 모든 학습을 마쳤습니다.");
+                location.reload();
+            }
+            return;
+        }
+
+        const currentWord = quizList[currentIndex];
+        document.getElementById('question-word').innerText = currentWord.ko;
+        document.getElementById('msg').innerText = "";
+        updateProgress();
+
+        if (currentStage === 1) {
+            setupChoices(currentWord);
+        } else {
+            const input = document.getElementById('word-input');
+            input.value = "";
+            input.focus();
+        }
+    }
+
+    function setupChoices(correctWord) {
+        const container = document.getElementById('choice-container');
+        container.innerHTML = "";
+        
+        let choices = [correctWord.en];
+        while (choices.length < 4) {
+            let randomWord = fullData[Math.floor(Math.random() * fullData.length)].en;
+            if (!choices.includes(randomWord)) choices.push(randomWord);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = choice;
+            btn.onclick = () => checkAnswer(choice, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(answer, btn) {
+        const currentWord = quizList[currentIndex];
+        const isCorrect = answer.toLowerCase().trim() === currentWord.en.toLowerCase().trim();
+
+        if (isCorrect) {
+            if(btn) btn.classList.add('correct');
+            document.getElementById('msg').innerText = "정답입니다! ✨";
+            document.getElementById('msg').style.color = "var(--success)";
+            completedCount++;
+            setTimeout(() => {
+                currentIndex++;
+                showQuestion();
+            }, 600);
+        } else {
+            if(btn) btn.classList.add('wrong');
+            document.getElementById('msg').innerText = `틀렸습니다! 정답: ${currentWord.en}`;
+            document.getElementById('msg').style.color = "var(--error)";
+            
+            // 오답은 맨 뒤로 이동 (무한 반복 로직)
+            quizList.push(quizList[currentIndex]);
+            setTimeout(() => {
+                currentIndex++;
+                showQuestion();
+            }, 1200);
+        }
+    }
+
+    function updateProgress() {
+        const total = quizList.length;
+        const progress = (completedCount / totalInitialCount) * 100;
+        document.getElementById('progress-bar').style.width = `${Math.min(progress, 100)}%`;
+        document.getElementById('counter').innerText = `${completedCount} / ${totalInitialCount}`;
+    }
+
+    // 주관식 엔터 이벤트
+    document.getElementById('word-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            checkAnswer(e.target.value);
+        }
+    });
+
+    initStage(1);
+</script>
+
+</body>
+</html>
