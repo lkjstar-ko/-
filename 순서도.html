@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스마트 순서도 메이커</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --editor-width: 300px;
+            --sidebar-width: 200px;
+            --accent-color: #4a90e2;
+            --bg-color: #f0f2f5;
+        }
+
+        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: var(--bg-color); }
+
+        /* [좌측] 자연어 입력창 */
+        #logic-editor {
+            width: var(--editor-width);
+            background: #fff;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+        #logic-editor textarea {
+            flex-grow: 1;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* [중앙] 메인 캔버스 */
+        #main-canvas {
+            flex-grow: 1;
+            position: relative;
+            background-color: #ffffff;
+            background-image: radial-gradient(#e1e1e1 1px, transparent 1px);
+            background-size: 30px 30px;
+            overflow: hidden;
+        }
+
+        /* [우측] 도형 도구 모음 */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            border-left: 1px solid #ccc;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 도형 기본 스타일 */
+        .shape {
+            width: 120px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            background: white; cursor: grab; margin-bottom: 10px;
+            font-size: 13px; text-align: center; position: relative;
+            user-select: none;
+        }
+        .shape.oval { border: 2px solid #333; border-radius: 30px; }
+        .shape.rect { border: 2px solid #333; }
+        
+        /* 마름모 (SVG 기반) */
+        .shape.diamond { border: none; background: none; height: 80px; }
+        .diamond-bg { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 1; }
+        .shape span { z-index: 2; padding: 5px; pointer-events: auto; }
+
+        /* 배치된 도형 */
+        .dropped-shape { position: absolute; cursor: move; z-index: 10; background: white; }
+
+        /* 간선 스타일 */
+        #svg-container { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 5; }
+        .line { stroke: #555; stroke-width: 2; marker-end: url(#arrowhead); }
+
+        /* 공통 UI 요소 */
+        .section-title { font-weight: bold; font-size: 14px; color: #333; margin-bottom: 8px; }
+        button {
+            padding: 10px; background: var(--accent-color); color: white;
+            border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px;
+        }
+        button:hover { background: #357abd; }
+        .tip { font-size: 11px; color: #777; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div id="logic-editor">
+    <div class="section-title">📝 자연어 로직</div>
+    <p class="tip">한 줄에 하나씩 적고 버튼을 누르세요.</p>
+    <textarea id="natural-language-input" placeholder="예시:&#10;시작&#10;사용자 입력 받기&#10;점수가 60점 이상인가?&#10;합격 통보&#10;종료"></textarea>
+    <button onclick="generateFromText()">캔버스에 추가</button>
+</div>
+
+<div id="main-canvas" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <svg id="svg-container">
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#555" />
+            </marker>
+        </defs>
+    </svg>
+</div>
+
+<div id="sidebar">
+    <div class="section-title">🧩 도형 라이브러리</div>
+    <div class="shape oval" draggable="true" ondragstart="drag(event)" data-type="oval">시작 / 종료</div>
+    <div class="shape rect" draggable="true" ondragstart="drag(event)" data-type="rect">처리 (프로세스)</div>
+    <div class="shape diamond" draggable="true" ondragstart="drag(event)" data-type="diamond">
+        <svg class="diamond-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <polygon points="50,0 100,50 50,100 0,50" fill="white" stroke="black" stroke-width="2"/>
+        </svg>
+        <span>조건 (판단)</span>
+    </div>
+
+    <div style="margin-top: 20px;" class="section-title">⚙️ 제어</div>
+    <button onclick="captureCanvas()" style="background: #28a745;">📷 이미지 저장</button>
+    <button onclick="clearCanvas()" style="background: #dc3545;">🗑️ 초기화</button>
+    
+    <div class="tip" style="margin-top: 10px;">
+        • <b>연결:</b> 도형 A 클릭 후 B 클릭<br>
+        • <b>수정:</b> 도형 안 텍스트 클릭
+    </div>
+</div>
+
+<script>
+    let selectedElements = [];
+
+    // 드래그 앤 드롭 기초 기능
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) {
+        ev.dataTransfer.setData("type", ev.target.closest('.shape').getAttribute("data-type"));
+        ev.dataTransfer.setData("text", ev.target.innerText);
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const type = ev.dataTransfer.getData("type");
+        const text = ev.dataTransfer.getData("text");
+        createShape(type, text, ev.clientX, ev.clientY);
+    }
+
+    // 도형 생성 함수
+    function createShape(type, text, x, y) {
+        const canvas = document.getElementById("main-canvas");
+        const newShape = document.createElement("div");
+        newShape.className = `shape dropped-shape ${type}`;
+        
+        // 위치 설정 (캔버스 기준 좌표 계산)
+        const rect = canvas.getBoundingClientRect();
+        newShape.style.left = (x - rect.left - 60) + "px";
+        newShape.style.top = (y - rect.top - 30) + "px";
+
+        if (type === 'diamond') {
+            newShape.innerHTML = `
+                <svg class="diamond-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polygon points="50,0 100,50 50,100 0,50" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            `;
+        }
+
+        const span = document.createElement("span");
+        span.contentEditable = true;
+        span.innerText = text;
+        newShape.appendChild(span);
+
+        makeElementDraggable(newShape);
+        newShape.onclick = function(e) { 
+            e.stopPropagation();
+            selectForLink(newShape); 
+        };
+
+        canvas.appendChild(newShape);
+        return newShape;
+    }
+
+    // 자연어 입력 기반 자동 생성
+    function generateFromText() {
+        const input = document.getElementById("natural-language-input").value;
+        const lines = input.split('\n').filter(line => line.trim() !== "");
+        
+        lines.forEach((line, index) => {
+            let type = 'rect';
+            if (line.includes('?') || line.includes('인가')) type = 'diamond';
+            if (line.includes('시작') || line.includes('종료') || line.includes('끝')) type = 'oval';
+            
+            // 계단식으로 자동 배치
+            createShape(type, line.trim(), 450, 100 + (index * 120));
+        });
+    }
+
+    // 요소 드래그 기능 (순수 JS)
+    function makeElementDraggable(elmnt) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        elmnt.onmousedown = function(e) {
+            if (e.target.contentEditable === "true") return;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = () => {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            };
+            document.onmousemove = (e) => {
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+                updateLines();
+            };
+        };
+    }
+
+    // 간선(화살표) 그리기 로직
+    function selectForLink(elm) {
+        if (selectedElements.includes(elm)) return;
+        
+        elm.style.boxShadow = "0 0 10px #4a90e2";
+        selectedElements.push(elm);
+
+        if (selectedElements.length === 2) {
+            drawLink(selectedElements[0], selectedElements[1]);
+            selectedElements.forEach(el => el.style.boxShadow = "none");
+            selectedElements = [];
+        }
+    }
+
+    function drawLink(el1, el2) {
+        const svg = document.getElementById("svg-container");
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("class", "line");
+        line.fromElem = el1;
+        line.toElem = el2;
+        svg.appendChild(line);
+        updateLines();
+    }
+
+    function updateLines() {
+        document.querySelectorAll(".line").forEach(line => {
+            const e1 = line.fromElem;
+            const e2 = line.toElem;
+            line.setAttribute("x1", e1.offsetLeft + e1.offsetWidth / 2);
+            line.setAttribute("y1", e1.offsetTop + e1.offsetHeight / 2);
+            line.setAttribute("x2", e2.offsetLeft + e2.offsetWidth / 2);
+            line.setAttribute("y2", e2.offsetTop + e2.offsetHeight / 2);
+        });
+    }
+
+    // 캔버스 초기화
+    function clearCanvas() {
+        if(confirm("작성 중인 순서도를 모두 삭제할까요?")) {
+            document.querySelectorAll('.dropped-shape').forEach(el => el.remove());
+            document.querySelectorAll('.line').forEach(el => el.remove());
+        }
+    }
+
+    // 캡쳐
+    function captureCanvas() {
+        const canvasArea = document.getElementById("main-canvas");
+        html2canvas(canvasArea).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'flowchart.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+</script>
+</body>
+</html>
