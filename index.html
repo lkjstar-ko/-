@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>페이지 이동 인덱스</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        input {
+            padding: 10px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>페이지 이동하기</h2>
+    <input type="text" id="pageInput" placeholder="파일명 입력 (예: test)">
+    <button onclick="goToPage()">이동</button>
+    <p style="font-size: 0.8rem; color: #666;">* .html은 자동으로 붙습니다.</p>
+</div>
+
+<script>
+    function goToPage() {
+        const input = document.getElementById('pageInput').value;
+        if (input.trim() === "") {
+            alert("이동할 파일명을 입력해주세요.");
+            return;
+        }
+        // 같은 레벨에 있는 입력한내용.html로 이동
+        location.href = input + ".html";
+    }
+
+    // 엔터키 지원
+    document.getElementById('pageInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            goToPage();
+        }
+    });
+</script>
+
+</body>
+</html>
