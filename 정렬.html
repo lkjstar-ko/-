@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>정렬 알고리즘 분석 시뮬레이터 (정밀 수정판)</title>
+    <style>
+        :root { 
+            --primary: #2563eb; --secondary: #64748b; --success: #2ecc71; 
+            --danger: #ef4444; --bg: #f8fafc; --bar-width: 50px; --bar-gap: 10px;
+        }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 10px 15px rgba(0,0,0,0.1); padding: 2rem; width: 700px; text-align: center; border: 1px solid #e2e8f0; }
+        
+        .stats-container { display: flex; justify-content: space-around; background: #1e293b; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .stat-item { flex: 1; border-right: 1px solid #475569; }
+        .stat-item:last-child { border-right: none; }
+        .stat-value { display: block; font-size: 1.5rem; font-weight: bold; color: var(--success); }
+        .stat-label { font-size: 0.8rem; color: #94a3b8; }
+
+        .array-display { display: flex; justify-content: center; gap: var(--bar-gap); margin: 40px 0; min-height: 70px; position: relative; width: 100%; height: 70px; }
+        .num-box { 
+            width: var(--bar-width); height: 50px; display: flex; align-items: center; justify-content: center; 
+            background: white; border: 2px solid var(--secondary); border-radius: 8px; font-weight: bold; 
+            font-size: 1.2rem; position: absolute; transition: all 0.4s ease;
+        }
+        
+        .comparing { border-color: var(--danger) !important; background: #fee2e2; transform: translateY(-5px); z-index: 10; }
+        .all-sorted { border-color: var(--success) !important; background: #e8fdf0; color: var(--success); box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+        
+        .info-panel { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; min-height: 25px; }
+        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        button { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-reset { background: var(--secondary); color: white; }
+        button:disabled { opacity: 0.5; }
+        
+        .pass-log { text-align: left; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 0.85rem; max-height: 200px; overflow-y: auto; width: 100%; }
+        .log-entry { margin-bottom: 8px; padding: 8px; border-radius: 6px; background: #f8fafc; border-left: 4px solid var(--success); display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📊 정렬 알고리즘 회전별 리포트</h2>
+    
+    <div class="stats-container">
+        <div class="stat-item">
+            <span class="stat-label">누적 비교 횟수</span>
+            <span id="totalComp" class="stat-value">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">누적 교환 횟수</span>
+            <span id="totalSwap" class="stat-value">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">완료된 회전(Pass)</span>
+            <span id="curPassNum" class="stat-value">0</span>
+        </div>
+    </div>
+
+    <div id="instruction" class="info-panel">알고리즘을 선택하세요.</div>
+    <div id="arrayWrapper" class="array-display"></div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="init('bubble')">버블 정렬</button>
+        <button class="btn-reset" onclick="init('selection')">선택 정렬</button>
+        <button id="nextBtn" class="btn-next" onclick="handleNextStep()" disabled>다음 단계</button>
+    </div>
+
+    <div id="passLog" class="pass-log">
+        <strong>회전별 상세 리포트:</strong>
+    </div>
+</div>
+
+<script>
+    let array = [], steps = [], currentStep = 0, isAnimating = false;
+    let tComp = 0, tSwap = 0; 
+
+    function init(mode) {
+        array = [8, 3, 5, 2, 1];
+        steps = []; currentStep = 0; isAnimating = false;
+        tComp = 0; tSwap = 0;
+        updateUI(0);
+        
+        document.getElementById('passLog').innerHTML = "<strong>회전별 상세 리포트:</strong>";
+        document.getElementById('nextBtn').disabled = false;
+        
+        if (mode === 'bubble') generateBubbleSteps([...array]);
+        else generateSelectionSteps([...array]);
+        
+        render();
+    }
+
+    function updateUI(pass) {
+        document.getElementById('totalComp').innerText = tComp;
+        document.getElementById('totalSwap').innerText = tSwap;
+        document.getElementById('curPassNum').innerText = pass;
+    }
+
+    function generateBubbleSteps(arr) {
+        let n = arr.length;
+        steps.push({ arr: [...arr], msg: "버블 정렬을 시작합니다.", type: 'start', sorted: [], c:0, s:0 });
+        for (let i = 0; i < n; i++) {
+            let pComp = 0, pSwap = 0;
+            let sortedIndices = Array.from({length: i}, (_, k) => n - 1 - k);
+            for (let j = 0; j < n - i - 1; j++) {
+                pComp++;
+                steps.push({ arr: [...arr], comparing: [j, j+1], sorted: [...sortedIndices], msg: `${arr[j]}와 ${arr[j+1]} 비교`, type: 'compare', c:1, s:0 });
+                if (arr[j] > arr[j+1]) {
+                    pSwap++;
+                    steps.push({ arr: [...arr], comparing: [j, j+1], sorted: [...sortedIndices], msg: "자리를 바꿉니다!", type: 'pre-swap', indices: [j, j+1], c:0, s:1 });
+                    [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+                    steps.push({ arr: [...arr], comparing: [j, j+1], sorted: [...sortedIndices], msg: "교환 완료", type: 'post-swap', c:0, s:0 });
+                }
+            }
+            sortedIndices.push(n - 1 - i);
+            // 회전이 끝나는 시점에만 pass-end 타입을 넣고, 이 때의 누적 통계를 저장
+            steps.push({ arr: [...arr], comparing: [], sorted: [...sortedIndices], msg: `${i+1}회전이 완료되었습니다.`, type: 'pass-end', passNum: i+1, pComp, pSwap });
+        }
+        steps.push({ arr: [...arr], comparing: [], sorted: [0,1,2,3,4], msg: "🎉 정렬이 모두 완료되었습니다!", type: 'final', c:0, s:0 });
+    }
+
+    function generateSelectionSteps(arr) {
+        let n = arr.length;
+        steps.push({ arr: [...arr], msg: "선택 정렬을 시작합니다.", type: 'start', sorted: [], c:0, s:0 });
+        for (let i = 0; i < n; i++) {
+            let pComp = 0, pSwap = 0;
+            let sortedIndices = Array.from({length: i}, (_, k) => k);
+            let minIdx = i;
+            steps.push({ arr: [...arr], comparing: [i], sorted: [...sortedIndices], msg: `${i+1}번째 자리에 올 최솟값을 찾습니다.`, type: 'info', c:0, s:0 });
+            for (let j = i + 1; j < n; j++) {
+                pComp++;
+                steps.push({ arr: [...arr], comparing: [minIdx, j], sorted: [...sortedIndices], msg: `현재 최솟값(${arr[minIdx]})과 ${arr[j]} 비교`, type: 'compare', c:1, s:0 });
+                if (arr[j] < arr[minIdx]) minIdx = j;
+            }
+            if (minIdx !== i) {
+                pSwap++;
+                steps.push({ arr: [...arr], comparing: [i, minIdx], sorted: [...sortedIndices], msg: `최솟값 ${arr[minIdx]}를 앞으로 보냅니다.`, type: 'pre-swap', indices: [i, minIdx], c:0, s:1 });
+                [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+            }
+            sortedIndices.push(i);
+            steps.push({ arr: [...arr], comparing: [], sorted: [...sortedIndices], msg: `${i+1}회전이 완료되었습니다.`, type: 'pass-end', passNum: i+1, pComp, pSwap });
+        }
+        steps.push({ arr: [...arr], comparing: [], sorted: [0,1,2,3,4], msg: "🎉 정렬이 모두 완료되었습니다!", type: 'final', c:0, s:0 });
+    }
+
+    async function handleNextStep() {
+        if (isAnimating || currentStep >= steps.length - 1) return;
+        currentStep++;
+        const step = steps[currentStep];
+
+        // 비교/교환 횟수 가산
+        if (step.c) tComp += step.c;
+        if (step.s) tSwap += step.s;
+
+        // 회전이 끝났을 때만 리포트 작성
+        if (step.type === 'pass-end') {
+            updateUI(step.passNum); // 회전수 업데이트
+            const logItem = document.createElement('div');
+            logItem.className = 'log-entry';
+            logItem.innerHTML = `<span><strong>[${step.passNum}회전]</strong> : ${JSON.stringify(step.arr)}</span> 
+                                 <span style="color:#666">비교: ${step.pComp}회 / 교환: ${step.pSwap}회</span>`;
+            document.getElementById('passLog').appendChild(logItem);
+            document.getElementById('passLog').scrollTop = document.getElementById('passLog').scrollHeight;
+        }
+
+        if (step.type === 'pre-swap') {
+            isAnimating = true; document.getElementById('nextBtn').disabled = true;
+            render(step.arr, step.comparing, step.sorted);
+            await new Promise(r => setTimeout(r, 400));
+            await animateSwap(step.indices[0], step.indices[1]);
+            currentStep++; // post-swap 단계로 강제 이동하여 중복 렌더링 방지
+            isAnimating = false; document.getElementById('nextBtn').disabled = false;
+        }
+        
+        if (steps[currentStep].type === 'final') {
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('instruction').style.background = "#2ecc71";
+            document.getElementById('instruction').style.color = "white";
+        }
+        updateUI(document.getElementById('curPassNum').innerText);
+        render();
+    }
+
+    function animateSwap(idx1, idx2) {
+        return new Promise((resolve) => {
+            const boxes = document.getElementsByClassName('num-box');
+            const pos1 = boxes[idx1].offsetLeft;
+            const pos2 = boxes[idx2].offsetLeft;
+            boxes[idx1].style.left = `${pos2}px`;
+            boxes[idx2].style.left = `${pos1}px`;
+            setTimeout(resolve, 400);
+        });
+    }
+
+    function render(cArr, cComp, cSort) {
+        const step = steps[currentStep];
+        const wrapper = document.getElementById('arrayWrapper');
+        const currentArray = cArr || step.arr;
+        const comparingArr = cComp || step.comparing || [];
+        const sortedArr = cSort || step.sorted || [];
+        
+        wrapper.innerHTML = '';
+        currentArray.forEach((val, idx) => {
+            const box = document.createElement('div');
+            box.className = 'num-box'; box.innerText = val;
+            box.style.left = `${((wrapper.offsetWidth - 290) / 2) + idx * 60}px`;
+            if (comparingArr.includes(idx)) box.classList.add('comparing');
+            if (sortedArr.includes(idx)) box.classList.add('all-sorted');
+            wrapper.appendChild(box);
+        });
+        document.getElementById('instruction').innerText = step.msg;
+    }
+</script>
+</body>
+</html>
