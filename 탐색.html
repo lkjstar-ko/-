@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탐색 알고리즘 시뮬레이터 — 순차 vs 이진</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+  --bg:#F5F4EF; --card:#FFFFFF; --text:#1A1A18; --muted:#5F5E5A;
+  --border:#D3D1C7; --blue:#185FA5; --blue-lt:#E6F1FB; --blue-dk:#0C447C;
+  --teal:#1D9E75; --teal-lt:#E1F5EE; --teal-dk:#085041;
+  --amber:#EF9F27; --amber-lt:#FAEEDA;
+  --red-lt:#FCEBEB; --red:#A32D2D;
+  --green:#5DCAA5; --green-lt:#E1F5EE;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 16px}
+.container{width:100%;max-width:700px}
+
+.header{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:10px;padding:20px 24px 16px;margin-bottom:14px}
+.header .tag{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--blue);background:var(--blue-lt);padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:6px}
+.header h1{font-size:22px;font-weight:700}
+.header h1 span{color:var(--blue)}
+.header p{font-size:13px;color:var(--muted);margin-top:4px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:700;color:var(--blue-dk);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';display:block;width:4px;height:16px;background:var(--blue);border-radius:2px}
+
+/* search input */
+.search-row{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-row label{font-size:13px;color:var(--muted);white-space:nowrap}
+.search-row input[type=number]{width:100px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--blue-dk);background:var(--blue-lt);outline:none;text-align:center}
+.search-row input[type=number]:focus{border-color:var(--blue)}
+.go-btn{padding:8px 20px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:500;font-family:'Noto Sans KR',sans-serif;cursor:pointer}
+.go-btn:hover{background:var(--blue-dk)}
+.preset-row{display:flex;gap:6px;flex-wrap:wrap}
+.preset-btn{padding:5px 11px;border:1px solid var(--border);border-radius:5px;background:transparent;cursor:pointer;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted)}
+.preset-btn:hover{background:var(--bg);border-color:var(--blue);color:var(--blue)}
+
+/* tabs */
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{padding:8px 20px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);font-family:'Noto Sans KR',sans-serif;transition:all .15s}
+.tab.active-seq{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tab.active-bin{background:var(--teal);color:#fff;border-color:var(--teal)}
+.reset-btn{margin-left:auto;padding:7px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;color:var(--muted)}
+.reset-btn:hover{background:var(--bg)}
+
+/* array display */
+.array-wrap{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+.cell{width:58px;height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid transparent;transition:all .3s;position:relative}
+.cell .idx{font-size:10px;color:var(--muted);margin-bottom:2px}
+.cell .val{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.c-default{background:#EEF4FB;border-color:#C0D6EE;color:var(--text)}
+.c-current{background:#FFF3E0;border-color:var(--amber);color:#7A4800;transform:translateY(-4px)}
+.c-range{background:#E8F5E9;border-color:#81C784;color:#2E7D32}
+.c-mid{background:var(--teal-lt);border-color:var(--teal);color:var(--teal-dk);transform:translateY(-4px)}
+.c-found{background:#E8F5E9;border-color:#43A047;color:#1B5E20;box-shadow:0 0 0 3px #A5D6A7}
+.c-eliminated{background:#F5F5F5;border-color:#E0E0E0;color:#BDBDBD}
+.c-pointer{background:var(--blue-lt);border-color:var(--blue);color:var(--blue-dk)}
+
+/* pointer labels */
+.ptr-label{position:absolute;top:-18px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;background:var(--teal);color:#fff;padding:1px 5px;border-radius:3px;white-space:nowrap}
+.ptr-L{background:var(--blue)}
+.ptr-R{background:#D4537E}
+.ptr-M{background:var(--teal)}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.ctrl-btn{padding:8px 16px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);transition:background .1s}
+.ctrl-btn:hover{background:var(--bg)}
+.ctrl-btn:disabled{opacity:.4;cursor:not-allowed}
+.ctrl-btn.pri{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:500}
+.ctrl-btn.pri:hover{background:var(--blue-dk)}
+.ctrl-btn.pri-teal{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:500}
+.ctrl-btn.pri-teal:hover{background:var(--teal-dk)}
+.spd-g{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:12px;color:var(--muted)}
+.spd-g input[type=range]{width:72px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--bg);border-radius:6px;padding:9px 11px}
+.stat .sl{font-size:10px;color:var(--muted);margin-bottom:2px}
+.stat .sv{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* log */
+.log{border:1px solid var(--border);border-radius:6px;padding:10px 14px;max-height:110px;overflow-y:auto;background:var(--bg);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);line-height:1.7}
+.log .hl{color:var(--text);font-weight:600}
+.log .found{color:#1B5E20;font-weight:600}
+.log .notfound{color:var(--red);font-weight:600}
+
+/* result badge */
+.result-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:600;margin-bottom:12px;font-family:'JetBrains Mono',monospace}
+.r-found{background:#E8F5E9;color:#1B5E20;border:1px solid #81C784}
+.r-notfound{background:var(--red-lt);color:var(--red);border:1px solid #F09595}
+.r-pending{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+
+/* info table */
+.info-table{width:100%;border-collapse:collapse;font-size:13px}
+.info-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.info-table td:first-child{width:130px;font-weight:700;color:var(--muted);background:var(--bg)}
+.info-table tr:last-child td{border-bottom:none}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--blue-lt);color:var(--blue-dk);padding:1px 5px;border-radius:3px}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.leg-dot{width:12px;height:12px;border-radius:3px}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.cmp-card{background:var(--bg);border-radius:8px;padding:12px 14px;border:1px solid var(--border)}
+.cmp-card .cmp-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.cmp-card .cmp-val{font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.cmp-card .cmp-sub{font-size:11px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <div class="tag">시뮬레이터 · 컴퓨터과학</div>
+  <h1>탐색 알고리즘 분석: <span>순차 vs 이진</span></h1>
+  <p>배열 <code>[ 3, 7, 12, 19, 25, 31, 44, 58, 63, 77 ]</code>에서 원하는 값을 탐색하고, 각 단계를 활동지에 기록하세요.</p>
+</div>
+
+<!-- 탐색값 입력 -->
+<div class="card">
+  <div class="card-title">탐색값 설정</div>
+  <div class="search-row">
+    <label>탐색할 값</label>
+    <input type="number" id="target-input" value="25" min="1" max="99">
+    <button class="go-btn" onclick="applyTarget()">탐색 시작</button>
+  </div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:8px">자주 쓰는 값 바로 선택:</div>
+  <div class="preset-row">
+    <button class="preset-btn" onclick="setTarget(7)">7 <span style="font-size:10px;color:#aaa">(있음)</span></button>
+    <button class="preset-btn" onclick="setTarget(25)">25 <span style="font-size:10px;color:#aaa">(있음)</span></button>
+    <button class="preset-btn" onclick="setTarget(44)">44 <span style="font-size:10px;color:#aaa">(있음)</span></button>
+    <button class="preset-btn" onclick="setTarget(63)">63 <span style="font-size:10px;color:#aaa">(있음)</span></button>
+    <button class="preset-btn" onclick="setTarget(77)">77 <span style="font-size:10px;color:#aaa">(있음)</span></button>
+    <button class="preset-btn" onclick="setTarget(20)">20 <span style="font-size:10px;color:#aaa">(없음)</span></button>
+    <button class="preset-btn" onclick="setTarget(50)">50 <span style="font-size:10px;color:#aaa">(없음)</span></button>
+  </div>
+</div>
+
+<!-- 시뮬레이터 -->
+<div class="card">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+    <div class="tabs" style="margin-bottom:0;flex:1">
+      <button class="tab active-seq" id="tab-seq" onclick="switchAlgo('seq')">순차 탐색</button>
+      <button class="tab" id="tab-bin" onclick="switchAlgo('bin')">이진 탐색</button>
+    </div>
+    <button class="reset-btn" onclick="simReset()">초기화</button>
+  </div>
+
+  <div class="legend" id="legend-box"></div>
+
+  <div id="result-badge" class="result-badge r-pending">탐색 진행 전</div>
+
+  <div class="array-wrap" id="arr-display"></div>
+
+  <div class="controls">
+    <button class="ctrl-btn pri" id="sbtn-step" onclick="stepOnce()">▶ 한 단계</button>
+    <button class="ctrl-btn" id="sbtn-auto" onclick="toggleAuto()">▷ 자동 실행</button>
+    <div class="spd-g">
+      속도
+      <input type="range" min="1" max="5" value="3" step="1" id="spd" oninput="updateSpd(this.value)">
+      <span id="spd-lbl">3</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="sl">단계</div><div class="sv" id="ss-step">0</div></div>
+    <div class="stat"><div class="sl">비교 횟수</div><div class="sv" id="ss-cmp">0</div></div>
+    <div class="stat"><div class="sl">탐색 범위</div><div class="sv" id="ss-range" style="font-size:13px;padding-top:3px">-</div></div>
+    <div class="stat"><div class="sl">상태</div><div class="sv" id="ss-st" style="font-size:13px;padding-top:3px">대기</div></div>
+  </div>
+
+  <div class="log" id="sim-log"><div>탐색값을 설정하고 '한 단계' 또는 '자동 실행'을 누르세요.</div></div>
+</div>
+
+<!-- 비교 결과 -->
+<div class="card" id="compare-card">
+  <div class="card-title">탐색 결과 비교</div>
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-title">순차 탐색</div>
+      <div class="cmp-val" id="cmp-seq-val" style="color:var(--blue)">-</div>
+      <div class="cmp-sub" id="cmp-seq-sub">아직 탐색 전</div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-title">이진 탐색</div>
+      <div class="cmp-val" id="cmp-bin-val" style="color:var(--teal)">-</div>
+      <div class="cmp-sub" id="cmp-bin-sub">아직 탐색 전</div>
+    </div>
+  </div>
+</div>
+
+<!-- 안내 -->
+<div class="card">
+  <div class="card-title">활동지 기록 안내</div>
+  <table class="info-table">
+    <tr><td>배열</td><td><code>[ 3, 7, 12, 19, 25, 31, 44, 58, 63, 77 ]</code> (인덱스 0~9)</td></tr>
+    <tr><td>순차 탐색</td><td>왼쪽부터 하나씩 비교합니다. 각 단계에서 <b>비교한 값</b>, <b>인덱스</b>, <b>일치 여부</b>를 기록하세요.</td></tr>
+    <tr><td>이진 탐색</td><td>중간값(mid)과 비교해 범위를 절반으로 줄입니다. <b>left / mid / right</b> 인덱스와 <b>mid 값</b>, <b>범위 조정 결과</b>를 기록하세요.</td></tr>
+    <tr><td>Q1 힌트</td><td>각 탐색에서 비교가 진행되는 순서와 방식의 차이를 관찰하세요.</td></tr>
+    <tr><td>Q2 힌트</td><td>두 알고리즘의 총 비교 횟수를 비교해 보세요.</td></tr>
+    <tr><td>Q3 힌트</td><td>이진 탐색의 전제 조건(배열이 어떤 상태여야 하는지)을 생각해 보세요.</td></tr>
+  </table>
+</div>
+
+</div>
+
+<script>
+const DATA = [3,7,12,19,25,31,44,58,63,77];
+let target = 25;
+let algoType = 'seq';
+let states = [], stepIdx = 0;
+let autoTimer = null, autoRunning = false, speedMs = 600;
+const results = { seq: null, bin: null };
+
+/* ── 순차 탐색 단계 생성 ── */
+function genSeq(t) {
+  const s = [];
+  s.push({ type:'init', step:0, cmp:0, ptr:-1, found:-1, msg:`탐색 시작 — 찾는 값: ${t}` });
+  for (let i = 0; i < DATA.length; i++) {
+    const match = DATA[i] === t;
+    s.push({ type: match ? 'found' : 'compare', step: i+1, cmp: i+1, ptr: i, found: match ? i : -1,
+      msg: match
+        ? `[${i+1}단계] 인덱스 ${i}: ${DATA[i]} == ${t} → 탐색 성공!`
+        : `[${i+1}단계] 인덱스 ${i}: ${DATA[i]} ≠ ${t} → 다음으로` });
+    if (match) return s;
+  }
+  s.push({ type:'notfound', step: DATA.length, cmp: DATA.length, ptr:-1, found:-1,
+    msg:`탐색 실패 — ${t}는 배열에 없습니다.` });
+  return s;
+}
+
+/* ── 이진 탐색 단계 생성 ── */
+function genBin(t) {
+  const s = [];
+  let L = 0, R = DATA.length - 1;
+  s.push({ type:'init', step:0, cmp:0, L, R, mid:-1, found:-1,
+    msg:`탐색 시작 — 찾는 값: ${t}, 범위: [0, ${DATA.length-1}]` });
+  let step = 0;
+  while (L <= R) {
+    const M = Math.floor((L + R) / 2);
+    step++;
+    if (DATA[M] === t) {
+      s.push({ type:'found', step, cmp:step, L, R, mid:M, found:M,
+        msg:`[${step}단계] mid=${M} (값:${DATA[M]}) == ${t} → 탐색 성공!` });
+      return s;
+    } else if (DATA[M] < t) {
+      s.push({ type:'compare', step, cmp:step, L, R, mid:M, found:-1,
+        msg:`[${step}단계] mid=${M} (값:${DATA[M]}) < ${t} → left = ${M+1}` });
+      L = M + 1;
+    } else {
+      s.push({ type:'compare', step, cmp:step, L, R, mid:M, found:-1,
+        msg:`[${step}단계] mid=${M} (값:${DATA[M]}) > ${t} → right = ${M-1}` });
+      R = M - 1;
+    }
+  }
+  s.push({ type:'notfound', step:step+1, cmp:step, L, R, mid:-1, found:-1,
+    msg:`탐색 실패 — ${t}는 배열에 없습니다.` });
+  return s;
+}
+
+/* ── 렌더링 ── */
+function renderArr() {
+  const s = states[Math.min(stepIdx, states.length-1)];
+  const el = document.getElementById('arr-display');
+  el.innerHTML = DATA.map((v, i) => {
+    let cls = 'cell c-default';
+    let ptrs = [];
+    if (algoType === 'seq') {
+      if (s.found === i) cls = 'cell c-found';
+      else if (s.ptr === i) cls = 'cell c-current';
+      else if (s.ptr > i) cls = 'cell c-eliminated';
+    } else {
+      if (s.found === i) cls = 'cell c-found';
+      else if (s.mid === i) cls = 'cell c-mid';
+      else if (s.mid >= 0 && i >= s.L && i <= s.R) cls = 'cell c-range';
+      else if (s.mid >= 0) cls = 'cell c-eliminated';
+      if (i === s.L && s.mid >= 0) ptrs.push('<span class="ptr-label ptr-L">L</span>');
+      if (i === s.mid && s.mid >= 0) ptrs.push('<span class="ptr-label ptr-M">M</span>');
+      if (i === s.R && s.mid >= 0) ptrs.push('<span class="ptr-label ptr-R">R</span>');
+    }
+    return `<div class="${cls}">${ptrs.join('')}<div class="idx">${i}</div><div class="val">${v}</div></div>`;
+  }).join('');
+
+  // result badge
+  const rb = document.getElementById('result-badge');
+  if (s.type === 'found') {
+    rb.className='result-badge r-found'; rb.textContent=`발견! 인덱스 ${s.found} → 값: ${DATA[s.found]}`;
+  } else if (s.type === 'notfound') {
+    rb.className='result-badge r-notfound'; rb.textContent=`탐색 실패 — ${target}은(는) 배열에 없습니다`;
+  } else if (s.step === 0) {
+    rb.className='result-badge r-pending'; rb.textContent='탐색 진행 전';
+  } else {
+    rb.className='result-badge r-pending'; rb.textContent='탐색 중…';
+  }
+}
+
+function updStats() {
+  const s = states[Math.min(stepIdx, states.length-1)];
+  document.getElementById('ss-step').textContent = s.step;
+  document.getElementById('ss-cmp').textContent = s.cmp;
+  if (algoType === 'bin' && s.mid >= 0) {
+    document.getElementById('ss-range').textContent = `[${s.L}, ${s.R}]`;
+  } else {
+    document.getElementById('ss-range').textContent = algoType === 'bin' ? `[0, ${DATA.length-1}]` : '-';
+  }
+  const done = s.type === 'found' || s.type === 'notfound';
+  document.getElementById('ss-st').textContent = done ? (s.type==='found'?'발견 ✓':'실패') : s.step===0?'대기':'진행 중';
+  document.getElementById('sbtn-step').disabled = done;
+  document.getElementById('sbtn-auto').disabled = done;
+  if (done) {
+    results[algoType] = s.cmp;
+    updateCompare();
+  }
+}
+
+function updateCompare() {
+  ['seq','bin'].forEach(k => {
+    const v = results[k];
+    const el = document.getElementById(`cmp-${k}-val`);
+    const sub = document.getElementById(`cmp-${k}-sub`);
+    if (v === null) { el.textContent='-'; sub.textContent='아직 탐색 전'; }
+    else { el.textContent=`${v}회`; sub.textContent=`탐색값 ${target} 기준`; }
+  });
+}
+
+function updateLegend() {
+  const box = document.getElementById('legend-box');
+  if (algoType === 'seq') {
+    box.innerHTML = `
+      <div class="leg-i"><div class="leg-dot" style="background:#C0D6EE"></div>미탐색</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#EF9F27"></div>현재 비교 중</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#E0E0E0"></div>탐색 완료(불일치)</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#43A047"></div>탐색 성공</div>`;
+  } else {
+    box.innerHTML = `
+      <div class="leg-i"><div class="leg-dot" style="background:#C0D6EE"></div>탐색 범위 밖</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#81C784"></div>현재 탐색 범위</div>
+      <div class="leg-i"><div class="leg-dot" style="background:var(--teal)"></div>mid (비교값)</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#43A047"></div>탐색 성공</div>`;
+  }
+}
+
+function addLog(msg, cls) {
+  const b = document.getElementById('sim-log');
+  const d = document.createElement('div');
+  d.className = cls || '';
+  d.textContent = msg;
+  b.appendChild(d);
+  b.scrollTop = b.scrollHeight;
+}
+function clearLog() { document.getElementById('sim-log').innerHTML = ''; }
+
+function simInit(algo) {
+  algoType = algo || algoType;
+  stepIdx = 0;
+  autoRunning = false;
+  clearInterval(autoTimer);
+  document.getElementById('sbtn-auto').textContent = '▷ 자동 실행';
+  states = algoType === 'seq' ? genSeq(target) : genBin(target);
+  updateLegend();
+  renderArr();
+  updStats();
+  clearLog();
+  addLog(`배열: [ ${DATA.join(', ')} ]`);
+  addLog(`탐색값: ${target}`);
+
+  // tab styling
+  document.getElementById('tab-seq').className = 'tab' + (algoType==='seq'?' active-seq':'');
+  document.getElementById('tab-bin').className = 'tab' + (algoType==='bin'?' active-bin':'');
+
+  // primary button color
+  const pb = document.getElementById('sbtn-step');
+  pb.className = 'ctrl-btn ' + (algoType==='seq'?'pri':'pri-teal');
+}
+
+function stepOnce() {
+  if (stepIdx >= states.length - 1) return;
+  stepIdx++;
+  const s = states[stepIdx];
+  renderArr();
+  updStats();
+  const cls = s.type==='found'?'found':s.type==='notfound'?'notfound':'';
+  if (s.msg) addLog(s.msg, cls);
+}
+
+function toggleAuto() {
+  if (autoRunning) {
+    clearInterval(autoTimer); autoRunning = false;
+    document.getElementById('sbtn-auto').textContent = '▷ 자동 실행';
+  } else {
+    autoRunning = true;
+    document.getElementById('sbtn-auto').textContent = '⏸ 일시정지';
+    autoTimer = setInterval(() => {
+      if (stepIdx >= states.length - 1) {
+        clearInterval(autoTimer); autoRunning = false;
+        document.getElementById('sbtn-auto').textContent = '▷ 자동 실행';
+        return;
+      }
+      stepOnce();
+    }, speedMs);
+  }
+}
+
+function updateSpd(v) {
+  document.getElementById('spd-lbl').textContent = v;
+  const m = {1:1400,2:900,3:550,4:280,5:100};
+  speedMs = m[v];
+  if (autoRunning) { clearInterval(autoTimer); toggleAuto(); toggleAuto(); }
+}
+
+function switchAlgo(a) { simReset(); simInit(a); }
+function simReset() { clearInterval(autoTimer); autoRunning = false; simInit(algoType); }
+
+function setTarget(v) {
+  document.getElementById('target-input').value = v;
+  applyTarget();
+}
+
+function applyTarget() {
+  const v = parseInt(document.getElementById('target-input').value);
+  if (isNaN(v)) return;
+  target = v;
+  results.seq = null; results.bin = null;
+  updateCompare();
+  simInit(algoType);
+}
+
+simInit('seq');
+</script>
+</body>
+</html>
