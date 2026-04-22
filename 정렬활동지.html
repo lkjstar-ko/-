@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정렬 알고리즘 시뮬레이터 — 버블 vs 선택</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root {
+    --bg: #F5F4EF; --card: #FFFFFF; --text: #1A1A18; --muted: #5F5E5A;
+    --border: #D3D1C7; --blue: #185FA5; --blue-lt: #E6F1FB; --blue-dk: #0C447C;
+    --teal: #1D9E75; --teal-lt: #E1F5EE; --amber: #EF9F27;
+    --coral: #F09595; --pink: #D4537E; --green: #5DCAA5;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:32px 16px; }
+  .container { width:100%; max-width:680px; }
+
+  /* header */
+  .header { background:var(--card); border:1px solid var(--border); border-top:3px solid var(--blue); border-radius:10px; padding:20px 24px 16px; margin-bottom:16px; }
+  .header .tag { font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--blue); background:var(--blue-lt); padding:2px 8px; border-radius:3px; display:inline-block; margin-bottom:6px; }
+  .header h1 { font-size:22px; font-weight:700; line-height:1.3; }
+  .header h1 span { color:var(--blue); }
+  .header p { font-size:13px; color:var(--muted); margin-top:4px; }
+
+  /* card */
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px 24px; margin-bottom:14px; }
+  .card-title { font-size:13px; font-weight:700; color:var(--blue-dk); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .card-title::before { content:''; display:block; width:4px; height:16px; background:var(--blue); border-radius:2px; }
+
+  /* tabs */
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { padding:8px 18px; border:1px solid var(--border); border-radius:6px; background:transparent; cursor:pointer; font-size:13px; font-weight:500; color:var(--muted); font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
+  .tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+  .reset-btn { margin-left:auto; padding:7px 14px; border:1px solid var(--border); border-radius:6px; background:transparent; cursor:pointer; font-size:12px; font-family:'Noto Sans KR',sans-serif; color:var(--muted); }
+  .reset-btn:hover { background:var(--bg); }
+
+  /* legend */
+  .legend { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
+  .leg-item { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--muted); }
+  .leg-dot { width:12px; height:12px; border-radius:3px; }
+
+  /* pass badge */
+  .pass-badge { display:inline-block; font-size:12px; font-family:'JetBrains Mono',monospace; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:3px 10px; color:var(--muted); margin-bottom:10px; }
+
+  /* bars */
+  .bars-row { display:flex; align-items:flex-end; gap:10px; height:130px; margin-bottom:14px; }
+  .bar-col { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; }
+  .bar { width:100%; border-radius:4px 4px 0 0; transition:height .35s cubic-bezier(.4,0,.2,1), background .3s; }
+  .bv { font-size:15px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .b-def { background:#85B7EB; }
+  .b-act { background:#EF9F27; }
+  .b-cmp { background:#F09595; }
+  .b-dn  { background:#5DCAA5; }
+  .b-min { background:#D4537E; }
+
+  /* controls */
+  .controls { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .ctrl-btn { padding:8px 16px; border:1px solid var(--border); border-radius:6px; background:transparent; cursor:pointer; font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--text); transition:background .1s; }
+  .ctrl-btn:hover { background:var(--bg); }
+  .ctrl-btn:disabled { opacity:.4; cursor:not-allowed; }
+  .ctrl-btn.primary { background:var(--blue); color:#fff; border-color:var(--blue); font-weight:500; }
+  .ctrl-btn.primary:hover { background:var(--blue-dk); }
+  .spd-group { display:flex; align-items:center; gap:6px; margin-left:auto; font-size:12px; color:var(--muted); }
+  .spd-group input[type=range] { width:80px; }
+
+  /* stats */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+  .stat { background:var(--bg); border-radius:6px; padding:10px 12px; }
+  .stat .sl { font-size:11px; color:var(--muted); margin-bottom:3px; }
+  .stat .sv { font-size:22px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+
+  /* log */
+  .log { border:1px solid var(--border); border-radius:6px; padding:10px 14px; max-height:100px; overflow-y:auto; background:var(--bg); font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.7; }
+  .log .hl { color:var(--text); font-weight:600; }
+
+  /* info table */
+  .info-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .info-table td { padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .info-table td:first-child { width:120px; font-weight:700; color:var(--muted); background:var(--bg); }
+  .info-table tr:last-child td { border-bottom:none; }
+  code { font-family:'JetBrains Mono',monospace; font-size:12px; background:var(--blue-lt); color:var(--blue-dk); padding:1px 5px; border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="tag">시뮬레이터 · 컴퓨터과학</div>
+    <h1>정렬 알고리즘 분석: <span>버블 vs 선택</span></h1>
+    <p>초기 데이터 <code>[ 8, 3, 5, 2, 1 ]</code> 을 기준으로 각 회전의 배열 상태, 비교 횟수, 교환 횟수를 활동지에 기록하세요.</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <div class="tabs" style="margin-bottom:0;flex:1">
+        <button class="tab active" onclick="switchAlgo('bubble')">버블 정렬 (Bubble Sort)</button>
+        <button class="tab" onclick="switchAlgo('selection')">선택 정렬 (Selection Sort)</button>
+      </div>
+      <button class="reset-btn" onclick="simReset()">초기화</button>
+    </div>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#85B7EB"></div>미정렬</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#EF9F27"></div>비교 중</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#F09595"></div>교환 대상</div>
+      <div class="leg-item" id="leg-sp"><div class="leg-dot" style="background:#D4537E"></div>최솟값</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#5DCAA5"></div>확정 완료</div>
+    </div>
+
+    <div id="spb" class="pass-badge">대기 중</div>
+    <div class="bars-row" id="sim-bars"></div>
+
+    <div class="controls">
+      <button class="ctrl-btn primary" id="sbtn-step" onclick="stepOnce()">▶ 한 단계</button>
+      <button class="ctrl-btn" id="sbtn-pass" onclick="stepPass()">⏩ 한 회전</button>
+      <button class="ctrl-btn" id="sbtn-auto" onclick="toggleAuto()">▷ 자동 실행</button>
+      <div class="spd-group">
+        속도
+        <input type="range" min="1" max="5" value="3" step="1" id="spd" oninput="updateSpd(this.value)">
+        <span id="spd-lbl">3</span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="sl">현재 회전</div><div class="sv" id="ss-pass">0</div></div>
+      <div class="stat"><div class="sl">총 비교 횟수</div><div class="sv" id="ss-cmp">0</div></div>
+      <div class="stat"><div class="sl">총 교환 횟수</div><div class="sv" id="ss-swap">0</div></div>
+      <div class="stat"><div class="sl">상태</div><div class="sv" id="ss-st" style="font-size:14px;padding-top:4px">대기</div></div>
+    </div>
+
+    <div class="log" id="sim-log"><div>시뮬레이터 준비 완료. '한 단계' 또는 '자동 실행'을 눌러 시작하세요.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">활동지 기록 안내</div>
+    <table class="info-table">
+      <tr><td>초기 배열</td><td><code>[ 8, 3, 5, 2, 1 ]</code></td></tr>
+      <tr><td>목표 상태</td><td><code>[ 1, 2, 3, 5, 8 ]</code></td></tr>
+      <tr><td>기록 방법</td><td>⏩ <b>한 회전</b> 버튼을 누르면 한 Pass가 완료됩니다.<br>로그에서 해당 회전의 비교 횟수와 교환 횟수를 확인하고 활동지에 적으세요.</td></tr>
+      <tr><td>Q1 힌트</td><td>각 알고리즘에서 초록(확정) 블록이 어느 쪽에서부터 쌓이는지 관찰하세요.</td></tr>
+      <tr><td>Q2 힌트</td><td>버블 정렬과 선택 정렬의 총 교환 횟수를 비교해 보세요.</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const INIT=[8,3,5,2,1];
+let arr,states,stepIdx,algoType,autoTimer,autoRunning,speedMs=600;
+
+function simInit(algo){
+  algoType=algo||algoType||'bubble';
+  stepIdx=0;autoRunning=false;clearInterval(autoTimer);
+  document.getElementById('sbtn-auto').textContent='▷ 자동 실행';
+  states=algoType==='bubble'?genBubble([...INIT]):genSel([...INIT]);
+  document.getElementById('leg-sp').innerHTML=algoType==='bubble'
+    ?'<div class="leg-dot" style="background:#F09595"></div>교환'
+    :'<div class="leg-dot" style="background:#D4537E"></div>최솟값';
+  renderSim();updStats();clearLog();addLog('초기 배열: [ '+INIT.join(', ')+' ]');
+}
+
+function genBubble(a){
+  const s=[],n=a.length,d=new Array(n).fill(false);
+  s.push({arr:[...a],hl:[],d:[...d],pass:0,msg:'시작 상태'});
+  for(let i=0;i<n-1;i++){let p=i+1,pc=0,ps=0;
+    for(let j=0;j<n-1-i;j++){pc++;
+      s.push({arr:[...a],hl:[j,j+1],d:[...d],pass:p,msg:`[${p}회전] ${a[j]}와 ${a[j+1]} 비교`,type:'compare'});
+      if(a[j]>a[j+1]){[a[j],a[j+1]]=[a[j+1],a[j]];ps++;
+        s.push({arr:[...a],hl:[j,j+1],d:[...d],pass:p,msg:`[${p}회전] 교환 → [ ${a.join(', ')} ]`,type:'swap'});}}
+    d[n-1-i]=true;
+    s.push({arr:[...a],hl:[],d:[...d],pass:p,msg:`[${p}회전] 완료 — ${a[n-1-i]} 확정. 비교: ${pc}회, 교환: ${ps}회`,type:'passend'});}
+  d[0]=true;s.push({arr:[...a],hl:[],d:[...d],pass:n-1,msg:'정렬 완료! [ '+a.join(', ')+' ]',type:'done'});
+  return s;
+}
+
+function genSel(a){
+  const s=[],n=a.length,d=new Array(n).fill(false);
+  s.push({arr:[...a],hl:[],d:[...d],pass:0,msg:'시작 상태',mi:-1});
+  for(let i=0;i<n-1;i++){let mi=i,p=i+1,pc=0,ps=0;
+    s.push({arr:[...a],hl:[i],d:[...d],pass:p,msg:`[${p}회전] 인덱스 ${i}부터 최솟값 탐색`,mi});
+    for(let j=i+1;j<n;j++){pc++;
+      s.push({arr:[...a],hl:[j,mi],d:[...d],pass:p,msg:`[${p}회전] ${a[j]}와 최솟값 ${a[mi]} 비교`,type:'compare',mi});
+      if(a[j]<a[mi]){mi=j;s.push({arr:[...a],hl:[j],d:[...d],pass:p,msg:`[${p}회전] 새 최솟값: ${a[mi]}`,type:'newmin',mi});}}
+    if(mi!==i){[a[i],a[mi]]=[a[mi],a[i]];ps=1;
+      s.push({arr:[...a],hl:[i,mi],d:[...d],pass:p,msg:`[${p}회전] 교환 → [ ${a.join(', ')} ]`,type:'swap',mi:-1});}
+    else s.push({arr:[...a],hl:[i],d:[...d],pass:p,msg:`[${p}회전] 이미 최솟값 위치, 교환 없음`,mi:-1});
+    d[i]=true;s.push({arr:[...a],hl:[],d:[...d],pass:p,msg:`[${p}회전] 완료 — ${a[i]} 확정. 비교: ${pc}회, 교환: ${ps}회`,type:'passend',mi:-1});}
+  d[n-1]=true;s.push({arr:[...a],hl:[],d:[...d],pass:n-1,msg:'정렬 완료! [ '+a.join(', ')+' ]',type:'done',mi:-1});
+  return s;
+}
+
+function renderSim(){
+  const s=states[Math.min(stepIdx,states.length-1)];
+  const mx=Math.max(...INIT);
+  document.getElementById('sim-bars').innerHTML=s.arr.map((v,i)=>{
+    let c='bar b-def';
+    if(s.d[i])c='bar b-dn';
+    else if(s.type==='swap'&&s.hl.includes(i))c='bar b-cmp';
+    else if(s.mi===i&&algoType==='selection'&&!s.d[i])c='bar b-min';
+    else if(s.hl.includes(i))c='bar b-act';
+    const h=Math.round((v/mx)*110);
+    return `<div class="bar-col"><div class="${c}" style="height:${h}px"></div><div class="bv">${v}</div></div>`;
+  }).join('');
+  document.getElementById('spb').textContent=s.pass===0?'대기 중':s.type==='done'?'정렬 완료 ✓':`${s.pass}회전 진행 중`;
+}
+
+function updStats(){
+  const s=states[Math.min(stepIdx,states.length-1)];
+  document.getElementById('ss-pass').textContent=s.pass;
+  let tc=0,ts=0;
+  for(let k=0;k<=stepIdx;k++){const st=states[k];if(st.type==='compare')tc++;if(st.type==='swap')ts++;}
+  document.getElementById('ss-cmp').textContent=tc;document.getElementById('ss-swap').textContent=ts;
+  const dn=s.type==='done';
+  document.getElementById('ss-st').textContent=dn?'완료 ✓':stepIdx===0?'대기':'진행 중';
+  document.getElementById('sbtn-step').disabled=dn;document.getElementById('sbtn-pass').disabled=dn;document.getElementById('sbtn-auto').disabled=dn;
+}
+
+function addLog(msg,hl){const b=document.getElementById('sim-log');const d=document.createElement('div');d.className=hl?'hl':'';d.textContent=msg;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function clearLog(){document.getElementById('sim-log').innerHTML='';}
+function stepOnce(){if(stepIdx>=states.length-1)return;stepIdx++;const s=states[stepIdx];renderSim();updStats();if(s.msg)addLog(s.msg,s.type==='passend'||s.type==='done');}
+function stepPass(){if(stepIdx>=states.length-1)return;while(stepIdx<states.length-1){stepIdx++;const s=states[stepIdx];renderSim();if(s.msg)addLog(s.msg,s.type==='passend'||s.type==='done');if(s.type==='passend'||s.type==='done')break;}updStats();}
+function toggleAuto(){
+  if(autoRunning){clearInterval(autoTimer);autoRunning=false;document.getElementById('sbtn-auto').textContent='▷ 자동 실행';}
+  else{autoRunning=true;document.getElementById('sbtn-auto').textContent='⏸ 일시정지';
+    autoTimer=setInterval(()=>{if(stepIdx>=states.length-1){clearInterval(autoTimer);autoRunning=false;document.getElementById('sbtn-auto').textContent='▷ 자동 실행';return;}stepOnce();},speedMs);}
+}
+function updateSpd(v){document.getElementById('spd-lbl').textContent=v;const m={1:1200,2:800,3:500,4:250,5:100};speedMs=m[v];if(autoRunning){clearInterval(autoTimer);toggleAuto();toggleAuto();}}
+function switchAlgo(a){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&a==='bubble')||(i===1&&a==='selection')));simInit(a);}
+function simReset(){clearInterval(autoTimer);autoRunning=false;simInit(algoType);}
+simInit('bubble');
+</script>
+</body>
+</html>
