@@ -1,0 +1,319 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .lesson-header { background: #085041; border-radius: var(--border-radius-lg); padding: 1.5rem 2rem; margin-bottom: 1.25rem; color: white; }
+  .lesson-header .badge { display: inline-block; background: rgba(255,255,255,0.18); border-radius: 20px; padding: 3px 12px; font-size: 12px; margin-bottom: 0.6rem; }
+  .lesson-header h1 { font-size: 22px; font-weight: 500; color: white; margin-bottom: 0.3rem; }
+  .lesson-header p { font-size: 13px; opacity: 0.8; }
+  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+  .tl-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem; text-align: center; cursor: pointer; }
+  .tl-item:hover { border-color: var(--color-border-secondary); }
+  .tl-item.active { border: 1.5px solid #1D9E75; background: #E1F5EE; }
+  .tl-item .time { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .tl-item .label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .tl-item .icon { font-size: 18px; margin-bottom: 4px; display: block; }
+  .section-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: none; }
+  .section-card.visible { display: block; }
+  .section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+  .concept-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .concept-box .clabel { font-size: 11px; color: #0F6E56; font-weight: 500; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .concept-box .cval { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; }
+  .code-block { background: #1e2028; border-radius: var(--border-radius-md); padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 13px; line-height: 1.8; margin-bottom: 0.75rem; }
+  .c-comment{color:#6a9955;} .c-var{color:#9cdcfe;} .c-number{color:#b5cea8;} .c-string{color:#ce9178;} .c-fn{color:#dcdcaa;} .c-white{color:#d4d4d4;}
+  .output-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; font-family: var(--font-mono); font-size: 13px; color: var(--color-text-secondary); margin-bottom: 0.75rem; }
+  .output-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 4px; display: block; }
+  .quiz-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1rem; }
+  .quiz-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .quiz-q { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .quiz-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+  .choice-btn { padding: 5px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: 20px; background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-mono); }
+  .choice-btn:hover { background: #E1F5EE; border-color: #1D9E75; }
+  .choice-btn.correct { background: #E1F5EE; border-color: #1D9E75; color: #085041; }
+  .choice-btn.wrong { background: #FAECE7; border-color: #993C1D; color: #4A1B0C; }
+  .tip-row { display: flex; gap: 8px; margin-top: 0.75rem; flex-wrap: wrap; }
+  .tip-pill { background: #E1F5EE; color: #085041; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+  .editor-toolbar { background: #2a2d36; border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .editor-toolbar span { font-size: 13px; color: #888; font-family: var(--font-mono); }
+  .run-btn { padding: 8px 28px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+  .run-btn:hover { background: #9FE1CB; }
+  textarea.code-input { width: 100%; background: #1e2028; border: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); color: #d4d4d4; font-family: var(--font-mono); font-size: 15px; padding: 1.25rem 1.5rem; line-height: 1.9; resize: none; outline: none; display: block; overflow: hidden; }
+  .result-header { background: var(--color-background-secondary); border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; border: 0.5px solid var(--color-border-tertiary); border-bottom: none; display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+  .result-dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; }
+  .result-header span { font-size: 13px; color: var(--color-text-secondary); }
+  .result-output { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-top: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); padding: 1rem 1.5rem; font-family: var(--font-mono); font-size: 15px; line-height: 1.9; min-height: 60px; color: var(--color-text-primary); white-space: pre-wrap; margin-bottom: 1.25rem; }
+  .result-output.empty { color: var(--color-text-tertiary); font-style: italic; font-size: 13px; }
+  .challenge-area { margin-bottom: 1rem; }
+  .challenge-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .challenge-list { display: flex; flex-direction: column; gap: 6px; }
+  .challenge-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.7rem 1rem; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; display: flex; gap: 10px; align-items: flex-start; }
+  .ch-num { width: 20px; height: 20px; border-radius: 50%; background: #1D9E75; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+  .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  .subject-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+  .subject-card:hover { border-color: #1D9E75; }
+  .subject-card.selected { border: 2px solid #1D9E75; }
+  .subject-card-top { padding: 0.9rem 1.1rem; color: white; }
+  .subject-num { font-size: 11px; opacity: 0.8; margin-bottom: 4px; }
+  .subject-name { font-size: 15px; font-weight: 500; line-height: 1.4; }
+  .subject-sub { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+  .subject-card-body { padding: 0.9rem 1.1rem; background: var(--color-background-secondary); }
+  .subject-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 0.75rem; }
+  .mission-list { display: flex; flex-direction: column; gap: 5px; }
+  .mission-item { font-size: 12px; color: var(--color-text-primary); line-height: 1.5; display: flex; gap: 8px; }
+  .m-dot { width: 16px; height: 16px; border-radius: 50%; background: #1D9E75; color: white; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .flow-row { display: flex; align-items: center; gap: 8px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.9rem 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .flow-step { font-size: 13px; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+  .flow-num { width: 22px; height: 22px; border-radius: 50%; background: #1D9E75; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .flow-arrow { color: var(--color-text-secondary); font-size: 14px; }
+
+  .nav-row { display: flex; gap: 8px; margin-top: 0.75rem; }
+  .nav-btn { flex: 1; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-sans); }
+  .nav-btn:hover { background: var(--color-background-secondary); }
+  .nav-btn.primary { background: #1D9E75; color: white; border-color: #1D9E75; }
+  .nav-btn.primary:hover { background: #0F6E56; }
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">파이썬 변수와 자료형 1차시 수업 자료</h2>
+
+<div class="lesson-header">
+  <div class="badge">제주고 정보 · 1차시 · 50분</div>
+  <h1>변수와 자료형</h1>
+  <p>탭을 눌러 수업 단계별로 이동하세요.</p>
+</div>
+
+<div class="timeline" id="timeline">
+  <div class="tl-item active" onclick="showSection(0)"><span class="icon">🎯</span><div class="time">0–10분</div><div class="label">도입</div></div>
+  <div class="tl-item" onclick="showSection(1)"><span class="icon">📖</span><div class="time">10–25분</div><div class="label">개념 설명</div></div>
+  <div class="tl-item" onclick="showSection(2)"><span class="icon">💻</span><div class="time">25–40분</div><div class="label">개인 실습</div></div>
+  <div class="tl-item" onclick="showSection(3)"><span class="icon">👥</span><div class="time">40–50분</div><div class="label">모둠 활동</div></div>
+</div>
+
+<!-- 섹션 0 -->
+<div class="section-card visible" id="sec0">
+  <div class="section-title"><div class="dot"></div>도입 — 변수가 뭘까요? (10분)</div>
+  <div class="concept-grid">
+    <div class="concept-box"><div class="clabel">생각해 보기</div><div class="cval">스마트폰 연락처에 이름과 전화번호를 저장하는 것처럼, 컴퓨터도 데이터를 기억하는 공간이 필요합니다.</div></div>
+    <div class="concept-box"><div class="clabel">학습 목표</div><div class="cval">변수의 개념을 이해하고, 정수·실수·문자열 자료형을 구별할 수 있다.</div></div>
+  </div>
+  <div class="quiz-area">
+    <div class="quiz-item">
+      <div class="quiz-q">❓ 퀴즈: 다음 중 변수 이름으로 사용할 수 없는 것은?</div>
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkAnswer(this,false)">student_name</button>
+        <button class="choice-btn" onclick="checkAnswer(this,false)">age</button>
+        <button class="choice-btn" onclick="checkAnswer(this,true)">2score</button>
+        <button class="choice-btn" onclick="checkAnswer(this,false)">my_score</button>
+      </div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">❓ 퀴즈: 파이썬 예약어로 변수 이름을 쓰면 어떻게 될까요?</div>
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkAnswer(this,false)">그냥 동작한다</button>
+        <button class="choice-btn" onclick="checkAnswer(this,true)">오류가 발생한다</button>
+        <button class="choice-btn" onclick="checkAnswer(this,false)">경고만 뜬다</button>
+      </div>
+    </div>
+  </div>
+  <div class="tip-row">
+    <span class="tip-pill">💡 if, for, while 등은 예약어</span>
+    <span class="tip-pill">💡 대소문자 구별됨 (age ≠ Age)</span>
+    <span class="tip-pill">💡 첫 글자에 숫자 불가</span>
+  </div>
+  <div class="nav-row"><button class="nav-btn primary" onclick="showSection(1)">다음: 개념 설명 →</button></div>
+</div>
+
+<!-- 섹션 1 -->
+<div class="section-card" id="sec1">
+  <div class="section-title"><div class="dot"></div>개념 설명 — 변수와 자료형 (15분)</div>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;">기본 코드 예시</p>
+  <div class="code-block">
+<span class="c-comment"># 정수(int) 저장</span>
+<span class="c-var">a</span> <span class="c-white">=</span> <span class="c-number">10</span>
+<span class="c-comment"># 실수(float)와 문자열(str) 저장</span>
+<span class="c-var">b</span><span class="c-white">,</span> <span class="c-var">c</span> <span class="c-white">=</span> <span class="c-number">2.5</span><span class="c-white">,</span> <span class="c-string">"A"</span>
+<span class="c-fn">print</span><span class="c-white">(</span><span class="c-var">a</span><span class="c-white">,</span> <span class="c-var">b</span><span class="c-white">,</span> <span class="c-var">c</span><span class="c-white">)</span>   <span class="c-comment"># 10 2.5 A</span>
+<span class="c-var">a</span> <span class="c-white">=</span> <span class="c-var">a</span> <span class="c-white">*</span> <span class="c-number">2</span>
+<span class="c-fn">print</span><span class="c-white">(</span><span class="c-var">a</span><span class="c-white">,</span> <span class="c-var">b</span><span class="c-white">,</span> <span class="c-var">c</span><span class="c-white">)</span>   <span class="c-comment"># 20 2.5 A</span>
+  </div>
+  <span class="output-label">실행 결과</span>
+  <div class="output-box">10 2.5 A<br>20 2.5 A</div>
+  <div class="concept-grid">
+    <div class="concept-box">
+      <div class="clabel">자료형 3가지</div>
+      <div class="cval" style="font-family:var(--font-mono);font-size:13px;line-height:2.1;">
+        <span style="color:#1D9E75;font-weight:500;">int</span> — 정수 · 예: 10, -3, 0<br>
+        <span style="color:#1D9E75;font-weight:500;">float</span> — 실수 · 예: 2.5, 3.14<br>
+        <span style="color:#1D9E75;font-weight:500;">str</span> — 문자열 · 예: "A", "안녕"
+      </div>
+    </div>
+    <div class="concept-box">
+      <div class="clabel">자료형 확인하기</div>
+      <div class="cval" style="font-family:var(--font-mono);font-size:13px;line-height:2.1;color:var(--color-text-primary);">
+        <span style="color:#dcdcaa;">type</span>(10) → &lt;class 'int'&gt;<br>
+        <span style="color:#dcdcaa;">type</span>(2.5) → &lt;class 'float'&gt;<br>
+        <span style="color:#dcdcaa;">type</span>("A") → &lt;class 'str'&gt;
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="showSection(0)">← 이전</button>
+    <button class="nav-btn primary" onclick="showSection(2)">다음: 개인 실습 →</button>
+  </div>
+</div>
+
+<!-- 섹션 2 -->
+<div class="section-card" id="sec2">
+  <div class="section-title"><div class="dot"></div>개인 실습 — 직접 코드 작성해 보기 (15분)</div>
+  <div class="editor-toolbar">
+    <span>main.py</span>
+    <button class="run-btn" onclick="runCode()">▶ 실행</button>
+  </div>
+  <textarea class="code-input" id="codeInput" spellcheck="false">name = '김민지'
+age = 17
+phone = '010-1234-5678'
+print(name, age, phone)
+</textarea>
+  <div class="result-header"><div class="result-dot"></div><span>실행 결과</span></div>
+  <div class="result-output empty" id="resultOutput">▶ 실행 버튼을 눌러보세요</div>
+  <div class="challenge-area">
+    <div class="challenge-title">도전 과제</div>
+    <div class="challenge-list">
+      <div class="challenge-item"><div class="ch-num">1</div><span>본인의 이름, 나이, 좋아하는 과목을 변수에 저장하고 출력해 보세요.</span></div>
+      <div class="challenge-item"><div class="ch-num">2</div><span><code style="background:var(--color-background-secondary);padding:1px 6px;border-radius:4px;font-size:12px;">type()</code> 함수로 각 변수의 자료형을 출력해 보세요.</span></div>
+      <div class="challenge-item"><div class="ch-num">3</div><span>나이 변수에 1을 더해서 내년 나이를 구하고 출력해 보세요.</span></div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="showSection(1)">← 이전</button>
+    <button class="nav-btn primary" onclick="showSection(3)">다음: 모둠 활동 →</button>
+  </div>
+</div>
+
+<!-- 섹션 3: 모둠 활동 -->
+<div class="section-card" id="sec3">
+  <div class="section-title"><div class="dot"></div>모둠 활동 — 주제를 선택하고 활동지를 작성해요 (10분)</div>
+
+  <div class="flow-row">
+    <div class="flow-step"><div class="flow-num">1</div><span>아래 4개 주제 중 모둠이 맡은 주제 확인</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="flow-num">2</div><span>선생님께 활동지 수령</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="flow-num">3</div><span>미션 해결 후 활동지 작성</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="flow-num">4</div><span>결과 발표</span></div>
+  </div>
+
+  <div class="subject-grid">
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#1D9E75;">
+        <div class="subject-num">주제 1</div>
+        <div class="subject-name">학생증 만들기</div>
+        <div class="subject-sub">학생 정보를 변수에 저장하고 출력하기</div>
+      </div>
+      <div class="subject-card-body">
+        <p class="subject-desc">이름, 학년, 반, 번호, 좋아하는 과목을 변수에 저장하고 학생증처럼 출력해요.</p>
+        <div class="mission-list">
+          <div class="mission-item"><div class="m-dot">①</div><span>변수 5개 이상 선언 · 올바른 자료형 사용</span></div>
+          <div class="mission-item"><div class="m-dot">②</div><span>type()으로 변수 3개 자료형 출력</span></div>
+          <div class="mission-item"><div class="m-dot">③</div><span>학년 +1 해서 내년 학년 출력</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#0F6E56;">
+        <div class="subject-num">주제 2</div>
+        <div class="subject-name">분식집 메뉴판</div>
+        <div class="subject-sub">상품 정보를 변수에 저장하고 출력하기</div>
+      </div>
+      <div class="subject-card-body">
+        <p class="subject-desc">우리 모둠만의 분식집 메뉴 이름과 가격을 변수에 저장하고 메뉴판을 출력해요.</p>
+        <div class="mission-list">
+          <div class="mission-item"><div class="m-dot">①</div><span>메뉴 3가지 이름(str)·가격(int) 변수 선언</span></div>
+          <div class="mission-item"><div class="m-dot">②</div><span>가장 비싼/싼 메뉴 이름과 가격 출력</span></div>
+          <div class="mission-item"><div class="m-dot">③</div><span>메뉴 2개 합산 총금액 계산 후 출력</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#085041;">
+        <div class="subject-num">주제 3</div>
+        <div class="subject-name">성적 계산기</div>
+        <div class="subject-sub">시험 점수를 저장하고 평균 계산하기</div>
+      </div>
+      <div class="subject-card-body">
+        <p class="subject-desc">국어, 영어, 수학 점수를 변수에 저장하고 합계와 평균을 계산하는 프로그램을 만들어요.</p>
+        <div class="mission-list">
+          <div class="mission-item"><div class="m-dot">①</div><span>3과목 점수 변수 선언 및 출력</span></div>
+          <div class="mission-item"><div class="m-dot">②</div><span>합계와 평균(float) 계산 후 출력</span></div>
+          <div class="mission-item"><div class="m-dot">③</div><span>한 과목 +10점 후 새 평균 출력</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#04342C;">
+        <div class="subject-num">주제 4</div>
+        <div class="subject-name">여행 계획표</div>
+        <div class="subject-sub">여행 정보를 저장하고 1인당 비용 계산하기</div>
+      </div>
+      <div class="subject-card-body">
+        <p class="subject-desc">여행지, 기간, 예산, 인원을 변수에 저장하고 1인당 여행 비용을 계산해요.</p>
+        <div class="mission-list">
+          <div class="mission-item"><div class="m-dot">①</div><span>여행지·기간·예산·인원 변수 선언 및 출력</span></div>
+          <div class="mission-item"><div class="m-dot">②</div><span>1인당 여행 비용 계산 후 출력</span></div>
+          <div class="mission-item"><div class="m-dot">③</div><span>인원 +1 후 1인당 비용 변화 출력</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="showSection(2)">← 이전</button>
+  </div>
+</div>
+
+<script>
+  function showSection(idx) {
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('sec'+i).classList.toggle('visible', i===idx);
+      document.querySelectorAll('.tl-item')[i].classList.toggle('active', i===idx);
+    }
+  }
+  function checkAnswer(btn, correct) {
+    btn.closest('.quiz-choices').querySelectorAll('.choice-btn').forEach(b => { b.classList.remove('correct','wrong'); b.disabled=true; });
+    btn.classList.add(correct ? 'correct' : 'wrong');
+  }
+  function selectCard(card) {
+    document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+  function autoResize(ta) { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; }
+  function runCode() {
+    const ta = document.getElementById('codeInput');
+    autoResize(ta);
+    const code = ta.value;
+    const out = document.getElementById('resultOutput');
+    const vars = {}, outputs = [];
+    for (const raw of code.split('\n')) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      const tm = line.match(/^print\(type\((.+)\)\)$/);
+      if (tm) { const v=vars[tm[1].trim()]; if(v!==undefined){const t=typeof v==='number'?(Number.isInteger(v)?'int':'float'):'str'; outputs.push(`<class '${t}'>`);}  continue; }
+      const am = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+      if (am) { let val=am[2].trim().replace(/\b([a-zA-Z_]\w*)\b/g,m=>vars.hasOwnProperty(m)&&m!=='print'&&m!=='type'?JSON.stringify(vars[m]):m); try{vars[am[1]]=eval(val);}catch(e){} continue; }
+      const pm = line.match(/^print\((.+)\)$/);
+      if (pm) { outputs.push(pm[1].split(',').map(p=>{let r=p.trim().replace(/\b([a-zA-Z_]\w*)\b/g,m=>vars.hasOwnProperty(m)?JSON.stringify(vars[m]):m);try{return String(eval(r));}catch(e){return p.trim();}}).join(' ')); }
+    }
+    out.classList.remove('empty');
+    out.textContent = outputs.length ? outputs.join('\n') : '(출력 없음)';
+  }
+  window.addEventListener('load', () => {
+    const ta = document.getElementById('codeInput');
+    autoResize(ta);
+    ta.addEventListener('input', () => autoResize(ta));
+  });
+</script>
