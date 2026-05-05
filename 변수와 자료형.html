@@ -34,6 +34,108 @@
   .choice-btn.wrong { background: #FAECE7; border-color: #993C1D; color: #4A1B0C; }
   .tip-row { display: flex; gap: 8px; margin-top: 0.75rem; flex-wrap: wrap; }
   .tip-pill { background: #E1F5EE; color: #085041; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+
+  /* 개념 실습 공간 */
+  .sandbox-wrap {
+    border: 1.5px solid #1D9E75;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-top: 1.25rem;
+  }
+  .sandbox-header {
+    background: #1D9E75;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sandbox-header-left { display: flex; align-items: center; gap: 8px; }
+  .sandbox-header-left span { font-size: 13px; color: white; font-weight: 500; }
+  .sandbox-header-left .sbadge { background: rgba(255,255,255,0.2); font-size: 11px; color: white; padding: 2px 8px; border-radius: 10px; }
+  .snippet-row {
+    background: #16493A;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .snippet-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-right: 4px; }
+  .snippet-btn {
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.12);
+    border: 0.5px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    font-size: 12px;
+    color: #9FE1CB;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    transition: background 0.15s;
+  }
+  .snippet-btn:hover { background: rgba(255,255,255,0.22); }
+  .sandbox-editor-wrap { display: flex; }
+  .line-nums {
+    background: #181c24;
+    padding: 1rem 0.6rem 1rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.9;
+    color: #555;
+    text-align: right;
+    user-select: none;
+    min-width: 36px;
+  }
+  textarea.sandbox-input {
+    flex: 1;
+    background: #1e2028;
+    border: none;
+    color: #d4d4d4;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    padding: 1rem 1.25rem;
+    line-height: 1.9;
+    resize: none;
+    outline: none;
+    overflow: hidden;
+    min-height: 120px;
+  }
+  .sandbox-run-bar {
+    background: #2a2d36;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sandbox-run-bar span { font-size: 12px; color: #666; }
+  .sb-run-btn {
+    padding: 7px 24px;
+    background: #5DCAA5;
+    color: #04342C;
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-weight: 500;
+  }
+  .sb-run-btn:hover { background: #9FE1CB; }
+  .sandbox-output-wrap { border-top: 0.5px solid #2a2d36; }
+  .sandbox-output-header { background: #181c24; padding: 6px 14px; display: flex; align-items: center; gap: 6px; }
+  .sb-out-dot { width: 6px; height: 6px; border-radius: 50%; background: #5DCAA5; }
+  .sandbox-output-header span { font-size: 12px; color: #666; }
+  .sandbox-output {
+    background: #181c24;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.9;
+    color: #9FE1CB;
+    white-space: pre-wrap;
+    min-height: 48px;
+  }
+  .sandbox-output.empty { color: #444; font-style: italic; font-size: 13px; }
+
+  /* 개인실습 */
   .editor-toolbar { background: #2a2d36; border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
   .editor-toolbar span { font-size: 13px; color: #888; font-family: var(--font-mono); }
   .run-btn { padding: 8px 28px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
@@ -50,8 +152,9 @@
   .challenge-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.7rem 1rem; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; display: flex; gap: 10px; align-items: flex-start; }
   .ch-num { width: 20px; height: 20px; border-radius: 50%; background: #1D9E75; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
 
+  /* 모둠활동 */
   .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
-  .subject-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+  .subject-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; cursor: pointer; }
   .subject-card:hover { border-color: #1D9E75; }
   .subject-card.selected { border: 2px solid #1D9E75; }
   .subject-card-top { padding: 0.9rem 1.1rem; color: white; }
@@ -75,10 +178,8 @@
   .nav-btn.primary:hover { background: #0F6E56; }
 </style>
 
-<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">파이썬 변수와 자료형 1차시 수업 자료</h2>
-
 <div class="lesson-header">
-  <div class="badge">제주고 정보 · 1차시 · 50분</div>
+  <div class="badge">중학교 정보 · 1차시 · 50분</div>
   <h1>변수와 자료형</h1>
   <p>탭을 눌러 수업 단계별로 이동하세요.</p>
 </div>
@@ -90,7 +191,7 @@
   <div class="tl-item" onclick="showSection(3)"><span class="icon">👥</span><div class="time">40–50분</div><div class="label">모둠 활동</div></div>
 </div>
 
-<!-- 섹션 0 -->
+<!-- 섹션 0: 도입 -->
 <div class="section-card visible" id="sec0">
   <div class="section-title"><div class="dot"></div>도입 — 변수가 뭘까요? (10분)</div>
   <div class="concept-grid">
@@ -124,9 +225,10 @@
   <div class="nav-row"><button class="nav-btn primary" onclick="showSection(1)">다음: 개념 설명 →</button></div>
 </div>
 
-<!-- 섹션 1 -->
+<!-- 섹션 1: 개념 설명 -->
 <div class="section-card" id="sec1">
   <div class="section-title"><div class="dot"></div>개념 설명 — 변수와 자료형 (15분)</div>
+
   <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;">기본 코드 예시</p>
   <div class="code-block">
 <span class="c-comment"># 정수(int) 저장</span>
@@ -139,6 +241,7 @@
   </div>
   <span class="output-label">실행 결과</span>
   <div class="output-box">10 2.5 A<br>20 2.5 A</div>
+
   <div class="concept-grid">
     <div class="concept-box">
       <div class="clabel">자료형 3가지</div>
@@ -157,13 +260,45 @@
       </div>
     </div>
   </div>
-  <div class="nav-row">
+
+  <!-- 테스트 공간 -->
+  <div class="sandbox-wrap">
+    <div class="sandbox-header">
+      <div class="sandbox-header-left">
+        <span>⚡ 바로 테스트해보기</span>
+        <span class="sbadge">자유롭게 입력해보세요</span>
+      </div>
+      <button class="sb-run-btn" onclick="runSandbox()">▶ 실행</button>
+    </div>
+    <div class="snippet-row">
+      <span class="snippet-label">예제 불러오기 →</span>
+      <button class="snippet-btn" onclick="loadSnippet('var')">변수 저장</button>
+      <button class="snippet-btn" onclick="loadSnippet('type')">자료형 확인</button>
+      <button class="snippet-btn" onclick="loadSnippet('calc')">사칙연산</button>
+      <button class="snippet-btn" onclick="loadSnippet('str')">문자열 출력</button>
+      <button class="snippet-btn" onclick="loadSnippet('change')">값 변경</button>
+      <button class="snippet-btn" onclick="clearSandbox()">🗑 초기화</button>
+    </div>
+    <div class="sandbox-editor-wrap">
+      <div class="line-nums" id="lineNums">1</div>
+      <textarea class="sandbox-input" id="sandboxInput" spellcheck="false" placeholder="여기에 파이썬 코드를 입력하고 실행해 보세요!"></textarea>
+    </div>
+    <div class="sandbox-run-bar">
+      <span>Shift + Enter 로도 실행할 수 있어요</span>
+    </div>
+    <div class="sandbox-output-wrap">
+      <div class="sandbox-output-header"><div class="sb-out-dot"></div><span>출력 결과</span></div>
+      <div class="sandbox-output empty" id="sandboxOutput">▶ 실행 버튼을 누르면 결과가 여기 나타나요</div>
+    </div>
+  </div>
+
+  <div class="nav-row" style="margin-top:1rem;">
     <button class="nav-btn" onclick="showSection(0)">← 이전</button>
     <button class="nav-btn primary" onclick="showSection(2)">다음: 개인 실습 →</button>
   </div>
 </div>
 
-<!-- 섹션 2 -->
+<!-- 섹션 2: 개인 실습 -->
 <div class="section-card" id="sec2">
   <div class="section-title"><div class="dot"></div>개인 실습 — 직접 코드 작성해 보기 (15분)</div>
   <div class="editor-toolbar">
@@ -194,7 +329,6 @@ print(name, age, phone)
 <!-- 섹션 3: 모둠 활동 -->
 <div class="section-card" id="sec3">
   <div class="section-title"><div class="dot"></div>모둠 활동 — 주제를 선택하고 활동지를 작성해요 (10분)</div>
-
   <div class="flow-row">
     <div class="flow-step"><div class="flow-num">1</div><span>아래 4개 주제 중 모둠이 맡은 주제 확인</span></div>
     <span class="flow-arrow">→</span>
@@ -204,79 +338,38 @@ print(name, age, phone)
     <span class="flow-arrow">→</span>
     <div class="flow-step"><div class="flow-num">4</div><span>결과 발표</span></div>
   </div>
-
   <div class="subject-grid">
     <div class="subject-card" onclick="selectCard(this)">
-      <div class="subject-card-top" style="background:#1D9E75;">
-        <div class="subject-num">주제 1</div>
-        <div class="subject-name">학생증 만들기</div>
-        <div class="subject-sub">학생 정보를 변수에 저장하고 출력하기</div>
-      </div>
-      <div class="subject-card-body">
-        <p class="subject-desc">이름, 학년, 반, 번호, 좋아하는 과목을 변수에 저장하고 학생증처럼 출력해요.</p>
-        <div class="mission-list">
-          <div class="mission-item"><div class="m-dot">①</div><span>변수 5개 이상 선언 · 올바른 자료형 사용</span></div>
-          <div class="mission-item"><div class="m-dot">②</div><span>type()으로 변수 3개 자료형 출력</span></div>
-          <div class="mission-item"><div class="m-dot">③</div><span>학년 +1 해서 내년 학년 출력</span></div>
-        </div>
-      </div>
+      <div class="subject-card-top" style="background:#1D9E75;"><div class="subject-num">주제 1</div><div class="subject-name">학생증 만들기</div><div class="subject-sub">학생 정보를 변수에 저장하고 출력하기</div></div>
+      <div class="subject-card-body"><p class="subject-desc">이름, 학년, 반, 번호, 좋아하는 과목을 변수에 저장하고 학생증처럼 출력해요.</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>변수 5개 이상 선언 · 올바른 자료형 사용</span></div><div class="mission-item"><div class="m-dot">②</div><span>type()으로 변수 3개 자료형 출력</span></div><div class="mission-item"><div class="m-dot">③</div><span>학년 +1 해서 내년 학년 출력</span></div></div></div>
     </div>
-
     <div class="subject-card" onclick="selectCard(this)">
-      <div class="subject-card-top" style="background:#0F6E56;">
-        <div class="subject-num">주제 2</div>
-        <div class="subject-name">분식집 메뉴판</div>
-        <div class="subject-sub">상품 정보를 변수에 저장하고 출력하기</div>
-      </div>
-      <div class="subject-card-body">
-        <p class="subject-desc">우리 모둠만의 분식집 메뉴 이름과 가격을 변수에 저장하고 메뉴판을 출력해요.</p>
-        <div class="mission-list">
-          <div class="mission-item"><div class="m-dot">①</div><span>메뉴 3가지 이름(str)·가격(int) 변수 선언</span></div>
-          <div class="mission-item"><div class="m-dot">②</div><span>가장 비싼/싼 메뉴 이름과 가격 출력</span></div>
-          <div class="mission-item"><div class="m-dot">③</div><span>메뉴 2개 합산 총금액 계산 후 출력</span></div>
-        </div>
-      </div>
+      <div class="subject-card-top" style="background:#0F6E56;"><div class="subject-num">주제 2</div><div class="subject-name">분식집 메뉴판</div><div class="subject-sub">상품 정보를 변수에 저장하고 출력하기</div></div>
+      <div class="subject-card-body"><p class="subject-desc">우리 모둠만의 분식집 메뉴 이름과 가격을 변수에 저장하고 메뉴판을 출력해요.</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>메뉴 3가지 이름(str)·가격(int) 변수 선언</span></div><div class="mission-item"><div class="m-dot">②</div><span>가장 비싼/싼 메뉴 이름과 가격 출력</span></div><div class="mission-item"><div class="m-dot">③</div><span>메뉴 2개 합산 총금액 계산 후 출력</span></div></div></div>
     </div>
-
     <div class="subject-card" onclick="selectCard(this)">
-      <div class="subject-card-top" style="background:#085041;">
-        <div class="subject-num">주제 3</div>
-        <div class="subject-name">성적 계산기</div>
-        <div class="subject-sub">시험 점수를 저장하고 평균 계산하기</div>
-      </div>
-      <div class="subject-card-body">
-        <p class="subject-desc">국어, 영어, 수학 점수를 변수에 저장하고 합계와 평균을 계산하는 프로그램을 만들어요.</p>
-        <div class="mission-list">
-          <div class="mission-item"><div class="m-dot">①</div><span>3과목 점수 변수 선언 및 출력</span></div>
-          <div class="mission-item"><div class="m-dot">②</div><span>합계와 평균(float) 계산 후 출력</span></div>
-          <div class="mission-item"><div class="m-dot">③</div><span>한 과목 +10점 후 새 평균 출력</span></div>
-        </div>
-      </div>
+      <div class="subject-card-top" style="background:#085041;"><div class="subject-num">주제 3</div><div class="subject-name">성적 계산기</div><div class="subject-sub">시험 점수를 저장하고 평균 계산하기</div></div>
+      <div class="subject-card-body"><p class="subject-desc">국어, 영어, 수학 점수를 변수에 저장하고 합계와 평균을 계산하는 프로그램을 만들어요.</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>3과목 점수 변수 선언 및 출력</span></div><div class="mission-item"><div class="m-dot">②</div><span>합계와 평균(float) 계산 후 출력</span></div><div class="mission-item"><div class="m-dot">③</div><span>한 과목 +10점 후 새 평균 출력</span></div></div></div>
     </div>
-
     <div class="subject-card" onclick="selectCard(this)">
-      <div class="subject-card-top" style="background:#04342C;">
-        <div class="subject-num">주제 4</div>
-        <div class="subject-name">여행 계획표</div>
-        <div class="subject-sub">여행 정보를 저장하고 1인당 비용 계산하기</div>
-      </div>
-      <div class="subject-card-body">
-        <p class="subject-desc">여행지, 기간, 예산, 인원을 변수에 저장하고 1인당 여행 비용을 계산해요.</p>
-        <div class="mission-list">
-          <div class="mission-item"><div class="m-dot">①</div><span>여행지·기간·예산·인원 변수 선언 및 출력</span></div>
-          <div class="mission-item"><div class="m-dot">②</div><span>1인당 여행 비용 계산 후 출력</span></div>
-          <div class="mission-item"><div class="m-dot">③</div><span>인원 +1 후 1인당 비용 변화 출력</span></div>
-        </div>
-      </div>
+      <div class="subject-card-top" style="background:#04342C;"><div class="subject-num">주제 4</div><div class="subject-name">여행 계획표</div><div class="subject-sub">여행 정보를 저장하고 1인당 비용 계산하기</div></div>
+      <div class="subject-card-body"><p class="subject-desc">여행지, 기간, 예산, 인원을 변수에 저장하고 1인당 여행 비용을 계산해요.</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>여행지·기간·예산·인원 변수 선언 및 출력</span></div><div class="mission-item"><div class="m-dot">②</div><span>1인당 여행 비용 계산 후 출력</span></div><div class="mission-item"><div class="m-dot">③</div><span>인원 +1 후 1인당 비용 변화 출력</span></div></div></div>
     </div>
   </div>
-
   <div class="nav-row">
     <button class="nav-btn" onclick="showSection(2)">← 이전</button>
   </div>
 </div>
 
 <script>
+  const snippets = {
+    var:    "# 변수에 값 저장하기\nname = '홍길동'\nage = 15\nprint(name, age)",
+    type:   "# 자료형 확인하기\nx = 10\ny = 3.14\nz = '안녕'\nprint(type(x))\nprint(type(y))\nprint(type(z))",
+    calc:   "# 사칙연산\na = 20\nb = 3\nprint(a + b)\nprint(a - b)\nprint(a * b)\nprint(a / b)",
+    str:    "# 문자열 출력\nschool = '한국중학교'\ngrade = 2\nprint(school, grade, '학년')",
+    change: "# 변수 값 변경하기\nscore = 80\nprint(score)\nscore = score + 10\nprint(score)"
+  };
+
   function showSection(idx) {
     for (let i = 0; i < 4; i++) {
       document.getElementById('sec'+i).classList.toggle('visible', i===idx);
@@ -291,29 +384,82 @@ print(name, age, phone)
     document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
   }
-  function autoResize(ta) { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; }
-  function runCode() {
-    const ta = document.getElementById('codeInput');
-    autoResize(ta);
-    const code = ta.value;
-    const out = document.getElementById('resultOutput');
+
+  function loadSnippet(key) {
+    const ta = document.getElementById('sandboxInput');
+    ta.value = snippets[key];
+    updateLineNums(ta);
+  }
+  function clearSandbox() {
+    const ta = document.getElementById('sandboxInput');
+    ta.value = '';
+    updateLineNums(ta);
+    const out = document.getElementById('sandboxOutput');
+    out.classList.add('empty');
+    out.textContent = '▶ 실행 버튼을 누르면 결과가 여기 나타나요';
+  }
+  function updateLineNums(ta) {
+    const lines = ta.value.split('\n').length;
+    document.getElementById('lineNums').innerHTML = Array.from({length: lines}, (_,i) => i+1).join('<br>');
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(ta.scrollHeight, 120) + 'px';
+  }
+
+  function execCode(code) {
     const vars = {}, outputs = [];
     for (const raw of code.split('\n')) {
       const line = raw.trim();
       if (!line || line.startsWith('#')) continue;
       const tm = line.match(/^print\(type\((.+)\)\)$/);
-      if (tm) { const v=vars[tm[1].trim()]; if(v!==undefined){const t=typeof v==='number'?(Number.isInteger(v)?'int':'float'):'str'; outputs.push(`<class '${t}'>`);}  continue; }
+      if (tm) {
+        const v = vars[tm[1].trim()];
+        if (v !== undefined) {
+          const t = typeof v === 'number' ? (Number.isInteger(v) ? 'int' : 'float') : 'str';
+          outputs.push(`<class '${t}'>`);
+        } continue;
+      }
       const am = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
-      if (am) { let val=am[2].trim().replace(/\b([a-zA-Z_]\w*)\b/g,m=>vars.hasOwnProperty(m)&&m!=='print'&&m!=='type'?JSON.stringify(vars[m]):m); try{vars[am[1]]=eval(val);}catch(e){} continue; }
+      if (am) {
+        let val = am[2].trim().replace(/\b([a-zA-Z_]\w*)\b/g, m => vars.hasOwnProperty(m) && m!=='print' && m!=='type' ? JSON.stringify(vars[m]) : m);
+        try { vars[am[1]] = eval(val); } catch(e) {} continue;
+      }
       const pm = line.match(/^print\((.+)\)$/);
-      if (pm) { outputs.push(pm[1].split(',').map(p=>{let r=p.trim().replace(/\b([a-zA-Z_]\w*)\b/g,m=>vars.hasOwnProperty(m)?JSON.stringify(vars[m]):m);try{return String(eval(r));}catch(e){return p.trim();}}).join(' ')); }
+      if (pm) {
+        outputs.push(pm[1].split(',').map(p => {
+          let r = p.trim().replace(/\b([a-zA-Z_]\w*)\b/g, m => vars.hasOwnProperty(m) ? JSON.stringify(vars[m]) : m);
+          try { return String(eval(r)); } catch(e) { return p.trim(); }
+        }).join(' '));
+      }
     }
+    return outputs;
+  }
+
+  function runSandbox() {
+    const code = document.getElementById('sandboxInput').value;
+    const out = document.getElementById('sandboxOutput');
+    const outputs = execCode(code);
     out.classList.remove('empty');
     out.textContent = outputs.length ? outputs.join('\n') : '(출력 없음)';
   }
+
+  function runCode() {
+    const ta = document.getElementById('codeInput');
+    ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
+    const outputs = execCode(ta.value);
+    const out = document.getElementById('resultOutput');
+    out.classList.remove('empty');
+    out.textContent = outputs.length ? outputs.join('\n') : '(출력 없음)';
+  }
+
   window.addEventListener('load', () => {
     const ta = document.getElementById('codeInput');
-    autoResize(ta);
-    ta.addEventListener('input', () => autoResize(ta));
+    ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
+    ta.addEventListener('input', () => { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; });
+
+    const sb = document.getElementById('sandboxInput');
+    sb.addEventListener('input', () => updateLineNums(sb));
+    sb.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); runSandbox(); }
+    });
   });
 </script>
