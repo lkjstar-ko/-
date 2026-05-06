@@ -1,0 +1,603 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .lesson-header { background: linear-gradient(135deg, #1A1040 0%, #2D1B69 100%); border-radius: var(--border-radius-lg); padding: 1.5rem 2rem; margin-bottom: 1.25rem; color: white; }
+  .lesson-header .badge { display: inline-block; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px 12px; font-size: 12px; margin-bottom: 0.6rem; }
+  .lesson-header h1 { font-size: 22px; font-weight: 500; color: white; margin-bottom: 0.3rem; }
+  .lesson-header p { font-size: 13px; opacity: 0.8; }
+  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+  .tl-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem; text-align: center; cursor: pointer; }
+  .tl-item:hover { border-color: var(--color-border-secondary); }
+  .tl-item.active { border: 1.5px solid #7C5CBF; background: #EDE9FE; }
+  .tl-item .time { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .tl-item .label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .tl-item .icon { font-size: 18px; margin-bottom: 4px; display: block; }
+  .section-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: none; }
+  .section-card.visible { display: block; }
+  .section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #7C5CBF; flex-shrink: 0; }
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+  .concept-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .concept-box .clabel { font-size: 11px; color: #4A2FBF; font-weight: 500; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .concept-box .cval { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; }
+  .tip-row { display: flex; gap: 8px; margin-top: 0.75rem; flex-wrap: wrap; }
+  .tip-pill { background: #EDE9FE; color: #2D1B69; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+
+  /* 퀴즈 */
+  .quiz-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .quiz-progress-bar { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+  .quiz-progress-fill { height: 100%; background: #7C5CBF; border-radius: 3px; transition: width 0.4s ease; }
+  .quiz-progress-text { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+
+  .quiz-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .quiz-card-header {
+    padding: 0.75rem 1.1rem;
+    background: #2D1B69;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .quiz-num-badge {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    font-size: 12px; font-weight: 700; color: white;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .quiz-q-text { font-size: 14px; font-weight: 500; color: white; }
+  .quiz-q-code { font-family: var(--font-mono); font-size: 13px; color: #C4B5FD; margin-top: 2px; }
+  .quiz-body { padding: 0.9rem 1.1rem; background: var(--color-background-secondary); }
+  .quiz-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice-btn {
+    padding: 7px 18px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-primary);
+    font-size: 13px; cursor: pointer;
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+    transition: all 0.15s;
+    min-width: 80px; text-align: center;
+  }
+  .choice-btn:hover:not(:disabled) { background: #EDE9FE; border-color: #7C5CBF; color: #2D1B69; }
+  .choice-btn.correct { background: #EDE9FE; border-color: #7C5CBF; color: #2D1B69; font-weight: 500; }
+  .choice-btn.wrong { background: #FAECE7; border-color: #993C1D; color: #7B2A0E; }
+  .quiz-feedback {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: var(--border-radius-md);
+    font-size: 13px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #EDE9FE; color: #2D1B69; }
+  .quiz-feedback.ng { background: #FAECE7; color: #7B2A0E; }
+
+  .quiz-result-box {
+    background: linear-gradient(135deg, #1A1040, #2D1B69);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+    display: none;
+    margin-bottom: 1rem;
+  }
+  .quiz-result-box.show { display: block; }
+  .quiz-result-score { font-size: 48px; font-weight: 700; color: #A78BFA; margin-bottom: 0.4rem; }
+  .quiz-result-msg { font-size: 16px; color: white; margin-bottom: 0.5rem; }
+  .quiz-result-sub { font-size: 13px; color: #C4B5FD; }
+  .quiz-retry-btn {
+    margin-top: 1rem;
+    padding: 9px 28px;
+    background: #7C5CBF; color: white;
+    border: none; border-radius: var(--border-radius-md);
+    font-size: 13px; cursor: pointer; font-family: var(--font-sans);
+  }
+  .quiz-retry-btn:hover { background: #4A2FBF; }
+
+  /* 개념설명 */
+  .op-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 13px; }
+  .op-table th { background: #2D1B69; color: white; padding: 8px 10px; text-align: left; font-weight: 500; }
+  .op-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .op-table tr:nth-child(even) td { background: var(--color-background-secondary); }
+  .op-sym { font-family: var(--font-mono); font-weight: 700; color: #4A2FBF; font-size: 15px; }
+  .logic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1rem; }
+  .logic-card { border-radius: var(--border-radius-md); overflow: hidden; }
+  .logic-header { padding: 0.7rem 1rem; color: white; font-weight: 500; font-size: 14px; }
+  .logic-body { padding: 0.75rem; background: var(--color-background-secondary); }
+  .truth-row { font-family: var(--font-mono); font-size: 12px; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; }
+  .truth-true { background: #D1FAE5; color: #065F46; }
+  .truth-false { background: #FEE2E2; color: #991B1B; }
+  .logic-ex { margin-top: 8px; background: #16213E; border-radius: 4px; padding: 6px 8px; font-family: var(--font-mono); font-size: 12px; color: #F9A8D4; }
+
+  /* 샌드박스 */
+  .sandbox-wrap { border: 1.5px solid #7C5CBF; border-radius: var(--border-radius-lg); overflow: hidden; margin-top: 1.25rem; }
+  .sandbox-header { background: #4A2FBF; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .sandbox-header-left { display: flex; align-items: center; gap: 8px; }
+  .sandbox-header-left span { font-size: 13px; color: white; font-weight: 500; }
+  .sbadge { background: rgba(255,255,255,0.2); font-size: 11px; color: white; padding: 2px 8px; border-radius: 10px; }
+  .snippet-row { background: #2D1B69; padding: 8px 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .snippet-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-right: 4px; }
+  .snippet-btn { padding: 4px 10px; background: rgba(255,255,255,0.12); border: 0.5px solid rgba(255,255,255,0.2); border-radius: 12px; font-size: 12px; color: #C4B5FD; cursor: pointer; font-family: var(--font-mono); }
+  .snippet-btn:hover { background: rgba(255,255,255,0.22); }
+  .sandbox-editor-wrap { display: flex; }
+  .line-nums { background: #0F0A2E; padding: 1rem 0.6rem 1rem 0.75rem; font-family: var(--font-mono); font-size: 14px; line-height: 1.9; color: #555; text-align: right; user-select: none; min-width: 36px; }
+  textarea.sandbox-input { flex: 1; background: #16213E; border: none; color: #E2E8F0; font-family: var(--font-mono); font-size: 14px; padding: 1rem 1.25rem; line-height: 1.9; resize: none; outline: none; overflow: hidden; min-height: 120px; }
+  .sandbox-run-bar { background: #1e2a3a; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .sandbox-run-bar span { font-size: 12px; color: #555; }
+  .sb-run-btn { padding: 7px 24px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+  .sb-run-btn:hover { background: #9FE1CB; }
+  .sandbox-output-wrap { border-top: 0.5px solid #1e2a3a; }
+  .sandbox-output-header { background: #0F0A2E; padding: 6px 14px; display: flex; align-items: center; gap: 6px; }
+  .sb-out-dot { width: 6px; height: 6px; border-radius: 50%; background: #A78BFA; }
+  .sandbox-output-header span { font-size: 12px; color: #666; }
+  .sandbox-output { background: #0F0A2E; padding: 0.75rem 1.25rem; font-family: var(--font-mono); font-size: 14px; line-height: 1.9; color: #A78BFA; white-space: pre-wrap; min-height: 48px; }
+  .sandbox-output.empty { color: #444; font-style: italic; font-size: 13px; }
+
+  /* 개인실습 */
+  .editor-toolbar { background: #2a2d36; border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .editor-toolbar span { font-size: 13px; color: #888; font-family: var(--font-mono); }
+  .run-btn { padding: 8px 28px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+  .run-btn:hover { background: #9FE1CB; }
+  textarea.code-input { width: 100%; background: #16213E; border: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); color: #E2E8F0; font-family: var(--font-mono); font-size: 15px; padding: 1.25rem 1.5rem; line-height: 1.9; resize: none; outline: none; display: block; overflow: hidden; }
+  .result-header { background: var(--color-background-secondary); border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; border: 0.5px solid var(--color-border-tertiary); border-bottom: none; display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+  .result-dot { width: 7px; height: 7px; border-radius: 50%; background: #7C5CBF; }
+  .result-header span { font-size: 13px; color: var(--color-text-secondary); }
+  .result-output { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-top: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); padding: 1rem 1.5rem; font-family: var(--font-mono); font-size: 15px; line-height: 1.9; min-height: 60px; color: var(--color-text-primary); white-space: pre-wrap; margin-bottom: 1.25rem; }
+  .result-output.empty { color: var(--color-text-tertiary); font-style: italic; font-size: 13px; }
+  .challenge-area { margin-bottom: 1rem; }
+  .challenge-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .challenge-list { display: flex; flex-direction: column; gap: 6px; }
+  .challenge-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.7rem 1rem; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; display: flex; gap: 10px; align-items: flex-start; }
+  .ch-num { width: 20px; height: 20px; border-radius: 50%; background: #7C5CBF; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+  /* 모둠활동 */
+  .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  .subject-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; cursor: pointer; }
+  .subject-card:hover { border-color: #7C5CBF; }
+  .subject-card.selected { border: 2px solid #7C5CBF; }
+  .subject-card-top { padding: 0.9rem 1.1rem; color: white; }
+  .subject-num { font-size: 11px; opacity: 0.8; margin-bottom: 4px; }
+  .subject-name { font-size: 15px; font-weight: 500; }
+  .subject-sub { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+  .subject-card-body { padding: 0.9rem 1.1rem; background: var(--color-background-secondary); }
+  .subject-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 0.75rem; }
+  .mission-list { display: flex; flex-direction: column; gap: 5px; }
+  .mission-item { font-size: 12px; color: var(--color-text-primary); line-height: 1.5; display: flex; gap: 8px; }
+  .m-dot { width: 16px; height: 16px; border-radius: 50%; background: #7C5CBF; color: white; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .flow-row { display: flex; align-items: center; gap: 8px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.9rem 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .flow-step { font-size: 13px; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+  .flow-num { width: 22px; height: 22px; border-radius: 50%; background: #7C5CBF; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+  .flow-arrow { color: var(--color-text-secondary); }
+
+  .nav-row { display: flex; gap: 8px; margin-top: 0.75rem; }
+  .nav-btn { flex: 1; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-sans); }
+  .nav-btn:hover { background: var(--color-background-secondary); }
+  .nav-btn.primary { background: #4A2FBF; color: white; border-color: #4A2FBF; }
+  .nav-btn.primary:hover { background: #2D1B69; }
+</style>
+
+<div class="lesson-header">
+  <div class="badge">제주고등학교 정보 · 2차시 · 50분</div>
+  <h1>산술 연산자와 논리 연산자</h1>
+  <p>탭을 눌러 수업 단계별로 이동하세요.</p>
+</div>
+
+<div class="timeline" id="timeline">
+  <div class="tl-item active" onclick="showSection(0)"><span class="icon">🎯</span><div class="time">0–10분</div><div class="label">도입</div></div>
+  <div class="tl-item" onclick="showSection(1)"><span class="icon">📖</span><div class="time">10–25분</div><div class="label">개념 설명</div></div>
+  <div class="tl-item" onclick="showSection(2)"><span class="icon">💻</span><div class="time">25–40분</div><div class="label">개인 실습</div></div>
+  <div class="tl-item" onclick="showSection(3)"><span class="icon">👥</span><div class="time">40–50분</div><div class="label">모둠 활동</div></div>
+</div>
+
+<!-- 섹션 0: 도입 -->
+<div class="section-card visible" id="sec0">
+  <div class="section-title"><div class="dot"></div>도입 — 연산자를 알아볼까요? (10분)</div>
+  <div class="concept-grid" style="margin-bottom:1.25rem;">
+    <div class="concept-box"><div class="clabel">생각해 보기</div><div class="cval">계산기로 숫자를 더하고 빼듯, 파이썬도 연산자로 계산하고 조건을 판단합니다.</div></div>
+    <div class="concept-box"><div class="clabel">학습 목표</div><div class="cval">산술 연산자 7가지와 논리 연산자 3가지(and·or·not)를 이해하고 활용할 수 있다.</div></div>
+  </div>
+
+  <!-- 퀴즈 진행 바 -->
+  <div class="quiz-progress">
+    <span style="font-size:13px;font-weight:500;color:var(--color-text-primary);">퀴즈</span>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="progressFill" style="width:0%"></div></div>
+    <span class="quiz-progress-text" id="progressText">0 / 5</span>
+  </div>
+
+  <!-- 퀴즈 5개 -->
+  <div class="quiz-card" id="qcard0">
+    <div class="quiz-card-header">
+      <div class="quiz-num-badge">1</div>
+      <div>
+        <div class="quiz-q-text">다음 중 나눗셈의 나머지를 구하는 연산자는?</div>
+        <div class="quiz-q-code">예) 10 __ 3  →  1</div>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkQ(0,this,false)">/</button>
+        <button class="choice-btn" onclick="checkQ(0,this,false)">//</button>
+        <button class="choice-btn" onclick="checkQ(0,this,true)">%</button>
+        <button class="choice-btn" onclick="checkQ(0,this,false)">**</button>
+      </div>
+      <div class="quiz-feedback" id="qfb0"></div>
+    </div>
+  </div>
+
+  <div class="quiz-card" id="qcard1">
+    <div class="quiz-card-header">
+      <div class="quiz-num-badge">2</div>
+      <div>
+        <div class="quiz-q-text">10 // 3 의 결과는?</div>
+        <div class="quiz-q-code">// 연산자는 소수점을 버린 몫을 구합니다.</div>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkQ(1,this,false)">3.333</button>
+        <button class="choice-btn" onclick="checkQ(1,this,true)">3</button>
+        <button class="choice-btn" onclick="checkQ(1,this,false)">1</button>
+        <button class="choice-btn" onclick="checkQ(1,this,false)">0</button>
+      </div>
+      <div class="quiz-feedback" id="qfb1"></div>
+    </div>
+  </div>
+
+  <div class="quiz-card" id="qcard2">
+    <div class="quiz-card-header">
+      <div class="quiz-num-badge">3</div>
+      <div>
+        <div class="quiz-q-text">2 ** 4 의 결과는?</div>
+        <div class="quiz-q-code">** 는 거듭제곱 연산자입니다.</div>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkQ(2,this,false)">6</button>
+        <button class="choice-btn" onclick="checkQ(2,this,false)">8</button>
+        <button class="choice-btn" onclick="checkQ(2,this,true)">16</button>
+        <button class="choice-btn" onclick="checkQ(2,this,false)">32</button>
+      </div>
+      <div class="quiz-feedback" id="qfb2"></div>
+    </div>
+  </div>
+
+  <div class="quiz-card" id="qcard3">
+    <div class="quiz-card-header">
+      <div class="quiz-num-badge">4</div>
+      <div>
+        <div class="quiz-q-text">True and False 의 결과는?</div>
+        <div class="quiz-q-code">and 는 둘 다 참일 때만 True입니다.</div>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkQ(3,this,false)">True</button>
+        <button class="choice-btn" onclick="checkQ(3,this,true)">False</button>
+        <button class="choice-btn" onclick="checkQ(3,this,false)">None</button>
+        <button class="choice-btn" onclick="checkQ(3,this,false)">오류</button>
+      </div>
+      <div class="quiz-feedback" id="qfb3"></div>
+    </div>
+  </div>
+
+  <div class="quiz-card" id="qcard4">
+    <div class="quiz-card-header">
+      <div class="quiz-num-badge">5</div>
+      <div>
+        <div class="quiz-q-text">False or True 의 결과는?</div>
+        <div class="quiz-q-code">or 는 하나라도 참이면 True입니다.</div>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-choices">
+        <button class="choice-btn" onclick="checkQ(4,this,true)">True</button>
+        <button class="choice-btn" onclick="checkQ(4,this,false)">False</button>
+        <button class="choice-btn" onclick="checkQ(4,this,false)">None</button>
+        <button class="choice-btn" onclick="checkQ(4,this,false)">오류</button>
+      </div>
+      <div class="quiz-feedback" id="qfb4"></div>
+    </div>
+  </div>
+
+  <!-- 결과 박스 -->
+  <div class="quiz-result-box" id="quizResult">
+    <div class="quiz-result-score" id="resultScore">0 / 5</div>
+    <div class="quiz-result-msg" id="resultMsg"></div>
+    <div class="quiz-result-sub" id="resultSub"></div>
+    <button class="quiz-retry-btn" onclick="retryQuiz()">🔄 다시 풀기</button>
+  </div>
+
+  <div class="tip-row">
+    <span class="tip-pill">💡 // 는 몫 (소수 버림)</span>
+    <span class="tip-pill">💡 % 는 나머지</span>
+    <span class="tip-pill">💡 ** 는 거듭제곱</span>
+    <span class="tip-pill">💡 and·or·not 은 논리 연산자</span>
+  </div>
+  <div class="nav-row" style="margin-top:0.75rem;"><button class="nav-btn primary" onclick="showSection(1)">다음: 개념 설명 →</button></div>
+</div>
+
+<!-- 섹션 1: 개념 설명 -->
+<div class="section-card" id="sec1">
+  <div class="section-title"><div class="dot"></div>개념 설명 — 산술 & 논리 연산자 (15분)</div>
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">① 산술 연산자 (Arithmetic Operators)</p>
+  <table class="op-table">
+    <thead><tr><th>연산자</th><th>의미</th><th>예시</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td><span class="op-sym">+</span></td><td>더하기</td><td style="font-family:var(--font-mono)">10 + 3</td><td style="font-family:var(--font-mono)">13</td></tr>
+      <tr><td><span class="op-sym">-</span></td><td>빼기</td><td style="font-family:var(--font-mono)">10 - 3</td><td style="font-family:var(--font-mono)">7</td></tr>
+      <tr><td><span class="op-sym">*</span></td><td>곱하기</td><td style="font-family:var(--font-mono)">10 * 3</td><td style="font-family:var(--font-mono)">30</td></tr>
+      <tr><td><span class="op-sym">/</span></td><td>나누기 (실수)</td><td style="font-family:var(--font-mono)">10 / 3</td><td style="font-family:var(--font-mono)">3.333…</td></tr>
+      <tr><td><span class="op-sym">//</span></td><td>몫 (정수)</td><td style="font-family:var(--font-mono)">10 // 3</td><td style="font-family:var(--font-mono)">3</td></tr>
+      <tr><td><span class="op-sym">%</span></td><td>나머지</td><td style="font-family:var(--font-mono)">10 % 3</td><td style="font-family:var(--font-mono)">1</td></tr>
+      <tr><td><span class="op-sym">**</span></td><td>거듭제곱</td><td style="font-family:var(--font-mono)">2 ** 3</td><td style="font-family:var(--font-mono)">8</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">② 논리 연산자 (Logical Operators)</p>
+  <div class="logic-grid">
+    <div class="logic-card">
+      <div class="logic-header" style="background:#2D1B69;">and — 둘 다 참일 때만 True</div>
+      <div class="logic-body">
+        <div class="truth-row truth-true">True and True → True</div>
+        <div class="truth-row truth-false">True and False → False</div>
+        <div class="truth-row truth-false">False and False → False</div>
+        <div class="logic-ex">score >= 60 and attend >= 80</div>
+      </div>
+    </div>
+    <div class="logic-card">
+      <div class="logic-header" style="background:#4A2FBF;">or — 하나라도 참이면 True</div>
+      <div class="logic-body">
+        <div class="truth-row truth-true">True or False → True</div>
+        <div class="truth-row truth-true">False or True → True</div>
+        <div class="truth-row truth-false">False or False → False</div>
+        <div class="logic-ex">hobby == '독서' or hobby == '게임'</div>
+      </div>
+    </div>
+    <div class="logic-card">
+      <div class="logic-header" style="background:#7C5CBF;">not — 참↔거짓 반전</div>
+      <div class="logic-body">
+        <div class="truth-row truth-false">not True → False</div>
+        <div class="truth-row truth-true">not False → True</div>
+        <div style="height:24px;"></div>
+        <div class="logic-ex">not (age &lt; 13)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sandbox-wrap">
+    <div class="sandbox-header">
+      <div class="sandbox-header-left"><span>⚡ 바로 테스트해보기</span><span class="sbadge">자유롭게 입력해보세요</span></div>
+      <button class="sb-run-btn" onclick="runSandbox()">▶ 실행</button>
+    </div>
+    <div class="snippet-row">
+      <span class="snippet-label">예제 →</span>
+      <button class="snippet-btn" onclick="loadSnippet('arith')">산술 연산</button>
+      <button class="snippet-btn" onclick="loadSnippet('div')">몫·나머지</button>
+      <button class="snippet-btn" onclick="loadSnippet('pow')">거듭제곱</button>
+      <button class="snippet-btn" onclick="loadSnippet('logic')">논리 연산</button>
+      <button class="snippet-btn" onclick="loadSnippet('combo')">조합 예시</button>
+      <button class="snippet-btn" onclick="clearSandbox()">🗑 초기화</button>
+    </div>
+    <div class="sandbox-editor-wrap">
+      <div class="line-nums" id="lineNums">1</div>
+      <textarea class="sandbox-input" id="sandboxInput" spellcheck="false" placeholder="파이썬 코드를 입력하고 실행해 보세요!"></textarea>
+    </div>
+    <div class="sandbox-run-bar"><span>Shift + Enter 로도 실행</span></div>
+    <div class="sandbox-output-wrap">
+      <div class="sandbox-output-header"><div class="sb-out-dot"></div><span>출력 결과</span></div>
+      <div class="sandbox-output empty" id="sandboxOutput">▶ 실행 버튼을 누르면 결과가 나타나요</div>
+    </div>
+  </div>
+  <div class="nav-row" style="margin-top:1rem;">
+    <button class="nav-btn" onclick="showSection(0)">← 이전</button>
+    <button class="nav-btn primary" onclick="showSection(2)">다음: 개인 실습 →</button>
+  </div>
+</div>
+
+<!-- 섹션 2: 개인 실습 -->
+<div class="section-card" id="sec2">
+  <div class="section-title"><div class="dot"></div>개인 실습 — 직접 코드 작성해 보기 (15분)</div>
+  <div class="editor-toolbar"><span>main.py</span><button class="run-btn" onclick="runCode()">▶ 실행</button></div>
+  <textarea class="code-input" id="codeInput" spellcheck="false"># 산술 연산자
+a = 20
+b = 6
+print(a + b, a - b, a * b)
+print(a / b)
+print(a // b, a % b)
+# 논리 연산자
+x = True
+y = False
+print(x and y, x or y, not x)
+</textarea>
+  <div class="result-header"><div class="result-dot"></div><span>실행 결과</span></div>
+  <div class="result-output empty" id="resultOutput">▶ 실행 버튼을 눌러보세요</div>
+  <div class="challenge-area">
+    <div class="challenge-title">도전 과제</div>
+    <div class="challenge-list">
+      <div class="challenge-item"><div class="ch-num">1</div><span>국어 85점, 영어 92점, 수학 78점 — 합계와 평균을 계산해 출력하세요.</span></div>
+      <div class="challenge-item"><div class="ch-num">2</div><span>** 연산자로 2의 10제곱, 3의 5제곱을 각각 계산하세요.</span></div>
+      <div class="challenge-item"><div class="ch-num">3</div><span>두 변수 x=True, y=False 로 and·or·not 세 가지 결과를 모두 출력하세요.</span></div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="showSection(1)">← 이전</button>
+    <button class="nav-btn primary" onclick="showSection(3)">다음: 모둠 활동 →</button>
+  </div>
+</div>
+
+<!-- 섹션 3: 모둠 활동 -->
+<div class="section-card" id="sec3">
+  <div class="section-title"><div class="dot"></div>모둠 활동 — 주제를 선택하고 활동지를 작성해요 (10분)</div>
+  <div class="flow-row">
+    <div class="flow-step"><div class="flow-num">1</div><span>주제 확인</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="flow-num">2</div><span>활동지 수령</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="flow-num">3</div><span>미션 해결 & 작성</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="flow-num">4</div><span>결과 발표</span></div>
+  </div>
+  <div class="subject-grid">
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#2D1B69;"><div class="subject-num">주제 1</div><div class="subject-name">계산기 앱 만들기</div><div class="subject-sub">산술 연산자 7가지 모두 활용</div></div>
+      <div class="subject-card-body"><p class="subject-desc">두 수로 7가지 연산 출력, 홀짝 판별, 복리 이자 계산까지!</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>7가지 산술 연산 결과 출력</span></div><div class="mission-item"><div class="m-dot">②</div><span>% 로 홀수·짝수 판별</span></div><div class="mission-item"><div class="m-dot">③</div><span>** 로 복리 이자 계산</span></div></div></div>
+    </div>
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#4A2FBF;"><div class="subject-num">주제 2</div><div class="subject-name">성적 판별기</div><div class="subject-sub">산술 + 논리 연산자 조합</div></div>
+      <div class="subject-card-body"><p class="subject-desc">3과목 평균 계산 후 and·or·not으로 합격/불합격 판별!</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>3과목 합계·평균 계산</span></div><div class="mission-item"><div class="m-dot">②</div><span>and 로 모두 60점 이상 판별</span></div><div class="mission-item"><div class="m-dot">③</div><span>or·not 으로 조건 판별</span></div></div></div>
+    </div>
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#6D28D9;"><div class="subject-num">주제 3</div><div class="subject-name">쇼핑 계산기</div><div class="subject-sub">할인 계산 + 예산 조건 판별</div></div>
+      <div class="subject-card-body"><p class="subject-desc">상품 3개 합계, % 로 할인 계산, and 로 예산 초과 판별!</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>상품 3개 합계 계산</span></div><div class="mission-item"><div class="m-dot">②</div><span>% 와 // 로 할인 계산</span></div><div class="mission-item"><div class="m-dot">③</div><span>and 로 예산 초과 판별</span></div></div></div>
+    </div>
+    <div class="subject-card" onclick="selectCard(this)">
+      <div class="subject-card-top" style="background:#374151;"><div class="subject-num">주제 4</div><div class="subject-name">게임 점수 분석기</div><div class="subject-sub">보너스 계산 + 게임오버 판별</div></div>
+      <div class="subject-card-body"><p class="subject-desc">스테이지 점수 합산, ** 보너스, or·not 으로 게임오버 판별!</p><div class="mission-list"><div class="mission-item"><div class="m-dot">①</div><span>스테이지 점수 합계 계산</span></div><div class="mission-item"><div class="m-dot">②</div><span>** 로 보너스 점수 계산</span></div><div class="mission-item"><div class="m-dot">③</div><span>or·not 으로 게임오버 판별</span></div></div></div>
+    </div>
+  </div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSection(2)">← 이전</button></div>
+</div>
+
+<script>
+  const TOTAL_Q = 5;
+  const feedbacks = [
+    { ok: "정답! % 는 나머지를 구하는 연산자예요. 10 % 3 = 1 (10을 3으로 나눈 나머지)", ng: "아쉬워요! 나머지는 % 연산자를 사용해요. / 는 나눗셈, // 는 몫, ** 는 거듭제곱이에요." },
+    { ok: "정답! 10 ÷ 3 = 3.333… 에서 소수점 이하를 버린 몫이 3이에요.", ng: "아쉬워요! // 는 몫(정수)을 구하는 연산자예요. 3.333…에서 소수를 버린 값은 3이에요." },
+    { ok: "정답! 2 ** 4 = 2×2×2×2 = 16이에요. ** 는 거듭제곱 연산자!", ng: "아쉬워요! ** 는 거듭제곱이에요. 2 ** 4 = 2×2×2×2 = 16이랍니다." },
+    { ok: "정답! and 는 둘 다 True여야만 True예요. True and False → False", ng: "아쉬워요! and 는 양쪽이 모두 참이어야 True예요. True and False는 False!" },
+    { ok: "정답! or 는 하나라도 True이면 True예요. False or True → True", ng: "아쉬워요! or 는 둘 중 하나만 True여도 True예요. False or True는 True!" },
+  ];
+  const resultMessages = [
+    { msg: "조금 더 연습해봐요 💪", sub: "개념 설명 탭에서 다시 공부하고 도전해보세요!" },
+    { msg: "조금 더 연습해봐요 💪", sub: "개념 설명 탭에서 다시 공부하고 도전해보세요!" },
+    { msg: "절반 통과! 👍", sub: "몇 가지를 더 연습하면 완벽해질 거예요!" },
+    { msg: "거의 다 왔어요! 🌟", sub: "틀린 문제를 확인하고 개념을 정리해보세요." },
+    { msg: "잘 했어요! ⭐", sub: "하나만 더 맞으면 만점이에요. 다시 도전해봐요!" },
+    { msg: "완벽해요! 🎉", sub: "연산자 개념을 완벽히 이해했어요. 개인 실습으로 넘어가볼까요?" },
+  ];
+
+  let answered = 0;
+  let correct = 0;
+
+  function checkQ(idx, btn, isCorrect) {
+    const parent = btn.closest('.quiz-choices');
+    if (parent.querySelector('.correct, .wrong')) return; // already answered
+    parent.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    const fb = document.getElementById('qfb' + idx);
+    fb.textContent = (isCorrect ? '✅ ' : '❌ ') + feedbacks[idx][isCorrect ? 'ok' : 'ng'];
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'ng');
+    if (isCorrect) correct++;
+    answered++;
+    // update progress
+    document.getElementById('progressFill').style.width = (answered / TOTAL_Q * 100) + '%';
+    document.getElementById('progressText').textContent = answered + ' / ' + TOTAL_Q;
+    if (answered === TOTAL_Q) showResult();
+  }
+
+  function showResult() {
+    const box = document.getElementById('quizResult');
+    box.classList.add('show');
+    document.getElementById('resultScore').textContent = correct + ' / ' + TOTAL_Q;
+    const r = resultMessages[correct];
+    document.getElementById('resultMsg').textContent = r.msg;
+    document.getElementById('resultSub').textContent = r.sub;
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function retryQuiz() {
+    answered = 0; correct = 0;
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressText').textContent = '0 / ' + TOTAL_Q;
+    document.getElementById('quizResult').classList.remove('show');
+    for (let i = 0; i < TOTAL_Q; i++) {
+      const parent = document.getElementById('qcard' + i).querySelector('.quiz-choices');
+      parent.querySelectorAll('.choice-btn').forEach(b => { b.disabled = false; b.classList.remove('correct', 'wrong'); });
+      const fb = document.getElementById('qfb' + i);
+      fb.className = 'quiz-feedback'; fb.textContent = '';
+    }
+  }
+
+  const snippets = {
+    arith: "a = 10\nb = 3\nprint(a + b)\nprint(a - b)\nprint(a * b)",
+    div:   "a = 10\nb = 3\nprint(a / b)\nprint(a // b)\nprint(a % b)",
+    pow:   "print(2 ** 10)\nprint(3 ** 5)\nprint(10 ** 0)",
+    logic: "x = True\ny = False\nprint(x and y)\nprint(x or y)\nprint(not x)",
+    combo: "score = 75\nattend = 90\nprint(score >= 60 and attend >= 80)\nprint(score == 100 or attend == 100)\nprint(not (score < 60))"
+  };
+
+  function showSection(idx) {
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('sec' + i).classList.toggle('visible', i === idx);
+      document.querySelectorAll('.tl-item')[i].classList.toggle('active', i === idx);
+    }
+  }
+  function selectCard(card) {
+    document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+  function loadSnippet(key) {
+    const ta = document.getElementById('sandboxInput');
+    ta.value = snippets[key]; updateLineNums(ta);
+  }
+  function clearSandbox() {
+    const ta = document.getElementById('sandboxInput');
+    ta.value = ''; updateLineNums(ta);
+    const out = document.getElementById('sandboxOutput');
+    out.classList.add('empty'); out.textContent = '▶ 실행 버튼을 누르면 결과가 나타나요';
+  }
+  function updateLineNums(ta) {
+    const lines = ta.value.split('\n').length;
+    document.getElementById('lineNums').innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
+    ta.style.height = 'auto'; ta.style.height = Math.max(ta.scrollHeight, 120) + 'px';
+  }
+  function execCode(code) {
+    const vars = {}, outputs = [];
+    for (const raw of code.split('\n')) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      const tm = line.match(/^print\(type\((.+)\)\)$/);
+      if (tm) { const v = vars[tm[1].trim()]; if (v !== undefined) { const t = typeof v === 'number' ? (Number.isInteger(v) ? 'int' : 'float') : typeof v === 'boolean' ? 'bool' : 'str'; outputs.push(`<class '${t}'>`); } continue; }
+      const am = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+      if (am) {
+        let val = am[2].trim().replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!').replace(/\b([a-zA-Z_]\w*)\b/g, m => vars.hasOwnProperty(m) && m !== 'print' && m !== 'type' ? JSON.stringify(vars[m]) : m);
+        val = val.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g, 'Math.pow($1,$2)');
+        try { let r = eval(val); vars[am[1]] = r; } catch (e) {}
+        continue;
+      }
+      const pm = line.match(/^print\((.+)\)$/);
+      if (pm) {
+        outputs.push(pm[1].split(',').map(p => {
+          let r = p.trim().replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!').replace(/\b([a-zA-Z_]\w*)\b/g, m => vars.hasOwnProperty(m) ? JSON.stringify(vars[m]) : m);
+          r = r.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g, 'Math.pow($1,$2)');
+          try { let res = eval(r); if (res === true) return 'True'; if (res === false) return 'False'; return String(res); } catch (e) { return p.trim(); }
+        }).join(' '));
+      }
+    }
+    return outputs;
+  }
+  function runSandbox() {
+    const out = document.getElementById('sandboxOutput');
+    const outputs = execCode(document.getElementById('sandboxInput').value);
+    out.classList.remove('empty'); out.textContent = outputs.length ? outputs.join('\n') : '(출력 없음)';
+  }
+  function runCode() {
+    const ta = document.getElementById('codeInput');
+    ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
+    const out = document.getElementById('resultOutput');
+    const outputs = execCode(ta.value);
+    out.classList.remove('empty'); out.textContent = outputs.length ? outputs.join('\n') : '(출력 없음)';
+  }
+  window.addEventListener('load', () => {
+    const ta = document.getElementById('codeInput');
+    ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+    const sb = document.getElementById('sandboxInput');
+    sb.addEventListener('input', () => updateLineNums(sb));
+    sb.addEventListener('keydown', e => { if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); runSandbox(); } });
+  });
+</script>
