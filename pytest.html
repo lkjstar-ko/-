@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>파이썬 기초 평가</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    padding:40px;
+    line-height:1.6;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.guide{
+    background:#fff8e1;
+    border:1px solid #f0d98c;
+    padding:20px;
+    border-radius:8px;
+    margin-bottom:30px;
+}
+
+.example-box{
+    background:white;
+    border-left:5px solid #f4b400;
+    padding:10px 15px;
+    margin:10px 0;
+}
+
+.question{
+    background:#eef3ff;
+    padding:15px;
+    border-radius:8px;
+    margin-top:25px;
+}
+
+textarea{
+    width:100%;
+    height:170px;
+    font-family:Consolas, monospace;
+    font-size:14px;
+    margin-top:10px;
+    padding:10px;
+    box-sizing:border-box;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+    font-size:15px;
+}
+
+button{
+    margin-top:30px;
+    padding:14px 24px;
+    font-size:16px;
+    background:#4285f4;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#3367d6;
+}
+
+#result{
+    margin-top:20px;
+    font-weight:bold;
+    font-size:16px;
+}
+
+code{
+    background:#eee;
+    padding:2px 5px;
+    border-radius:4px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>파이썬 기초 평가</h1>
+
+<div class="guide">
+<h2>제출 안내</h2>
+
+<h3>필수 입력 항목</h3>
+<ul>
+    <li><strong>이름:</strong> 실명을 입력하세요.</li>
+    <li><strong>학번:</strong> 숫자 5자리로 입력하세요.</li>
+    <li><strong>답안:</strong> 모든 문제의 빈칸을 완성하세요.</li>
+</ul>
+
+<h3>학번 입력 형식</h3>
+<p>학번은 <strong>학년 + 반 + 번호</strong> 형식입니다.</p>
+
+<div class="example-box">
+    <p>1학년 1반 1번 → <strong>10101</strong></p>
+    <p>2학년 3반 14번 → <strong>20314</strong></p>
+</div>
+
+<h3>답안 작성 시 주의사항</h3>
+<ul>
+    <li>빈칸 <code>_____</code> 부분을 수정하세요.</li>
+    <li>괄호, 따옴표, 들여쓰기를 함부로 삭제하지 마세요.</li>
+    <li>제출 전 모든 문제를 작성했는지 확인하세요.</li>
+</ul>
+
+<h3>제출 후 저장되는 내용</h3>
+<ul>
+    <li>이름</li>
+    <li>학번</li>
+    <li>제출 시간</li>
+    <li>작성 코드</li>
+    <li>PDF 파일</li>
+    <li>Python 파일(.py)</li>
+</ul>
+</div>
+
+<label><strong>이름</strong></label>
+<input type="text" id="name" placeholder="예: 홍길동" required>
+
+<label><strong>학번</strong></label>
+<input type="text" id="studentId" placeholder="예: 10101" pattern="[0-9]{5}" maxlength="5" required>
+
+<div class="question">
+<h3>문제 1. 변수</h3>
+<p>name 변수에 자신의 이름을 저장하고 출력되도록 완성하세요.</p>
+<textarea id="q1"># 문제 1
+
+name = "_____"
+
+print(name)
+</textarea>
+</div>
+
+<div class="question">
+<h3>문제 2. 자료형</h3>
+<p>정수형 변수 age를 만들고 자신의 나이를 저장하세요.</p>
+<textarea id="q2"># 문제 2
+
+age = _____
+
+print(age)
+print(type(age))
+</textarea>
+</div>
+
+<div class="question">
+<h3>문제 3. 문자열</h3>
+<p>city 변수에 "제주"를 저장하고 출력하세요.</p>
+<textarea id="q3"># 문제 3
+
+city = _____
+
+print(city)
+</textarea>
+</div>
+
+<div class="question">
+<h3>문제 4. 덧셈 연산자</h3>
+<p>두 수의 합이 출력되도록 완성하세요.</p>
+<textarea id="q4"># 문제 4
+
+a = 10
+b = 20
+
+print(a _____ b)
+</textarea>
+</div>
+
+<div class="question">
+<h3>문제 5. 나눗셈 연산자</h3>
+<p>100을 4로 나눈 결과가 출력되도록 완성하세요.</p>
+<textarea id="q5"># 문제 5
+
+print(100 _____ 4)
+</textarea>
+</div>
+
+<div class="question">
+<h3>문제 6. 문자열 연결</h3>
+<p>first와 last를 연결하여 fullname이 출력되도록 완성하세요.</p>
+<textarea id="q6"># 문제 6
+
+first = "김"
+last = "철수"
+
+fullname = first _____ last
+
+print(fullname)
+</textarea>
+</div>
+
+<div class="question">
+<h3>문제 7. input 함수</h3>
+<p>사용자 이름을 입력받아 출력되도록 완성하세요.</p>
+<textarea id="q7"># 문제 7
+
+name = input("이름 입력: ")
+
+print("안녕하세요", _____)
+</textarea>
+</div>
+
+<button onclick="submitAssignment()">제출하기</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+async function submitAssignment(){
+
+    const name = document.getElementById("name").value.trim();
+    const studentId = document.getElementById("studentId").value.trim();
+
+    if(name === ""){
+        alert("이름을 입력하세요.");
+        return;
+    }
+
+    if(studentId === ""){
+        alert("학번을 입력하세요.");
+        return;
+    }
+
+    if(!/^[0-9]{5}$/.test(studentId)){
+        alert("학번은 숫자 5자리로 입력하세요.");
+        return;
+    }
+
+    const allCode =
+`==============================
+문제 1
+==============================
+${document.getElementById("q1").value}
+
+==============================
+문제 2
+==============================
+${document.getElementById("q2").value}
+
+==============================
+문제 3
+==============================
+${document.getElementById("q3").value}
+
+==============================
+문제 4
+==============================
+${document.getElementById("q4").value}
+
+==============================
+문제 5
+==============================
+${document.getElementById("q5").value}
+
+==============================
+문제 6
+==============================
+${document.getElementById("q6").value}
+
+==============================
+문제 7
+==============================
+${document.getElementById("q7").value}
+`;
+
+    document.getElementById("result").innerText = "제출 중입니다...";
+
+    try{
+        await fetch(
+            "https://script.google.com/macros/s/AKfycbxUUKeTro5Un16J6wAFrNU57-cT1GikRqOQZVPA_Ucge8-RK8l3n3k_7C-qaDTXQpeS/exec",
+            {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({
+                    name: name,
+                    studentId: studentId,
+                    problem: "python_basic_test",
+                    code: allCode
+                })
+            }
+        );
+
+        document.getElementById("result").innerHTML =
+            "제출 완료<br><br>Google Drive 저장을 확인하세요.";
+
+    }catch(err){
+        document.getElementById("result").innerText =
+            "서버 연결 오류가 발생했습니다.";
+    }
+}
+</script>
+
+</body>
+</html>
