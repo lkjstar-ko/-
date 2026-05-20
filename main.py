@@ -1,10 +1,14 @@
 import os
 import asyncio
 import httpx
+import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -43,10 +47,8 @@ async def generate_video(req: VideoRequest):
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY가 설정되지 않았습니다.")
 
-    # Veo API 전용 엔드포인트: predictLongRunning
     url = f"{BASE_URL}/models/{req.model}:predictLongRunning?key={GEMINI_API_KEY}"
 
-    # instances 구성
     instance = {"prompt": req.prompt}
     if req.image_base64 and req.image_mime:
         instance["image"] = {
@@ -54,7 +56,6 @@ async def generate_video(req: VideoRequest):
             "mimeType": req.image_mime
         }
 
-    # parameters 구성
     parameters = {
         "aspectRatio": req.aspect,
         "durationSeconds": req.duration,
@@ -66,8 +67,14 @@ async def generate_video(req: VideoRequest):
         "parameters": parameters
     }
 
+    logger.info(f"요청 URL: {url}")
+    logger.info(f"Payload (이미지 제외): prompt={req.prompt}, model={req.model}, duration={req.duration}, aspect={req.aspect}")
+
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(url, json=payload)
+
+    logger.info(f"초기 응답 status: {resp.status_code}")
+    logger.info(f"초기 응답 body: {resp.text[:500]}")
 
     if resp.status_code != 200:
         try:
@@ -78,12 +85,12 @@ async def generate_video(req: VideoRequest):
         raise HTTPException(status_code=resp.status_code, detail=msg)
 
     data = resp.json()
-
-    # operation name 반환됨 → 폴링
     op_name = data.get("name")
     if not op_name:
-        raise HTTPException(status_code=500, detail="operation name을 받지 못했습니다.")
+        logger.error(f"operation name 없음. 전체 응답: {data}")
+        raise HTTPException(status_code=500, detail=f"operation name을 받지 못했습니다. 응답: {str(data)[:300]}")
 
+    logger.info(f"Operation name: {op_name}")
     result = await poll_operation(op_name)
     return result
 
@@ -98,13 +105,19 @@ async def poll_operation(op_name: str, max_wait: int = 300, interval: int = 5):
             elapsed += interval
             try:
                 resp = await client.get(url)
+                logger.info(f"폴링 [{elapsed}s] status: {resp.status_code}")
+
                 if resp.status_code != 200:
                     continue
 
                 data = resp.json()
+                done = data.get("done", False)
+                logger.info(f"폴링 [{elapsed}s] done: {done}")
 
-                if not data.get("done", False):
+                if not done:
                     continue
+
+                logger.info(f"완료 응답 전체: {str(data)[:1000]}")
 
                 if "error" in data:
                     raise HTTPException(
@@ -112,29 +125,37 @@ async def poll_operation(op_name: str, max_wait: int = 300, interval: int = 5):
                         detail=data["error"].get("message", "오류 발생")
                     )
 
-                # 응답에서 영상 추출
-                videos = (
-                    data.get("response", {})
-                    .get("generatedSamples", [])
-                )
-                if videos:
-                    video = videos[0].get("video", {})
-                    # URI 방식
+                # 응답 구조 탐색
+                response = data.get("response", {})
+                logger.info(f"response 키들: {list(response.keys())}")
+
+                # generatedSamples 방식
+                samples = response.get("generatedSamples", [])
+                if samples:
+                    video = samples[0].get("video", {})
+                    logger.info(f"video 키들: {list(video.keys())}")
                     if "uri" in video:
                         return {"type": "file", "uri": video["uri"]}
-                    # base64 방식
                     if "bytesBase64Encoded" in video:
-                        return {
-                            "type": "inline",
-                            "mimeType": "video/mp4",
-                            "data": video["bytesBase64Encoded"]
-                        }
+                        return {"type": "inline", "mimeType": "video/mp4", "data": video["bytesBase64Encoded"]}
 
-                raise HTTPException(status_code=500, detail="영상 데이터를 찾을 수 없습니다.")
+                # generatedVideos 방식 (SDK 스타일)
+                gen_videos = response.get("generatedVideos", [])
+                if gen_videos:
+                    video = gen_videos[0].get("video", {})
+                    logger.info(f"generatedVideos video 키들: {list(video.keys())}")
+                    if "uri" in video:
+                        return {"type": "file", "uri": video["uri"]}
+                    if "bytesBase64Encoded" in video:
+                        return {"type": "inline", "mimeType": "video/mp4", "data": video["bytesBase64Encoded"]}
+
+                logger.error(f"영상 데이터 없음. response 전체: {str(response)[:500]}")
+                raise HTTPException(status_code=500, detail=f"영상 데이터를 찾을 수 없습니다. 응답구조: {str(response)[:300]}")
 
             except HTTPException:
                 raise
-            except Exception:
+            except Exception as e:
+                logger.error(f"폴링 예외: {e}")
                 continue
 
     raise HTTPException(status_code=504, detail="영상 생성 타임아웃 (5분 초과)")
