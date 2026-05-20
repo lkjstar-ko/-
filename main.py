@@ -126,26 +126,18 @@ async def poll_operation(op_name: str, max_wait: int = 300, interval: int = 5):
                     )
 
                 # 응답 구조 탐색
+                # 실제 구조: response.generateVideoResponse.generatedSamples[0].video.uri
                 response = data.get("response", {})
-                logger.info(f"response 키들: {list(response.keys())}")
+                gen_video_resp = response.get("generateVideoResponse", response)
+                samples = gen_video_resp.get("generatedSamples", [])
 
-                # generatedSamples 방식
-                samples = response.get("generatedSamples", [])
                 if samples:
                     video = samples[0].get("video", {})
                     logger.info(f"video 키들: {list(video.keys())}")
                     if "uri" in video:
-                        return {"type": "file", "uri": video["uri"]}
-                    if "bytesBase64Encoded" in video:
-                        return {"type": "inline", "mimeType": "video/mp4", "data": video["bytesBase64Encoded"]}
-
-                # generatedVideos 방식 (SDK 스타일)
-                gen_videos = response.get("generatedVideos", [])
-                if gen_videos:
-                    video = gen_videos[0].get("video", {})
-                    logger.info(f"generatedVideos video 키들: {list(video.keys())}")
-                    if "uri" in video:
-                        return {"type": "file", "uri": video["uri"]}
+                        # URI는 API 키 없이 접근 불가 → 백엔드에서 다운로드 후 base64 반환
+                        video_data = await download_video(video["uri"])
+                        return {"type": "inline", "mimeType": "video/mp4", "data": video_data}
                     if "bytesBase64Encoded" in video:
                         return {"type": "inline", "mimeType": "video/mp4", "data": video["bytesBase64Encoded"]}
 
@@ -159,3 +151,15 @@ async def poll_operation(op_name: str, max_wait: int = 300, interval: int = 5):
                 continue
 
     raise HTTPException(status_code=504, detail="영상 생성 타임아웃 (5분 초과)")
+
+
+async def download_video(uri: str) -> str:
+    """Gemini Files API URI에서 영상을 다운로드해 base64로 반환"""
+    import base64
+    # URI에 API 키 추가
+    download_url = f"{uri}&key={GEMINI_API_KEY}" if "?" in uri else f"{uri}?key={GEMINI_API_KEY}"
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        resp = await client.get(download_url)
+        if resp.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"영상 다운로드 실패: HTTP {resp.status_code}")
+        return base64.b64encode(resp.content).decode("utf-8")
