@@ -159,7 +159,7 @@ async def download_video(uri: str) -> str:
     # URI에 API 키 추가
     download_url = f"{uri}&key={GEMINI_API_KEY}" if "?" in uri else f"{uri}?key={GEMINI_API_KEY}"
     async with httpx.AsyncClient(timeout=120.0) as client:
-        resp = await client.get(download_url)
+        resp = await client.get(download_url, follow_redirects=True)
         if resp.status_code != 200:
             raise HTTPException(status_code=500, detail=f"영상 다운로드 실패: HTTP {resp.status_code}")
         return base64.b64encode(resp.content).decode("utf-8")
