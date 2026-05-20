@@ -43,21 +43,28 @@ async def generate_video(req: VideoRequest):
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY가 설정되지 않았습니다.")
 
-    parts = []
-    if req.image_base64 and req.image_mime:
-        parts.append({"inlineData": {"mimeType": req.image_mime, "data": req.image_base64}})
-    parts.append({"text": req.prompt})
+    # Veo API 전용 엔드포인트: predictLongRunning
+    url = f"{BASE_URL}/models/{req.model}:predictLongRunning?key={GEMINI_API_KEY}"
 
-    payload = {
-        "model": req.model,
-        "contents": [{"parts": parts}],
-        "generationConfig": {
-            "durationSeconds": req.duration,
-            "aspectRatio": req.aspect
+    # instances 구성
+    instance = {"prompt": req.prompt}
+    if req.image_base64 and req.image_mime:
+        instance["image"] = {
+            "bytesBase64Encoded": req.image_base64,
+            "mimeType": req.image_mime
         }
+
+    # parameters 구성
+    parameters = {
+        "aspectRatio": req.aspect,
+        "durationSeconds": req.duration,
+        "sampleCount": 1
     }
 
-    url = f"{BASE_URL}/models/{req.model}:generateContent?key={GEMINI_API_KEY}"
+    payload = {
+        "instances": [instance],
+        "parameters": parameters
+    }
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(url, json=payload)
@@ -72,18 +79,13 @@ async def generate_video(req: VideoRequest):
 
     data = resp.json()
 
-    # 즉시 응답에 영상이 있는 경우
-    for part in data.get("candidates", [{}])[0].get("content", {}).get("parts", []):
-        if "inlineData" in part:
-            return {"type": "inline", "mimeType": part["inlineData"]["mimeType"], "data": part["inlineData"]["data"]}
-        if "fileData" in part:
-            return {"type": "file", "uri": part["fileData"]["fileUri"]}
+    # operation name 반환됨 → 폴링
+    op_name = data.get("name")
+    if not op_name:
+        raise HTTPException(status_code=500, detail="operation name을 받지 못했습니다.")
 
-    # Long-running operation → 폴링
-    if "name" in data:
-        return await poll_operation(data["name"])
-
-    raise HTTPException(status_code=500, detail="영상 데이터를 찾을 수 없습니다.")
+    result = await poll_operation(op_name)
+    return result
 
 
 async def poll_operation(op_name: str, max_wait: int = 300, interval: int = 5):
@@ -98,17 +100,38 @@ async def poll_operation(op_name: str, max_wait: int = 300, interval: int = 5):
                 resp = await client.get(url)
                 if resp.status_code != 200:
                     continue
+
                 data = resp.json()
+
                 if not data.get("done", False):
                     continue
+
                 if "error" in data:
-                    raise HTTPException(status_code=500, detail=data["error"].get("message", "오류 발생"))
-                parts = data.get("response", {}).get("candidates", [{}])[0].get("content", {}).get("parts", [])
-                for part in parts:
-                    if "inlineData" in part:
-                        return {"type": "inline", "mimeType": part["inlineData"]["mimeType"], "data": part["inlineData"]["data"]}
-                    if "fileData" in part:
-                        return {"type": "file", "uri": part["fileData"]["fileUri"]}
+                    raise HTTPException(
+                        status_code=500,
+                        detail=data["error"].get("message", "오류 발생")
+                    )
+
+                # 응답에서 영상 추출
+                videos = (
+                    data.get("response", {})
+                    .get("generatedSamples", [])
+                )
+                if videos:
+                    video = videos[0].get("video", {})
+                    # URI 방식
+                    if "uri" in video:
+                        return {"type": "file", "uri": video["uri"]}
+                    # base64 방식
+                    if "bytesBase64Encoded" in video:
+                        return {
+                            "type": "inline",
+                            "mimeType": "video/mp4",
+                            "data": video["bytesBase64Encoded"]
+                        }
+
+                raise HTTPException(status_code=500, detail="영상 데이터를 찾을 수 없습니다.")
+
             except HTTPException:
                 raise
             except Exception:
