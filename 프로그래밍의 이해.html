@@ -5,7 +5,7 @@
 .hd .badge { display: inline-block; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px 12px; font-size: 12px; margin-bottom: .6rem; }
 .hd h1 { font-size: 22px; font-weight: 500; color: white; margin-bottom: .3rem; }
 .hd p { font-size: 13px; opacity: .8; }
-.tl { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.25rem; }
+.tl { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin-bottom: 1.25rem; }
 .ti { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: .75rem; text-align: center; cursor: pointer; }
 .ti:hover { border-color: var(--color-border-secondary); }
 .ti.active { border: 1.5px solid #185FA5; background: #E6F1FB; }
@@ -64,6 +64,21 @@
 .dim-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
 .dim-hd { padding: .7rem 1rem; color: white; font-size: 15px; font-weight: 500; }
 .dim-body { padding: .9rem 1rem; background: var(--color-background-secondary); }
+
+.dim-visual { margin-top: 10px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: .9rem; }
+.visual-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500; }
+.array-1d { display: flex; gap: 6px; align-items: center; justify-content: center; }
+.cell { min-width: 42px; height: 38px; border: 1px solid #185FA5; background: #E6F1FB; color: #042C53; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+.array-2d { display: grid; grid-template-columns: repeat(3, 42px); gap: 6px; justify-content: center; }
+.rgb-stack { position: relative; height: 112px; max-width: 180px; margin: 0 auto; }
+.rgb-layer { position: absolute; width: 120px; height: 68px; border-radius: 10px; border: 1px solid rgba(255,255,255,.7); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; padding: 8px; box-shadow: 0 8px 18px rgba(0,0,0,.12); }
+.rgb-layer span { border-radius: 6px; background: rgba(255,255,255,.38); }
+.rgb-layer.r { background: rgba(220, 53, 69, .78); left: 0; top: 0; }
+.rgb-layer.g { background: rgba(0, 137, 123, .72); left: 28px; top: 22px; }
+.rgb-layer.b { background: rgba(55, 138, 221, .76); left: 56px; top: 44px; }
+.rgb-name { position: absolute; right: 8px; bottom: 6px; font-family: var(--font-mono); font-size: 12px; color: white; font-weight: 600; }
+.axis-note { text-align: center; margin-top: 8px; font-size: 11px; color: var(--color-text-secondary); }
+@media (max-width: 760px) { .dim-grid { grid-template-columns: 1fr; } }
 .img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
 .sandbox-wrap { border: 1.5px solid #185FA5; border-radius: var(--border-radius-lg); overflow: hidden; margin-top: 1.25rem; }
 .sb-hdr { background: #0C447C; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
@@ -107,245 +122,286 @@ textarea.code-input { width: 100%; background: #0D1117; border: none; border-rad
 .nav-btn:hover { background: var(--color-background-secondary); }
 .nav-btn.primary { background: #185FA5; color: white; border-color: #185FA5; }
 .nav-btn.primary:hover { background: #0C447C; }
+
+/* 표준·파일 입출력 가독성 개선 */
+.lesson-hero { background: linear-gradient(135deg,#F3F8FD 0%,#FFFFFF 100%); border: 0.5px solid #C9DDEC; border-radius: var(--border-radius-lg); padding: 1.1rem 1.25rem; margin-bottom: 1rem; }
+.lesson-hero h3 { font-size: 18px; color: #042C53; font-weight: 600; margin-bottom: .35rem; }
+.lesson-hero p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; }
+.lesson-strip { display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: .85rem; }
+.lesson-chip { background:white; border:0.5px solid #D8E5F0; border-radius: var(--border-radius-md); padding:.65rem .75rem; }
+.lesson-chip b { display:block; color:#0C447C; font-size:13px; margin-bottom:3px; }
+.lesson-chip span { font-size:12px; color:var(--color-text-secondary); }
+.io-section { margin-top: 1.1rem; }
+.io-section-title { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; color:#042C53; margin-bottom:.7rem; }
+.io-section-title::before { content:""; width:8px; height:8px; border-radius:50%; background:#185FA5; }
+.io-card-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1rem; }
+.io-card { border:0.5px solid #D8E5F0; border-radius: var(--border-radius-lg); background: var(--color-background-primary); overflow:hidden; }
+.io-card-head { padding:.75rem 1rem; background:#F0F6FC; border-bottom:0.5px solid #D8E5F0; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.io-card-head code { font-family:var(--font-mono); font-size:15px; color:#0C447C; font-weight:600; }
+.io-level { font-size:11px; color:#185FA5; background:#E6F1FB; border-radius:12px; padding:2px 8px; }
+.io-card-body { padding: .9rem 1rem; }
+.io-one { font-size:13px; color:var(--color-text-primary); line-height:1.7; margin-bottom:.65rem; }
+.io-mini-code { background:#0D1117; color:#E6EDF3; font-family:var(--font-mono); font-size:13px; line-height:1.8; border-radius:var(--border-radius-md); padding:.75rem .9rem; white-space:pre-wrap; }
+.io-flow { display:grid; grid-template-columns: 1fr 30px 1fr 30px 1fr; align-items:stretch; gap:8px; margin-bottom:1rem; }
+.io-flow-step { background:#F7FAFD; border:0.5px solid #D8E5F0; border-radius:var(--border-radius-md); padding:.75rem; text-align:center; }
+.io-flow-step b { display:block; color:#042C53; font-size:13px; margin-bottom:5px; }
+.io-flow-step code { color:#185FA5; font-family:var(--font-mono); font-size:13px; }
+.io-arrow { display:flex; align-items:center; justify-content:center; color:#9AAAB8; }
+.io-mode-clean { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1rem; }
+.io-mode-clean .mode-card { border:0.5px solid #D8E5F0; }
+.practice-guide { display:grid; grid-template-columns: 1fr 1.2fr; gap:12px; margin:1rem 0; }
+.practice-note { background:#F7FAFD; border:0.5px solid #D8E5F0; border-radius:var(--border-radius-lg); padding:1rem; }
+.practice-note b { display:block; font-size:14px; color:#042C53; margin-bottom:.55rem; }
+.practice-note ol { margin-left:1.1rem; color:var(--color-text-secondary); font-size:13px; line-height:1.8; }
+.mission-box { background:#FFFDF7; border:0.5px solid #E2D5A8; border-radius:var(--border-radius-lg); padding:1rem; }
+.mission-box b { display:block; font-size:14px; color:#6B4E00; margin-bottom:.55rem; }
+.mission-box div { font-size:13px; color:var(--color-text-primary); line-height:1.75; }
+@media (max-width: 760px) { .lesson-strip,.io-card-grid,.practice-guide,.io-mode-clean { grid-template-columns: 1fr; } .io-flow { grid-template-columns:1fr; } .io-arrow { display:none; } }
+
+
+.quiz-panel{margin-top:1rem}.quiz-actions{display:flex;gap:8px;align-items:center;margin-top:1rem;flex-wrap:wrap}.score-btn{padding:9px 18px;background:#185FA5;color:white;border:none;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;font-family:var(--font-sans);font-weight:500}.score-btn:hover{background:#0C447C}.reset-btn{padding:9px 18px;background:var(--color-background-primary);color:var(--color-text-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;font-family:var(--font-sans)}.quiz-score{font-size:13px;color:var(--color-text-primary);font-weight:500}.qhint{font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6}@media(max-width:900px){.tl{grid-template-columns:repeat(3,1fr)}}@media(max-width:640px){.tl{grid-template-columns:repeat(2,1fr)}}
 </style>
-
 <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">03 프로그래밍의 이해 — 변수·자료형, 표준입출력·파일입출력, 다차원 데이터 구조 수업 자료</h2>
-
 <div class="hd">
-  <div class="badge">고등학교 정보 · 03단원</div>
-  <h1>프로그래밍의 이해</h1>
-  <p>변수·자료형 / 표준입출력·파일입출력 / 다차원 데이터 구조</p>
+<div class="badge">고등학교 정보 · 03단원</div>
+<h1>프로그래밍의 이해</h1>
+<p>변수·자료형 / 표준입출력·파일입출력 / 다차원 데이터 구조</p>
 </div>
-
-<div class="tl" id="tl">
-  <div class="ti active" onclick="showSec(0)"><span class="ic">📦</span><div class="tm">소단원 1</div><div class="tl2">변수와 자료형</div></div>
-  <div class="ti" onclick="showSec(1)"><span class="ic">⌨️</span><div class="tm">소단원 2</div><div class="tl2">표준·파일 입출력</div></div>
-  <div class="ti" onclick="showSec(2)"><span class="ic">🗂️</span><div class="tm">소단원 3</div><div class="tl2">다차원 데이터 구조</div></div>
-</div>
-
+<div class="tl" id="tl"><div class="ti active" onclick="showSec(0)"><span class="ic">📦</span><div class="tm">소단원 1</div><div class="tl2">변수와 자료형</div></div><div class="ti" onclick="showSec(1)"><span class="ic">✓</span><div class="tm">퀴즈 1</div><div class="tl2">변수·자료형 확인</div></div><div class="ti" onclick="showSec(2)"><span class="ic">⌨️</span><div class="tm">소단원 2</div><div class="tl2">표준·파일 입출력</div></div><div class="ti" onclick="showSec(3)"><span class="ic">✓</span><div class="tm">퀴즈 2</div><div class="tl2">입출력 확인</div></div><div class="ti" onclick="showSec(4)"><span class="ic">🗂️</span><div class="tm">소단원 3</div><div class="tl2">다차원 데이터 구조</div></div><div class="ti" onclick="showSec(5)"><span class="ic">✓</span><div class="tm">퀴즈 3</div><div class="tl2">다차원 구조 확인</div></div></div>
 <!-- 섹션 0: 변수와 자료형 -->
 <div class="sc visible" id="sec0">
-  <div class="stitle"><div class="dot"></div>변수와 자료형</div>
-
-  <div class="cgrid">
-    <div class="cbox"><div class="clabel">변수란?</div><div class="cval">프로그램에서 값을 저장하는 기억 공간. <code style="background:var(--color-background-secondary);padding:1px 5px;border-radius:3px;font-size:12px;">=</code> 을 이용해 저장하고 변경할 수 있다.</div></div>
-    <div class="cbox"><div class="clabel">형식</div><div class="cval" style="font-family:var(--font-mono);font-size:13px;">변수명 = 저장할 값<br>(상수, 변수, 수식 등)</div></div>
-  </div>
-
-  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">자료형 4가지</p>
-  <div class="type-grid">
-    <div class="type-card"><div class="type-hd" style="background:#0C447C;">int 정수</div><div class="type-body"><div class="type-ex">예: 10, -3, 0</div><div class="type-desc">소수점 없는 정수</div></div></div>
-    <div class="type-card"><div class="type-hd" style="background:#185FA5;">float 실수</div><div class="type-body"><div class="type-ex">예: 2.5, 3.14</div><div class="type-desc">소수점 있는 실수</div></div></div>
-    <div class="type-card"><div class="type-hd" style="background:#378ADD;">str 문자열</div><div class="type-body"><div class="type-ex">예: "A", "안녕"</div><div class="type-desc">따옴표로 감싼 문자</div></div></div>
-    <div class="type-card"><div class="type-hd" style="background:#00897B;">bool 불리언</div><div class="type-body"><div class="type-ex">예: True, False</div><div class="type-desc">참/거짓 논리값</div></div></div>
-  </div>
-
-  <div class="cgrid">
-    <div>
-      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">코드 예시</p>
-      <div class="code-wrap">
+<div class="stitle"><div class="dot"></div>변수와 자료형</div>
+<div class="cgrid">
+<div class="cbox"><div class="clabel">변수란?</div><div class="cval">프로그램에서 값을 저장하는 기억 공간. <code style="background:var(--color-background-secondary);padding:1px 5px;border-radius:3px;font-size:12px;">=</code> 을 이용해 저장하고 변경할 수 있다.</div></div>
+<div class="cbox"><div class="clabel">형식</div><div class="cval" style="font-family:var(--font-mono);font-size:13px;">변수명 = 저장할 값<br/>(상수, 변수, 수식 등)</div></div>
+</div>
+<p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">자료형 4가지</p>
+<div class="type-grid">
+<div class="type-card"><div class="type-hd" style="background:#0C447C;">int 정수</div><div class="type-body"><div class="type-ex">예: 10, -3, 0</div><div class="type-desc">소수점 없는 정수</div></div></div>
+<div class="type-card"><div class="type-hd" style="background:#185FA5;">float 실수</div><div class="type-body"><div class="type-ex">예: 2.5, 3.14</div><div class="type-desc">소수점 있는 실수</div></div></div>
+<div class="type-card"><div class="type-hd" style="background:#378ADD;">str 문자열</div><div class="type-body"><div class="type-ex">예: "A", "안녕"</div><div class="type-desc">따옴표로 감싼 문자</div></div></div>
+<div class="type-card"><div class="type-hd" style="background:#00897B;">bool 불리언</div><div class="type-body"><div class="type-ex">예: True, False</div><div class="type-desc">참/거짓 논리값</div></div></div>
+</div>
+<div class="cgrid">
+<div>
+<p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">코드 예시</p>
+<div class="code-wrap">
 <span class="c-cm"># 변수 저장 및 변경</span>
 <span class="c-wh">a = </span><span class="c-nm">10</span>
 <span class="c-wh">b, c = </span><span class="c-nm">2.5</span><span class="c-wh">, </span><span class="c-st">"A"</span>
 <span class="c-fn">print</span><span class="c-wh">(a, b, c)   </span><span class="c-cm"># 10 2.5 A</span>
 <span class="c-wh">a = a * </span><span class="c-nm">2</span>
 <span class="c-fn">print</span><span class="c-wh">(a, b, c)   </span><span class="c-cm"># 20 2.5 A</span>
-      </div>
-    </div>
-    <div>
-      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">퀴즈</p>
-      <div class="quiz-area">
-        <div class="qi"><div class="qq">❓ 10 % 3 의 결과는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">0</button><button class="cb" onclick="chkQ(this,true)">1</button><button class="cb" onclick="chkQ(this,false)">3</button><button class="cb" onclick="chkQ(this,false)">3.33</button></div></div>
-        <div class="qi"><div class="qq">❓ type("안녕") 의 결과는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">&lt;class 'int'&gt;</button><button class="cb" onclick="chkQ(this,false)">&lt;class 'float'&gt;</button><button class="cb" onclick="chkQ(this,true)">&lt;class 'str'&gt;</button></div></div>
-        <div class="qi"><div class="qq">❓ 변수명으로 사용 불가한 것은?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">my_name</button><button class="cb" onclick="chkQ(this,true)">2score</button><button class="cb" onclick="chkQ(this,false)">score_2</button></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 테스트 샌드박스 -->
-  <div class="sandbox-wrap">
-    <div class="sb-hdr">
-      <div class="sb-hdr-l"><span>⚡ 바로 테스트해보기</span><span class="sb-badge">자유롭게 입력</span></div>
-      <button class="sb-run" onclick="runSandbox()">▶ 실행</button>
-    </div>
-    <div class="snip-row">
-      <span class="snip-lbl">예제 →</span>
-      <button class="snip-btn" onclick="loadSnip('var')">변수 저장</button>
-      <button class="snip-btn" onclick="loadSnip('type')">자료형 확인</button>
-      <button class="snip-btn" onclick="loadSnip('calc')">연산</button>
-      <button class="snip-btn" onclick="clearSb()">🗑 초기화</button>
-    </div>
-    <div class="sb-editor">
-      <div class="lnums" id="lnums">1</div>
-      <textarea class="sbi" id="sbi" spellcheck="false" placeholder="코드를 입력하고 실행해 보세요!"></textarea>
-    </div>
-    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
-    <div class="sb-out-wrap">
-      <div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div>
-      <div class="sb-out empty" id="sbo">▶ 실행 버튼을 누르면 결과가 나타나요</div>
-    </div>
-  </div>
-
-  <div class="nav-row" style="margin-top:1rem;">
-    <button class="nav-btn primary" onclick="showSec(1)">다음: 표준·파일 입출력 →</button>
-  </div>
 </div>
+</div>
+<div>
+<p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">퀴즈</p>
 
+</div>
+</div>
+<!-- 테스트 샌드박스 -->
+<div class="sandbox-wrap">
+<div class="sb-hdr">
+<div class="sb-hdr-l"><span>⚡ 바로 테스트해보기</span><span class="sb-badge">자유롭게 입력</span></div>
+<button class="sb-run" onclick="runSandbox()">▶ 실행</button>
+</div>
+<div class="snip-row">
+<span class="snip-lbl">예제 →</span>
+<button class="snip-btn" onclick="loadSnip('var')">변수 저장</button>
+<button class="snip-btn" onclick="loadSnip('type')">자료형 확인</button>
+<button class="snip-btn" onclick="loadSnip('calc')">연산</button>
+<button class="snip-btn" onclick="clearSb()">🗑 초기화</button>
+</div>
+<div class="sb-editor">
+<div class="lnums" id="lnums">1</div>
+<textarea class="sbi" id="sbi" placeholder="코드를 입력하고 실행해 보세요!" spellcheck="false"></textarea>
+</div>
+<div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+<div class="sb-out-wrap">
+<div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div>
+<div class="sb-out empty" id="sbo">▶ 실행 버튼을 누르면 결과가 나타나요</div>
+</div>
+</div>
+<div class="nav-row" style="margin-top:1rem;"><button class="nav-btn primary" onclick="showSec(1)">퀴즈 1 풀기 →</button></div>
+</div><div class="sc" id="sec1"><div class="stitle"><div class="dot"></div>소단원 1 퀴즈</div><p class="qhint">변수와 자료형 문항을 선택한 뒤 점수 확인을 눌러보세요.</p><div class="quiz-area quiz-panel" data-quiz="1"><div class="qi"><div class="qq">1. 변수에 값을 저장할 때 사용하는 기호는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">=</button><button class="cb" onclick="quizPick(this,false)">==</button><button class="cb" onclick="quizPick(this,false)">!=</button><button class="cb" onclick="quizPick(this,false)">//</button></div></div><div class="qi"><div class="qq">2. 다음 중 정수형 자료형은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">float</button><button class="cb" onclick="quizPick(this,false)">str</button><button class="cb" onclick="quizPick(this,true)">int</button><button class="cb" onclick="quizPick(this,false)">bool</button></div></div><div class="qi"><div class="qq">3. 문자열을 만들 때 사용하는 기호는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">따옴표</button><button class="cb" onclick="quizPick(this,false)">대괄호</button><button class="cb" onclick="quizPick(this,false)">중괄호</button><button class="cb" onclick="quizPick(this,false)">등호</button></div></div><div class="qi"><div class="qq">4. 10 % 3의 결과는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">0</button><button class="cb" onclick="quizPick(this,true)">1</button><button class="cb" onclick="quizPick(this,false)">3</button><button class="cb" onclick="quizPick(this,false)">3.33</button></div></div><div class="qi"><div class="qq">5. type("안녕")의 결과는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">&lt;class 'int'&gt;</button><button class="cb" onclick="quizPick(this,false)">&lt;class 'float'&gt;</button><button class="cb" onclick="quizPick(this,true)">&lt;class 'str'&gt;</button><button class="cb" onclick="quizPick(this,false)">&lt;class 'bool'&gt;</button></div></div><div class="qi"><div class="qq">6. 변수명으로 사용할 수 없는 것은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">score_2</button><button class="cb" onclick="quizPick(this,false)">myName</button><button class="cb" onclick="quizPick(this,true)">2score</button><button class="cb" onclick="quizPick(this,false)">total</button></div></div><div class="qi"><div class="qq">7. True와 False를 저장하는 자료형은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">int</button><button class="cb" onclick="quizPick(this,false)">float</button><button class="cb" onclick="quizPick(this,false)">str</button><button class="cb" onclick="quizPick(this,true)">bool</button></div></div><div class="qi"><div class="qq">8. a = 10 후 a = a * 2를 실행하면 a는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">10</button><button class="cb" onclick="quizPick(this,false)">12</button><button class="cb" onclick="quizPick(this,true)">20</button><button class="cb" onclick="quizPick(this,false)">102</button></div></div><div class="qi"><div class="qq">9. 소수점이 있는 수를 저장하는 자료형은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">int</button><button class="cb" onclick="quizPick(this,true)">float</button><button class="cb" onclick="quizPick(this,false)">str</button><button class="cb" onclick="quizPick(this,false)">bool</button></div></div><div class="qi"><div class="qq">10. print(a, b)를 실행하면 기본적으로 값 사이에는 무엇이 들어가는가?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">쉼표</button><button class="cb" onclick="quizPick(this,true)">공백</button><button class="cb" onclick="quizPick(this,false)">줄바꿈</button><button class="cb" onclick="quizPick(this,false)">아무것도 없음</button></div></div></div><div class="quiz-actions"><button class="score-btn" onclick="showQuizScore(1)">점수 확인</button><button class="reset-btn" onclick="resetQuiz(1)">다시 풀기</button><span class="quiz-score" id="quizScore1">아직 채점하지 않았습니다.</span></div><div class="nav-row"><button class="nav-btn" onclick="showSec(0)">← 이전</button><button class="nav-btn primary" onclick="showSec(2)">다음 →</button></div></div>
 <!-- 섹션 1: 표준·파일 입출력 -->
-<div class="sc" id="sec1">
-  <div class="stitle"><div class="dot"></div>표준입출력과 파일입출력</div>
-
-  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">① 표준입출력 — input() / print()</p>
-  <div class="func-grid">
-    <div class="func-card">
-      <div class="func-hd" style="background:#00695C;">input()</div>
-      <div class="func-body">
-        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">키보드로 데이터를 입력받는 함수. 입력값은 <strong style="font-weight:500;">문자열(str)</strong>로 처리됨.</p>
-        <div class="code-wrap" style="margin-bottom:0;">
-<span class="c-wh">변수명 = </span><span class="c-fn">input</span><span class="c-wh">()</span>
-<span class="c-wh">변수명 = </span><span class="c-fn">input</span><span class="c-wh">(</span><span class="c-st">"안내 문구"</span><span class="c-wh">)</span>
-<span class="c-cm"># 숫자로 쓰려면 int() 변환 필요</span>
-<span class="c-wh">n = </span><span class="c-kw">int</span><span class="c-wh">(</span><span class="c-fn">input</span><span class="c-wh">(</span><span class="c-st">"숫자: "</span><span class="c-wh">))</span>
-        </div>
-      </div>
-    </div>
-    <div class="func-card">
-      <div class="func-hd" style="background:#0C447C;">print()</div>
-      <div class="func-body">
-        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">처리 결과를 모니터로 출력하는 함수. 콤마로 여러 값 출력 가능.</p>
-        <div class="code-wrap" style="margin-bottom:0;">
-<span class="c-fn">print</span><span class="c-wh">(값)</span>
-<span class="c-fn">print</span><span class="c-wh">(</span><span class="c-st">"문자열"</span><span class="c-wh">, 변수명)</span>
-<span class="c-fn">print</span><span class="c-wh">(a, b, c)  </span><span class="c-cm"># 공백 구분</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:.75rem 0 8px;">② 파일입출력 — open() / read() / write() / close()</p>
-  <div class="flow-steps">
-    <div class="fstep"><div class="fnum">1</div>파일 열기 <code style="background:var(--color-background-primary);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-mono);">open()</code></div>
-    <span style="color:var(--color-text-secondary);">→</span>
-    <div class="fstep"><div class="fnum">2</div>읽기·쓰기 <code style="background:var(--color-background-primary);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-mono);">read() / write()</code></div>
-    <span style="color:var(--color-text-secondary);">→</span>
-    <div class="fstep"><div class="fnum">3</div>파일 닫기 <code style="background:var(--color-background-primary);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-mono);">close()</code></div>
-  </div>
-
-  <div class="mode-grid">
-    <div class="mode-card"><div class="mode-hd" style="background:#185FA5;">"r" 읽기 모드</div><div class="mode-body">기존 파일 읽기</div></div>
-    <div class="mode-card"><div class="mode-hd" style="background:#0C447C;">"w" 쓰기 모드</div><div class="mode-body">내용 지우고 새로 쓰기</div></div>
-    <div class="mode-card"><div class="mode-hd" style="background:#00695C;">"a" 추가 모드</div><div class="mode-body">파일 끝에 내용 추가</div></div>
-  </div>
-
-  <div class="cgrid">
-    <div>
-      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">파일 읽기</p>
-      <div class="code-wrap">
-<span class="c-wh">f = </span><span class="c-fn">open</span><span class="c-wh">(</span><span class="c-st">"파일.txt"</span><span class="c-wh">, </span><span class="c-st">"r"</span><span class="c-wh">)</span>
-<span class="c-wh">data = f.</span><span class="c-fn">read</span><span class="c-wh">()</span>
-<span class="c-fn">print</span><span class="c-wh">(data)</span>
-<span class="c-wh">f.</span><span class="c-fn">close</span><span class="c-wh">()</span>
-      </div>
-    </div>
-    <div>
-      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">파일 쓰기</p>
-      <div class="code-wrap">
-<span class="c-wh">f = </span><span class="c-fn">open</span><span class="c-wh">(</span><span class="c-st">"파일.txt"</span><span class="c-wh">, </span><span class="c-st">"w"</span><span class="c-wh">)</span>
-<span class="c-wh">f.</span><span class="c-fn">write</span><span class="c-wh">(</span><span class="c-st">"저장할 내용"</span><span class="c-wh">)</span>
-<span class="c-wh">f.</span><span class="c-fn">close</span><span class="c-wh">()</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="quiz-area">
-    <div class="qi"><div class="qq">❓ input()으로 입력받은 값의 자료형은?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">int</button><button class="cb" onclick="chkQ(this,false)">float</button><button class="cb" onclick="chkQ(this,true)">str</button><button class="cb" onclick="chkQ(this,false)">bool</button></div></div>
-    <div class="qi"><div class="qq">❓ 파일의 기존 내용을 모두 지우고 새로 쓸 때 사용하는 모드는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">"r"</button><button class="cb" onclick="chkQ(this,true)">"w"</button><button class="cb" onclick="chkQ(this,false)">"a"</button></div></div>
-  </div>
-
-
-  <!-- 표준·파일 입출력 실습 -->
-  <div class="sandbox-wrap">
-    <div class="sb-hdr">
-      <div class="sb-hdr-l"><span>⚡ 파이썬 입출력 실습</span><span class="sb-badge">input · print · file</span></div>
-      <button class="sb-run" onclick="runIoPractice()">▶ 실행</button>
-    </div>
-    <div class="snip-row">
-      <span class="snip-lbl">예제 →</span>
-      <button class="snip-btn" onclick="loadIoSnip('print')">print 출력</button>
-      <button class="snip-btn" onclick="loadIoSnip('input')">input 입력</button>
-      <button class="snip-btn" onclick="loadIoSnip('convert')">숫자 변환</button>
-      <button class="snip-btn" onclick="loadIoSnip('filew')">파일 쓰기</button>
-      <button class="snip-btn" onclick="loadIoSnip('filer')">파일 읽기</button>
-      <button class="snip-btn" onclick="clearIoPractice()">🗑 초기화</button>
-    </div>
-    <div style="background:#161b22;padding:10px 12px;border-bottom:0.5px solid #0A0F17;">
-      <label for="ioStdInput" style="display:block;font-size:12px;color:#8b949e;margin-bottom:6px;">표준 입력값 <span style="color:#555;">input()을 여러 번 쓰면 줄 순서대로 사용됩니다.</span></label>
-      <textarea id="ioStdInput" spellcheck="false" placeholder="예:&#10;홍길동&#10;17" style="width:100%;min-height:54px;background:#0A0F17;border:0.5px solid #30363d;border-radius:var(--border-radius-md);color:#E6EDF3;font-family:var(--font-mono);font-size:13px;line-height:1.6;padding:.6rem .75rem;resize:vertical;outline:none;"></textarea>
-    </div>
-    <div class="sb-editor">
-      <div class="lnums" id="ioLnums">1</div>
-      <textarea class="sbi" id="ioCodeInput" spellcheck="false" placeholder="표준입출력 또는 파일입출력 코드를 입력해 보세요!">name = input("이름: ")
+<div class="sc" id="sec2">
+<div class="stitle"><div class="dot"></div>표준입출력과 파일입출력</div>
+<div class="lesson-hero">
+<h3>입력하고, 처리하고, 출력하기</h3>
+<p>이 단원은 파이썬 프로그램이 사용자와 데이터를 주고받는 방법을 익히는 부분입니다. 먼저 <strong>input()</strong>과 <strong>print()</strong>로 화면 입출력을 연습한 뒤, <strong>open()</strong>, <strong>read()</strong>, <strong>write()</strong>로 파일에 저장하고 읽는 흐름을 배웁니다.</p>
+<div class="lesson-strip">
+<div class="lesson-chip"><b>1. 표준 입력</b><span>키보드로 값을 받기</span></div>
+<div class="lesson-chip"><b>2. 표준 출력</b><span>화면에 결과 보여주기</span></div>
+<div class="lesson-chip"><b>3. 파일 입출력</b><span>파일에 저장하고 읽기</span></div>
+</div>
+</div>
+<div class="io-section">
+<div class="io-section-title">표준입출력 핵심</div>
+<div class="io-card-grid">
+<div class="io-card">
+<div class="io-card-head"><code>input()</code><span class="io-level">입력</span></div>
+<div class="io-card-body">
+<p class="io-one">사용자가 키보드로 입력한 값을 문자열로 가져옵니다. 숫자로 계산하려면 <code>int()</code> 또는 <code>float()</code>로 바꿉니다.</p>
+<div class="io-mini-code">name = input("이름: ")
+age = int(input("나이: "))</div>
+</div>
+</div>
+<div class="io-card">
+<div class="io-card-head"><code>print()</code><span class="io-level">출력</span></div>
+<div class="io-card-body">
+<p class="io-one">변수, 문자열, 계산 결과를 화면에 출력합니다. 여러 값을 쉼표로 연결하면 공백으로 구분되어 출력됩니다.</p>
+<div class="io-mini-code">print("안녕하세요")
+print(name, "은", age, "살입니다.")</div>
+</div>
+</div>
+</div>
+</div>
+<div class="io-section">
+<div class="io-section-title">파일입출력 흐름</div>
+<div class="io-flow">
+<div class="io-flow-step"><b>1단계 파일 열기</b><code>open()</code></div>
+<div class="io-arrow">→</div>
+<div class="io-flow-step"><b>2단계 읽기·쓰기</b><code>read() / write()</code></div>
+<div class="io-arrow">→</div>
+<div class="io-flow-step"><b>3단계 파일 닫기</b><code>close()</code></div>
+</div>
+<div class="io-mode-clean">
+<div class="mode-card"><div class="mode-hd" style="background:#185FA5;">"r" 읽기</div><div class="mode-body">기존 파일의 내용을 읽습니다.</div></div>
+<div class="mode-card"><div class="mode-hd" style="background:#0C447C;">"w" 쓰기</div><div class="mode-body">파일 내용을 새로 저장합니다.</div></div>
+<div class="mode-card"><div class="mode-hd" style="background:#00695C;">"a" 추가</div><div class="mode-body">파일 끝에 내용을 덧붙입니다.</div></div>
+</div>
+<div class="io-card-grid">
+<div class="io-card">
+<div class="io-card-head"><code>파일 쓰기</code><span class="io-level">저장</span></div>
+<div class="io-card-body"><div class="io-mini-code">f = open("memo.txt", "w")
+f.write("안녕하세요")
+f.close()</div></div>
+</div>
+<div class="io-card">
+<div class="io-card-head"><code>파일 읽기</code><span class="io-level">확인</span></div>
+<div class="io-card-body"><div class="io-mini-code">f = open("memo.txt", "r")
+data = f.read()
+print(data)
+f.close()</div></div>
+</div>
+</div>
+</div>
+<div class="practice-guide">
+<div class="practice-note">
+<b>실습 순서</b>
+<ol>
+<li>예제 버튼을 눌러 코드를 불러옵니다.</li>
+<li><code>input()</code>이 있으면 표준 입력값을 줄 단위로 적습니다.</li>
+<li>실행 버튼을 누르고 결과를 확인합니다.</li>
+</ol>
+</div>
+<div class="mission-box">
+<b>오늘의 미션</b>
+<div>이름과 나이를 입력받아 문장을 출력해 보세요. 그 다음 파일 쓰기 예제로 바꾸어, 입력받은 이름을 파일에 저장하고 다시 읽어 출력해 보세요.</div>
+</div>
+</div>
+<!-- 표준·파일 입출력 실습 -->
+<div class="sandbox-wrap">
+<div class="sb-hdr">
+<div class="sb-hdr-l"><span>파이썬 입출력 실습</span><span class="sb-badge">input · print · file</span></div>
+<button class="sb-run" onclick="runIoPractice()">실행</button>
+</div>
+<div class="snip-row">
+<span class="snip-lbl">예제</span>
+<button class="snip-btn" onclick="loadIoSnip('print')">print 출력</button>
+<button class="snip-btn" onclick="loadIoSnip('input')">input 입력</button>
+<button class="snip-btn" onclick="loadIoSnip('convert')">숫자 변환</button>
+<button class="snip-btn" onclick="loadIoSnip('filew')">파일 쓰기</button>
+<button class="snip-btn" onclick="loadIoSnip('filer')">파일 읽기</button>
+<button class="snip-btn" onclick="clearIoPractice()">초기화</button>
+</div>
+<div style="background:#161b22;padding:10px 12px;border-bottom:0.5px solid #0A0F17;">
+<label for="ioStdInput" style="display:block;font-size:12px;color:#C9D1D9;margin-bottom:6px;">표준 입력값 <span style="color:#8b949e;">input()을 여러 번 쓰면 줄 순서대로 사용됩니다.</span></label>
+<textarea id="ioStdInput" placeholder="예:
+홍길동
+17" spellcheck="false" style="width:100%;min-height:64px;background:#0A0F17;border:0.5px solid #30363d;border-radius:var(--border-radius-md);color:#E6EDF3;font-family:var(--font-mono);font-size:13px;line-height:1.6;padding:.6rem .75rem;resize:vertical;outline:none;"></textarea>
+</div>
+<div class="sb-editor">
+<div class="lnums" id="ioLnums">1</div>
+<textarea class="sbi" id="ioCodeInput" placeholder="표준입출력 또는 파일입출력 코드를 입력해 보세요!" spellcheck="false">name = input("이름: ")
 age = int(input("나이: "))
 print(name, "은", age, "살입니다.")</textarea>
-    </div>
-    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
-    <div class="sb-out-wrap">
-      <div class="sb-out-hdr"><div class="sb-out-dot"></div><span>실행 결과</span></div>
-      <div class="sb-out empty" id="ioOutput">▶ 실행 버튼을 누르면 결과가 나타나요</div>
-    </div>
-  </div>
-
-
-  <div class="nav-row">
-    <button class="nav-btn" onclick="showSec(0)">← 이전</button>
-    <button class="nav-btn primary" onclick="showSec(2)">다음: 다차원 데이터 구조 →</button>
-  </div>
+</div>
+<div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+<div class="sb-out-wrap">
+<div class="sb-out-hdr"><div class="sb-out-dot"></div><span>실행 결과</span></div>
+<div class="sb-out empty" id="ioOutput">실행 버튼을 누르면 결과가 나타나요</div>
+</div>
 </div>
 
+<div class="nav-row"><button class="nav-btn" onclick="showSec(1)">← 퀴즈 1</button><button class="nav-btn primary" onclick="showSec(3)">퀴즈 2 풀기 →</button></div>
+</div><div class="sc" id="sec3"><div class="stitle"><div class="dot"></div>소단원 2 퀴즈</div><p class="qhint">표준입출력과 파일입출력 문항을 선택한 뒤 점수 확인을 눌러보세요.</p><div class="quiz-area quiz-panel" data-quiz="3"><div class="qi"><div class="qq">1. 키보드로 데이터를 입력받는 함수는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">print()</button><button class="cb" onclick="quizPick(this,true)">input()</button><button class="cb" onclick="quizPick(this,false)">open()</button><button class="cb" onclick="quizPick(this,false)">read()</button></div></div><div class="qi"><div class="qq">2. input()으로 받은 값의 기본 자료형은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">int</button><button class="cb" onclick="quizPick(this,false)">float</button><button class="cb" onclick="quizPick(this,true)">str</button><button class="cb" onclick="quizPick(this,false)">bool</button></div></div><div class="qi"><div class="qq">3. 숫자 계산을 위해 input 값을 정수로 바꾸는 함수는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">str()</button><button class="cb" onclick="quizPick(this,true)">int()</button><button class="cb" onclick="quizPick(this,false)">print()</button><button class="cb" onclick="quizPick(this,false)">type()</button></div></div><div class="qi"><div class="qq">4. 화면에 결과를 출력하는 함수는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">input()</button><button class="cb" onclick="quizPick(this,true)">print()</button><button class="cb" onclick="quizPick(this,false)">open()</button><button class="cb" onclick="quizPick(this,false)">close()</button></div></div><div class="qi"><div class="qq">5. 파일을 열 때 사용하는 함수는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">read()</button><button class="cb" onclick="quizPick(this,false)">write()</button><button class="cb" onclick="quizPick(this,true)">open()</button><button class="cb" onclick="quizPick(this,false)">close()</button></div></div><div class="qi"><div class="qq">6. 파일의 기존 내용을 지우고 새로 쓰는 모드는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">r</button><button class="cb" onclick="quizPick(this,true)">w</button><button class="cb" onclick="quizPick(this,false)">a</button><button class="cb" onclick="quizPick(this,false)">x</button></div></div><div class="qi"><div class="qq">7. 기존 파일 내용을 읽는 모드는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">r</button><button class="cb" onclick="quizPick(this,false)">w</button><button class="cb" onclick="quizPick(this,false)">a</button><button class="cb" onclick="quizPick(this,false)">p</button></div></div><div class="qi"><div class="qq">8. 파일 끝에 내용을 추가하는 모드는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">r</button><button class="cb" onclick="quizPick(this,false)">w</button><button class="cb" onclick="quizPick(this,true)">a</button><button class="cb" onclick="quizPick(this,false)">d</button></div></div><div class="qi"><div class="qq">9. 파일 내용을 읽는 메서드는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">read()</button><button class="cb" onclick="quizPick(this,false)">write()</button><button class="cb" onclick="quizPick(this,false)">print()</button><button class="cb" onclick="quizPick(this,false)">input()</button></div></div><div class="qi"><div class="qq">10. 파일 사용 후 닫는 메서드는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">end()</button><button class="cb" onclick="quizPick(this,false)">stop()</button><button class="cb" onclick="quizPick(this,true)">close()</button><button class="cb" onclick="quizPick(this,false)">finish()</button></div></div></div><div class="quiz-actions"><button class="score-btn" onclick="showQuizScore(3)">점수 확인</button><button class="reset-btn" onclick="resetQuiz(3)">다시 풀기</button><span class="quiz-score" id="quizScore3">아직 채점하지 않았습니다.</span></div><div class="nav-row"><button class="nav-btn" onclick="showSec(2)">← 이전</button><button class="nav-btn primary" onclick="showSec(4)">다음 →</button></div></div>
 <!-- 섹션 2: 다차원 데이터 구조 -->
-<div class="sc" id="sec2">
-  <div class="stitle"><div class="dot"></div>다차원 데이터 구조</div>
-
-  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;">컴퓨터가 처리하는 자료는 다양한 형태로 존재하므로 자료의 특성에 맞는 데이터 구조를 선택해야 합니다.</p>
-
-  <div class="dim-grid">
-    <div class="dim-card">
-      <div class="dim-hd" style="background:#042C53;">1차원</div>
-      <div class="dim-body">
-        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">하나의 행으로 구성된 선형 데이터 구조</p>
-        <div class="code-wrap" style="margin-bottom:0;"><span class="c-wh">[80, 100, 90]</span></div>
-      </div>
-    </div>
-    <div class="dim-card">
-      <div class="dim-hd" style="background:#185FA5;">2차원</div>
-      <div class="dim-body">
-        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">행과 열로 구성된 표 형태</p>
-        <div class="code-wrap" style="margin-bottom:0;font-size:12px;"><span class="c-wh">[[80,100,90],<br> [93,85,70],<br> [55,72,75]]</span></div>
-      </div>
-    </div>
-    <div class="dim-card">
-      <div class="dim-hd" style="background:#378ADD;">3차원</div>
-      <div class="dim-body">
-        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">행·열·높이로 구성된 입체 구조</p>
-        <div class="code-wrap" style="margin-bottom:0;font-size:12px;"><span class="c-wh">이미지(RGB)<br>R·G·B 3채널</span></div>
-      </div>
-    </div>
-  </div>
-
-  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">컴퓨터 이미지 표현</p>
-  <div class="img-grid">
-    <div class="cbox">
-      <div class="clabel">흑백 이미지 (2차원)</div>
-      <div class="cval">밝기값(0~255)만으로 구성된 2차원 배열<br>0 = 검정, 255 = 흰색</div>
-    </div>
-    <div class="cbox">
-      <div class="clabel">컬러 이미지 (3차원)</div>
-      <div class="cval">빨강(R), 초록(G), 파랑(B) 3채널<br>각 채널 0~255 밝기값</div>
-    </div>
-  </div>
-
-  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">이미지 시각화 (matplotlib)</p>
-  <div class="code-wrap">
+<div class="sc" id="sec4">
+<div class="stitle"><div class="dot"></div>다차원 데이터 구조</div>
+<p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;">컴퓨터가 처리하는 자료는 다양한 형태로 존재하므로 자료의 특성에 맞는 데이터 구조를 선택해야 합니다.</p>
+<div class="dim-grid">
+<div class="dim-card">
+<div class="dim-hd" style="background:#042C53;">1차원</div>
+<div class="dim-body">
+<p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">하나의 행으로 구성된 선형 데이터 구조</p>
+<div class="code-wrap" style="margin-bottom:0;"><span class="c-wh">[80, 100, 90]</span></div>
+<div aria-label="1차원 리스트 시각 예시" class="dim-visual">
+<div class="visual-label">이미지 예시: 한 줄로 나열된 값</div>
+<div class="array-1d">
+<div class="cell">80</div><div class="cell">100</div><div class="cell">90</div>
+</div>
+<div class="axis-note">인덱스 0 → 1 → 2</div>
+</div>
+</div>
+</div>
+<div class="dim-card">
+<div class="dim-hd" style="background:#185FA5;">2차원</div>
+<div class="dim-body">
+<p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">행과 열로 구성된 표 형태</p>
+<div class="code-wrap" style="margin-bottom:0;font-size:12px;"><span class="c-wh">[[80,100,90],<br/> [93,85,70],<br/> [55,72,75]]</span></div>
+<div aria-label="2차원 배열 시각 예시" class="dim-visual">
+<div class="visual-label">이미지 예시: 행과 열로 배치된 값</div>
+<div class="array-2d">
+<div class="cell">80</div><div class="cell">100</div><div class="cell">90</div>
+<div class="cell">93</div><div class="cell">85</div><div class="cell">70</div>
+<div class="cell">55</div><div class="cell">72</div><div class="cell">75</div>
+</div>
+<div class="axis-note">행(row) × 열(column)</div>
+</div>
+</div>
+</div>
+<div class="dim-card">
+<div class="dim-hd" style="background:#378ADD;">3차원</div>
+<div class="dim-body">
+<p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">행·열·높이로 구성된 입체 구조</p>
+<div class="code-wrap" style="margin-bottom:0;font-size:12px;"><span class="c-wh">이미지(RGB)<br/>R·G·B 3채널</span></div>
+<div aria-label="3차원 RGB 배열 시각 예시" class="dim-visual">
+<div class="visual-label">이미지 예시: 2차원 격자가 채널별로 쌓임</div>
+<div class="rgb-stack">
+<div class="rgb-layer r"><span></span><span></span><span></span><span></span><div class="rgb-name">R</div></div>
+<div class="rgb-layer g"><span></span><span></span><span></span><span></span><div class="rgb-name">G</div></div>
+<div class="rgb-layer b"><span></span><span></span><span></span><span></span><div class="rgb-name">B</div></div>
+</div>
+<div class="axis-note">행 × 열 × 채널</div>
+</div>
+</div>
+</div>
+</div>
+<p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">컴퓨터 이미지 표현</p>
+<div class="img-grid">
+<div class="cbox">
+<div class="clabel">흑백 이미지 (2차원)</div>
+<div class="cval">밝기값(0~255)만으로 구성된 2차원 배열<br/>0 = 검정, 255 = 흰색</div>
+</div>
+<div class="cbox">
+<div class="clabel">컬러 이미지 (3차원)</div>
+<div class="cval">빨강(R), 초록(G), 파랑(B) 3채널<br/>각 채널 0~255 밝기값</div>
+</div>
+</div>
+<p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">이미지 시각화 (matplotlib)</p>
+<div class="code-wrap">
 <span class="c-kw">import</span><span class="c-wh"> matplotlib.pyplot </span><span class="c-kw">as</span><span class="c-wh"> plt</span>
 <span class="c-cm"># 흑백 이미지 (2차원)</span>
 <span class="c-wh">gray = [[</span><span class="c-nm">255</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">],[</span><span class="c-nm">0</span><span class="c-wh">,</span><span class="c-nm">255</span><span class="c-wh">]]</span>
@@ -354,61 +410,57 @@ print(name, "은", age, "살입니다.")</textarea>
 <span class="c-wh">color = [[[</span><span class="c-nm">255</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">],[</span><span class="c-nm">0</span><span class="c-wh">,</span><span class="c-nm">255</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">]]]  </span><span class="c-cm"># 빨강, 초록</span>
 <span class="c-wh">plt.</span><span class="c-fn">imshow</span><span class="c-wh">(color)</span>
 <span class="c-wh">plt.</span><span class="c-fn">show</span><span class="c-wh">()</span>
-  </div>
-
-  <!-- 다차원 데이터 구조 실습 -->
-  <div class="sandbox-wrap">
-    <div class="sb-hdr">
-      <div class="sb-hdr-l"><span>⚡ 다차원 구조 실습</span><span class="sb-badge">list · index · RGB</span></div>
-      <button class="sb-run" onclick="runDimPractice()">▶ 실행</button>
-    </div>
-    <div class="snip-row">
-      <span class="snip-lbl">예제 →</span>
-      <button class="snip-btn" onclick="loadDimSnip('one')">1차원 리스트</button>
-      <button class="snip-btn" onclick="loadDimSnip('two')">2차원 성적표</button>
-      <button class="snip-btn" onclick="loadDimSnip('index')">인덱스 접근</button>
-      <button class="snip-btn" onclick="loadDimSnip('gray')">흑백 이미지</button>
-      <button class="snip-btn" onclick="loadDimSnip('rgb')">RGB 색상</button>
-      <button class="snip-btn" onclick="clearDimPractice()">🗑 초기화</button>
-    </div>
-    <div style="background:#161b22;padding:10px 12px;border-bottom:0.5px solid #0A0F17;">
-      <div style="font-size:12px;color:#8b949e;line-height:1.6;">
-        리스트, 중첩 리스트, 인덱스, len(), sum(), type()을 연습할 수 있습니다. 복잡한 반복문이나 matplotlib 그래프는 예시 설명용으로만 사용하세요.
+</div>
+<!-- 다차원 데이터 구조 실습 -->
+<div class="sandbox-wrap">
+<div class="sb-hdr">
+<div class="sb-hdr-l"><span>⚡ 다차원 구조 실습</span><span class="sb-badge">list · index · RGB</span></div>
+<button class="sb-run" onclick="runDimPractice()">▶ 실행</button>
+</div>
+<div class="snip-row">
+<span class="snip-lbl">예제 →</span>
+<button class="snip-btn" onclick="loadDimSnip('one')">1차원 리스트</button>
+<button class="snip-btn" onclick="loadDimSnip('two')">2차원 성적표</button>
+<button class="snip-btn" onclick="loadDimSnip('index')">인덱스 접근</button>
+<button class="snip-btn" onclick="loadDimSnip('gray')">흑백 이미지</button>
+<button class="snip-btn" onclick="loadDimSnip('rgb')">RGB 색상</button>
+<button class="snip-btn" onclick="loadDimSnip('input')">입력으로 리스트 만들기</button>
+<button class="snip-btn" onclick="clearDimPractice()">🗑 초기화</button>
+</div>
+<div style="background:#161b22;padding:10px 12px;border-bottom:0.5px solid #0A0F17;">
+<div style="font-size:12px;color:#8b949e;line-height:1.6;margin-bottom:8px;">
+        리스트, 중첩 리스트, 인덱스, len(), sum(), type(), input()을 연습할 수 있습니다. 복잡한 반복문이나 matplotlib 그래프는 예시 설명용으로만 사용하세요.
       </div>
-    </div>
-    <div class="sb-editor">
-      <div class="lnums" id="dimLnums">1</div>
-      <textarea class="sbi" id="dimCodeInput" spellcheck="false" placeholder="다차원 데이터 구조 코드를 입력해 보세요!">scores = [80, 100, 90]
+<label for="dimStdInput" style="display:block;font-size:12px;color:#8b949e;margin-bottom:6px;">표준 입력값 <span style="color:#555;">input()을 여러 번 쓰면 줄 순서대로 사용됩니다.</span></label>
+<textarea id="dimStdInput" placeholder="예: 홍길동
+80
+90" spellcheck="false" style="width:100%;min-height:58px;background:#0D1117;border:0.5px solid #30363d;border-radius:var(--border-radius-md);color:#E6EDF3;font-family:var(--font-mono);font-size:13px;line-height:1.6;padding:.65rem .8rem;resize:vertical;outline:none;"></textarea>
+</div>
+<div class="sb-editor">
+<div class="lnums" id="dimLnums">1</div>
+<textarea class="sbi" id="dimCodeInput" placeholder="다차원 데이터 구조 코드를 입력해 보세요!" spellcheck="false">scores = [80, 100, 90]
 print(scores)
 print('첫 번째 점수:', scores[0])
 print('점수 개수:', len(scores))
 print('합계:', sum(scores))</textarea>
-    </div>
-    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
-    <div class="sb-out-wrap">
-      <div class="sb-out-hdr"><div class="sb-out-dot"></div><span>실행 결과</span></div>
-      <div class="sb-out empty" id="dimOutput">▶ 실행 버튼을 누르면 결과가 나타나요</div>
-    </div>
-  </div>
-
-  <div class="ch-area" style="margin-top:1rem;">
-    <div class="ch-title">도전 과제</div>
-    <div class="ch-list">
-      <div class="ch-item"><div class="chnum">1</div><span>이름(str), 학년(int), 평균 점수(float) 변수를 선언하고 type()으로 각 자료형을 출력하세요.</span></div>
-      <div class="ch-item"><div class="chnum">2</div><span>1차원·2차원 리스트를 각각 만들고 print()로 출력해 보세요.</span></div>
-      <div class="ch-item"><div class="chnum">3</div><span>input()으로 이름과 나이를 입력받아 "홍길동은 17살입니다." 형태로 출력해 보세요.</span></div>
-    </div>
-  </div>
-
-  <div class="quiz-area">
-    <div class="qi"><div class="qq">❓ 컬러 이미지를 저장하는 데이터 구조는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">1차원</button><button class="cb" onclick="chkQ(this,false)">2차원</button><button class="cb" onclick="chkQ(this,true)">3차원</button></div></div>
-  </div>
-
-  <div class="nav-row">
-    <button class="nav-btn" onclick="showSec(1)">← 이전</button>
-  </div>
+</div>
+<div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+<div class="sb-out-wrap">
+<div class="sb-out-hdr"><div class="sb-out-dot"></div><span>실행 결과</span></div>
+<div class="sb-out empty" id="dimOutput">▶ 실행 버튼을 누르면 결과가 나타나요</div>
+</div>
+</div>
+<div class="ch-area" style="margin-top:1rem;">
+<div class="ch-title">도전 과제</div>
+<div class="ch-list">
+<div class="ch-item"><div class="chnum">1</div><span>이름(str), 학년(int), 평균 점수(float) 변수를 선언하고 type()으로 각 자료형을 출력하세요.</span></div>
+<div class="ch-item"><div class="chnum">2</div><span>1차원·2차원 리스트를 각각 만들고 print()로 출력해 보세요.</span></div>
+<div class="ch-item"><div class="chnum">3</div><span>input()으로 이름과 나이를 입력받아 "홍길동은 17살입니다." 형태로 출력해 보세요.</span></div>
+</div>
 </div>
 
+<div class="nav-row"><button class="nav-btn" onclick="showSec(3)">← 퀴즈 2</button><button class="nav-btn primary" onclick="showSec(5)">퀴즈 3 풀기 →</button></div>
+</div><div class="sc" id="sec5"><div class="stitle"><div class="dot"></div>소단원 3 퀴즈</div><p class="qhint">다차원 데이터 구조 문항을 선택한 뒤 점수 확인을 눌러보세요.</p><div class="quiz-area quiz-panel" data-quiz="5"><div class="qi"><div class="qq">1. 한 줄로 나열된 선형 데이터 구조는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">1차원</button><button class="cb" onclick="quizPick(this,false)">2차원</button><button class="cb" onclick="quizPick(this,false)">3차원</button><button class="cb" onclick="quizPick(this,false)">4차원</button></div></div><div class="qi"><div class="qq">2. 행과 열로 구성된 표 형태 구조는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">1차원</button><button class="cb" onclick="quizPick(this,true)">2차원</button><button class="cb" onclick="quizPick(this,false)">3차원</button><button class="cb" onclick="quizPick(this,false)">문자열</button></div></div><div class="qi"><div class="qq">3. RGB 컬러 이미지는 주로 몇 차원 구조로 볼 수 있는가?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">1차원</button><button class="cb" onclick="quizPick(this,false)">2차원</button><button class="cb" onclick="quizPick(this,true)">3차원</button><button class="cb" onclick="quizPick(this,false)">0차원</button></div></div><div class="qi"><div class="qq">4. 파이썬 리스트의 시작 인덱스는?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">0</button><button class="cb" onclick="quizPick(this,false)">1</button><button class="cb" onclick="quizPick(this,false)">-1</button><button class="cb" onclick="quizPick(this,false)">10</button></div></div><div class="qi"><div class="qq">5. scores = [80, 90, 100]에서 scores[1]은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">80</button><button class="cb" onclick="quizPick(this,true)">90</button><button class="cb" onclick="quizPick(this,false)">100</button><button class="cb" onclick="quizPick(this,false)">오류</button></div></div><div class="qi"><div class="qq">6. matrix = [[1,2],[3,4]]에서 matrix[0][1]은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">1</button><button class="cb" onclick="quizPick(this,true)">2</button><button class="cb" onclick="quizPick(this,false)">3</button><button class="cb" onclick="quizPick(this,false)">4</button></div></div><div class="qi"><div class="qq">7. 흑백 이미지는 보통 무엇의 2차원 배열로 표현하는가?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">문자</button><button class="cb" onclick="quizPick(this,true)">밝기값</button><button class="cb" onclick="quizPick(this,false)">파일명</button><button class="cb" onclick="quizPick(this,false)">함수</button></div></div><div class="qi"><div class="qq">8. 컬러 이미지의 기본 색 채널은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,false)">CMYK</button><button class="cb" onclick="quizPick(this,true)">RGB</button><button class="cb" onclick="quizPick(this,false)">HWP</button><button class="cb" onclick="quizPick(this,false)">CSV</button></div></div><div class="qi"><div class="qq">9. 2차원 리스트에서 바깥 리스트의 각 원소는 보통 무엇을 의미하는가?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">행</button><button class="cb" onclick="quizPick(this,false)">색상</button><button class="cb" onclick="quizPick(this,false)">파일</button><button class="cb" onclick="quizPick(this,false)">함수</button></div></div><div class="qi"><div class="qq">10. 다차원 데이터를 사용하는 이유로 알맞은 것은?</div><div class="qcs"><button class="cb" onclick="quizPick(this,true)">자료의 구조를 표현하기 위해</button><button class="cb" onclick="quizPick(this,false)">코드를 무조건 짧게 쓰기 위해</button><button class="cb" onclick="quizPick(this,false)">출력을 막기 위해</button><button class="cb" onclick="quizPick(this,false)">변수를 없애기 위해</button></div></div></div><div class="quiz-actions"><button class="score-btn" onclick="showQuizScore(5)">점수 확인</button><button class="reset-btn" onclick="resetQuiz(5)">다시 풀기</button><span class="quiz-score" id="quizScore5">아직 채점하지 않았습니다.</span></div><div class="nav-row"><button class="nav-btn" onclick="showSec(4)">← 이전</button></div></div>
 <script>
 
 const ioSnips = {
@@ -432,29 +484,45 @@ function splitArgs(s) {
   if(cur.trim()) arr.push(cur.trim());
   return arr;
 }
-function pyToJsExpr(expr, vars, inputQueue, prompts) {
-  let e=expr.trim();
-  e=e.replace(/\binput\(([^)]*)\)/g, (_, prompt)=>{
-    if(prompt && prompt.trim()) {
-      try { prompts.push(String(eval(prompt))); } catch(err) { prompts.push(prompt.replace(/^['"]|['"]$/g,'')); }
-    }
-    return JSON.stringify(inputQueue.length ? inputQueue.shift() : '');
-  });
-  e=e.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false');
-  e=e.replace(/\bint\(([^()]+)\)/g,'Math.trunc(Number($1))');
-  e=e.replace(/\bfloat\(([^()]+)\)/g,'Number($1)');
-  e=e.replace(/\bstr\(([^()]+)\)/g,'String($1)');
-  e=e.replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!');
-  e=e.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g,'Math.pow($1,$2)');
-  e=e.replace(/\b([a-zA-Z_]\w*)\b/g, m => Object.prototype.hasOwnProperty.call(vars,m) ? JSON.stringify(vars[m]) : m);
+function normalizePyExpr(expr) {
+  let e = expr.trim().replace(/#.*$/, '');
+  e = e.replace(/\binput\s*\(/g, '__input__(');
+  e = e.replace(/\bint\s*\(/g, '__int__(');
+  e = e.replace(/\bfloat\s*\(/g, '__float__(');
+  e = e.replace(/\bstr\s*\(/g, '__str__(');
+  e = e.replace(/\blen\s*\(/g, '__len__(');
+  e = e.replace(/\bsum\s*\(/g, '__sum__(');
+  e = e.replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+  e = e.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!');
+  e = e.replace(/([^/])\/\/([^/])/g, '$1__floordiv__$2');
   return e;
 }
+function makePyContext(vars, inputQueue, prompts) {
+  return {
+    ...vars,
+    __input__: (prompt='') => {
+      if(prompt !== undefined && String(prompt).length) prompts.push(String(prompt));
+      return inputQueue.length ? inputQueue.shift() : '';
+    },
+    __int__: v => Math.trunc(Number(v)),
+    __float__: v => Number(v),
+    __str__: v => String(v),
+    __len__: v => v.length,
+    __sum__: v => v.reduce((a,b)=>a+Number(b),0),
+    __floordiv__: undefined
+  };
+}
 function evalPyExpr(expr, vars, inputQueue, prompts) {
-  const js=pyToJsExpr(expr, vars, inputQueue, prompts);
-  return eval(js);
+  let js = normalizePyExpr(expr);
+  // 간단한 // 연산 지원: a // b 형태를 Math.floor(a / b)로 변환
+  while(js.includes('__floordiv__')) {
+    js = js.replace(/([^\s]+)\s*__floordiv__\s*([^\s]+)/g, 'Math.floor($1 / $2)');
+  }
+  const ctx = makePyContext(vars, inputQueue, prompts);
+  return Function('ctx', 'with(ctx){ return (' + js + '); }')(ctx);
 }
 function execIoCode(code, inputText) {
-  const vars={}, outputs=[], prompts=[], files={}, handles={}, inputQueue=inputText.split(/\r?\n/);
+  const vars={}, outputs=[], prompts=[], files={}, handles={}, inputQueue=(inputText || '').split(/\r?\n/);
   for(const raw of code.split('\n')) {
     const line=raw.trim();
     if(!line || line.startsWith('#')) continue;
@@ -468,11 +536,12 @@ function execIoCode(code, inputText) {
       m=line.match(/^([a-zA-Z_]\w*)\.close\(\)$/);
       if(m){ delete handles[m[1]]; continue; }
       m=line.match(/^print\(type\((.+)\)\)$/);
-      if(m){ const v=evalPyExpr(m[1],vars,inputQueue,prompts); const t=typeof v==='number'?(Number.isInteger(v)?'int':'float'):typeof v==='boolean'?'bool':'str'; outputs.push(`<class '${t}'>`); continue; }
+      if(m){ const v=evalPyExpr(m[1],vars,inputQueue,prompts); const t=Array.isArray(v)?'list':typeof v==='number'?(Number.isInteger(v)?'int':'float'):typeof v==='boolean'?'bool':'str'; outputs.push(`<class '${t}'>`); continue; }
       m=line.match(/^print\((.*)\)$/);
-      if(m){ const vals=splitArgs(m[1]).map(part=>{ const r=evalPyExpr(part,vars,inputQueue,prompts); return r===true?'True':r===false?'False':String(r); }); outputs.push(vals.join(' ')); continue; }
+      if(m){ const vals=splitArgs(m[1]).map(part=>{ const r=evalPyExpr(part,vars,inputQueue,prompts); return toPyString ? toPyString(r) : String(r); }); outputs.push(vals.join(' ')); continue; }
       m=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
       if(m){ vars[m[1]]=evalPyExpr(m[2],vars,inputQueue,prompts); continue; }
+      outputs.push('지원하지 않는 문장: ' + line);
     } catch(e) {
       outputs.push('오류: ' + e.message);
       break;
@@ -510,7 +579,8 @@ const dimSnips = {
   two: "scores = [[80, 100, 90], [93, 85, 70], [55, 72, 75]]\nprint(scores)\nprint('1행:', scores[0])\nprint('2행 3열:', scores[1][2])\nprint('행의 개수:', len(scores))",
   index: "image = [[0, 128, 255], [255, 128, 0]]\nprint('전체:', image)\nprint('첫 번째 행:', image[0])\nprint('1행 3열 밝기:', image[0][2])\nprint('2행 1열 밝기:', image[1][0])",
   gray: "gray = [[255, 0], [0, 255]]\nprint('흑백 이미지 데이터')\nprint(gray)\nprint('왼쪽 위:', gray[0][0])\nprint('오른쪽 아래:', gray[1][1])",
-  rgb: "red = [255, 0, 0]\ngreen = [0, 255, 0]\ncolor = [[red, green]]\nprint('빨강 RGB:', red)\nprint('초록 RGB:', green)\nprint('첫 번째 픽셀:', color[0][0])\nprint('두 번째 픽셀:', color[0][1])"
+  rgb: "red = [255, 0, 0]\ngreen = [0, 255, 0]\ncolor = [[red, green]]\nprint('빨강 RGB:', red)\nprint('초록 RGB:', green)\nprint('첫 번째 픽셀:', color[0][0])\nprint('두 번째 픽셀:', color[0][1])",
+  input: "name = input('이름: ')\nkor = int(input('국어 점수: '))\neng = int(input('영어 점수: '))\nscores = [kor, eng]\nprint(name, '의 점수:', scores)\nprint('합계:', sum(scores))"
 };
 function toPyString(v) {
   if(Array.isArray(v)) return '[' + v.map(toPyString).join(', ') + ']';
@@ -524,45 +594,37 @@ function pyTypeName(v) {
   if(typeof v==='boolean') return 'bool';
   return 'str';
 }
-function evalDimExpr(expr, vars) {
-  let e=expr.trim();
-  e=e.replace(/#.*$/,'');
-  e=e.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false');
-  e=e.replace(/\bint\(([^()]+)\)/g,'Math.trunc(Number($1))');
-  e=e.replace(/\bfloat\(([^()]+)\)/g,'Number($1)');
-  e=e.replace(/\bstr\(([^()]+)\)/g,'String($1)');
-  e=e.replace(/\blen\(([^()]+)\)/g,'($1).length');
-  e=e.replace(/\bsum\(([^()]+)\)/g,'($1).reduce((a,b)=>a+b,0)');
-  e=e.replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!');
-  e=e.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g,'Math.pow($1,$2)');
-  e=e.replace(/\b([a-zA-Z_]\w*)\b/g, m => Object.prototype.hasOwnProperty.call(vars,m) ? JSON.stringify(vars[m]) : m);
-  return eval(e);
+function evalDimExpr(expr, vars, inputQueue, prompts) {
+  return evalPyExpr(expr, vars, inputQueue, prompts);
 }
-function execDimCode(code) {
-  const vars={}, outputs=[];
+function execDimCode(code, inputText) {
+  const vars={}, outputs=[], prompts=[], inputQueue=inputText ? inputText.split(/\r?\n/) : [];
   for(const raw of code.split('\n')) {
     const line=raw.trim();
     if(!line || line.startsWith('#')) continue;
     try {
       let m=line.match(/^print\(type\((.+)\)\)$/);
-      if(m){ outputs.push(`<class '${pyTypeName(evalDimExpr(m[1], vars))}'>`); continue; }
+      if(m){ outputs.push(`<class '${pyTypeName(evalDimExpr(m[1], vars, inputQueue, prompts))}'>`); continue; }
       m=line.match(/^print\((.*)\)$/);
-      if(m){ const vals=splitArgs(m[1]).map(part=>toPyString(evalDimExpr(part, vars))); outputs.push(vals.join(' ')); continue; }
+      if(m){ const vals=splitArgs(m[1]).map(part=>toPyString(evalDimExpr(part, vars, inputQueue, prompts))); outputs.push(vals.join(' ')); continue; }
       m=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
-      if(m){ vars[m[1]]=evalDimExpr(m[2], vars); continue; }
+      if(m){ vars[m[1]]=evalDimExpr(m[2], vars, inputQueue, prompts); continue; }
     } catch(e) {
       outputs.push('오류: ' + e.message);
       break;
     }
   }
-  return outputs;
+  return prompts.concat(outputs);
 }
 function loadDimSnip(k) {
   const ta=document.getElementById('dimCodeInput');
   ta.value=dimSnips[k]; updateDimLN(ta);
+  const input=document.getElementById('dimStdInput');
+  if(input) input.value = k==='input' ? '홍길동\n80\n90' : '';
 }
 function clearDimPractice() {
   const ta=document.getElementById('dimCodeInput'); ta.value=''; updateDimLN(ta);
+  const input=document.getElementById('dimStdInput'); if(input) input.value='';
   const o=document.getElementById('dimOutput'); o.classList.add('empty'); o.textContent='▶ 실행 버튼을 누르면 결과가 나타나요';
 }
 function updateDimLN(ta) {
@@ -571,7 +633,7 @@ function updateDimLN(ta) {
   ta.style.height='auto'; ta.style.height=Math.max(ta.scrollHeight,120)+'px';
 }
 function runDimPractice() {
-  const outs=execDimCode(document.getElementById('dimCodeInput').value);
+  const outs=execDimCode(document.getElementById('dimCodeInput').value, document.getElementById('dimStdInput') ? document.getElementById('dimStdInput').value : '');
   const o=document.getElementById('dimOutput');
   o.classList.remove('empty'); o.textContent=outs.length?outs.join('\n'):'(출력 없음)';
 }
@@ -582,7 +644,7 @@ const snips = {
   calc: "x = 15\ny = 4\nprint(x + y, x - y)\nprint(x * y, x / y)\nprint(x // y, x % y)"
 };
 function showSec(i) {
-  for(let j=0;j<3;j++){
+  for(let j=0;j<6;j++){
     document.getElementById('sec'+j).classList.toggle('visible',j===i);
     document.querySelectorAll('.ti')[j].classList.toggle('active',j===i);
   }
@@ -593,6 +655,32 @@ function chkQ(btn, ok) {
   p.querySelectorAll('.cb').forEach(b=>{b.disabled=true;});
   btn.classList.add(ok?'correct':'wrong');
 }
+
+function quizPick(btn, ok) {
+  const p = btn.closest('.qcs');
+  p.querySelectorAll('.cb').forEach(b=>{ b.classList.remove('correct','wrong','selected'); b.dataset.selected=''; });
+  btn.dataset.selected = 'true';
+  btn.dataset.ok = ok ? 'true' : 'false';
+  btn.classList.add(ok ? 'correct' : 'wrong');
+}
+function showQuizScore(idx) {
+  const area = document.querySelector('.quiz-area[data-quiz="'+idx+'"]');
+  const qs = area ? area.querySelectorAll('.qi') : [];
+  let solved = 0, score = 0;
+  qs.forEach(q=>{
+    const selected = q.querySelector('.cb[data-selected="true"]');
+    if(selected){ solved++; if(selected.dataset.ok === 'true') score++; }
+  });
+  const out = document.getElementById('quizScore'+idx);
+  out.textContent = score + ' / ' + qs.length + '점' + (solved < qs.length ? '  ·  미응답 ' + (qs.length-solved) + '문항' : '');
+}
+function resetQuiz(idx) {
+  const area = document.querySelector('.quiz-area[data-quiz="'+idx+'"]');
+  if(area){ area.querySelectorAll('.cb').forEach(b=>{ b.classList.remove('correct','wrong','selected'); b.dataset.selected=''; b.dataset.ok=''; }); }
+  const out = document.getElementById('quizScore'+idx);
+  if(out) out.textContent = '아직 채점하지 않았습니다.';
+}
+
 function loadSnip(k) {
   const ta=document.getElementById('sbi');
   ta.value=snips[k]; updateLN(ta);
