@@ -1,0 +1,648 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.hd { background: linear-gradient(135deg, #042C53 0%, #0C447C 100%); border-radius: var(--border-radius-lg); padding: 1.5rem 2rem; margin-bottom: 1.25rem; color: white; }
+.hd .badge { display: inline-block; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px 12px; font-size: 12px; margin-bottom: .6rem; }
+.hd h1 { font-size: 22px; font-weight: 500; color: white; margin-bottom: .3rem; }
+.hd p { font-size: 13px; opacity: .8; }
+.tl { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.25rem; }
+.ti { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: .75rem; text-align: center; cursor: pointer; }
+.ti:hover { border-color: var(--color-border-secondary); }
+.ti.active { border: 1.5px solid #185FA5; background: #E6F1FB; }
+.ti .tm { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.ti .tl2 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.ti .ic { font-size: 18px; margin-bottom: 4px; display: block; }
+.sc { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: none; }
+.sc.visible { display: block; }
+.stitle { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #185FA5; flex-shrink: 0; }
+.cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.cbox { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.clabel { font-size: 11px; color: #185FA5; font-weight: 500; letter-spacing: .5px; margin-bottom: 6px; }
+.cval { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; }
+.quiz-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1rem; }
+.qi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.qq { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.qcs { display: flex; flex-wrap: wrap; gap: 6px; }
+.cb { padding: 5px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: 20px; background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-mono); }
+.cb:hover { background: #E6F1FB; border-color: #185FA5; }
+.cb.correct { background: #E6F1FB; border-color: #185FA5; color: #042C53; }
+.cb.wrong { background: #FAECE7; border-color: #993C1D; color: #4A1B0C; }
+.tip-row { display: flex; gap: 8px; margin-top: .75rem; flex-wrap: wrap; }
+.tp { background: #E6F1FB; color: #042C53; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+.op-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 13px; }
+.op-table th { background: #0C447C; color: white; padding: 8px 10px; text-align: left; font-weight: 500; }
+.op-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.op-table tr:nth-child(even) td { background: var(--color-background-secondary); }
+.type-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1rem; }
+.type-card { border-radius: var(--border-radius-md); overflow: hidden; }
+.type-hd { padding: .6rem .8rem; color: white; font-weight: 500; font-size: 14px; }
+.type-body { padding: .75rem .8rem; background: var(--color-background-secondary); }
+.type-ex { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.type-desc { font-size: 12px; color: var(--color-text-primary); }
+.code-wrap { background: #0D1117; border-radius: var(--border-radius-md); padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 13px; line-height: 1.9; margin-bottom: .75rem; border-left: 3px solid #185FA5; }
+.c-cm { color: #7EE787; }
+.c-kw { color: #FF7B72; }
+.c-fn { color: #D2A679; }
+.c-st { color: #A8D8A8; }
+.c-nm { color: #A5D6FF; }
+.c-wh { color: #E6EDF3; }
+.out-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: .75rem 1rem; font-family: var(--font-mono); font-size: 13px; color: var(--color-text-secondary); margin-bottom: .75rem; }
+.out-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 4px; display: block; }
+.func-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.func-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.func-hd { padding: .7rem 1rem; color: white; font-weight: 500; font-size: 15px; font-family: var(--font-mono); }
+.func-body { padding: .9rem 1rem; background: var(--color-background-secondary); }
+.flow-steps { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+.fstep { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: .5rem .9rem; font-size: 13px; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+.fnum { width: 20px; height: 20px; border-radius: 50%; background: #185FA5; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mode-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1rem; }
+.mode-card { border-radius: var(--border-radius-md); overflow: hidden; }
+.mode-hd { padding: .5rem .75rem; color: white; font-size: 13px; font-weight: 500; font-family: var(--font-mono); }
+.mode-body { padding: .5rem .75rem; background: var(--color-background-secondary); font-size: 12px; color: var(--color-text-secondary); }
+.dim-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 1rem; }
+.dim-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.dim-hd { padding: .7rem 1rem; color: white; font-size: 15px; font-weight: 500; }
+.dim-body { padding: .9rem 1rem; background: var(--color-background-secondary); }
+.img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.sandbox-wrap { border: 1.5px solid #185FA5; border-radius: var(--border-radius-lg); overflow: hidden; margin-top: 1.25rem; }
+.sb-hdr { background: #0C447C; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.sb-hdr-l { display: flex; align-items: center; gap: 8px; }
+.sb-hdr-l span { font-size: 13px; color: white; font-weight: 500; }
+.sb-badge { background: rgba(255,255,255,.2); font-size: 11px; color: white; padding: 2px 8px; border-radius: 10px; }
+.snip-row { background: #185FA5; padding: 8px 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.snip-lbl { font-size: 11px; color: rgba(255,255,255,.6); margin-right: 4px; }
+.snip-btn { padding: 4px 10px; background: rgba(255,255,255,.12); border: 0.5px solid rgba(255,255,255,.2); border-radius: 12px; font-size: 12px; color: #B5D4F4; cursor: pointer; font-family: var(--font-mono); }
+.snip-btn:hover { background: rgba(255,255,255,.22); }
+.sb-editor { display: flex; }
+.lnums { background: #0A0F17; padding: 1rem .6rem 1rem .75rem; font-family: var(--font-mono); font-size: 14px; line-height: 1.9; color: #555; text-align: right; user-select: none; min-width: 36px; }
+textarea.sbi { flex: 1; background: #0D1117; border: none; color: #E6EDF3; font-family: var(--font-mono); font-size: 14px; padding: 1rem 1.25rem; line-height: 1.9; resize: none; outline: none; overflow: hidden; min-height: 120px; }
+.sb-run-bar { background: #161b22; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+.sb-run-bar span { font-size: 12px; color: #555; }
+.sb-run { padding: 7px 24px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+.sb-run:hover { background: #9FE1CB; }
+.sb-out-wrap { border-top: 0.5px solid #161b22; }
+.sb-out-hdr { background: #0A0F17; padding: 6px 14px; display: flex; align-items: center; gap: 6px; }
+.sb-out-dot { width: 6px; height: 6px; border-radius: 50%; background: #378ADD; }
+.sb-out-hdr span { font-size: 12px; color: #666; }
+.sb-out { background: #0A0F17; padding: .75rem 1.25rem; font-family: var(--font-mono); font-size: 14px; line-height: 1.9; color: #85B7EB; white-space: pre-wrap; min-height: 48px; }
+.sb-out.empty { color: #444; font-style: italic; font-size: 13px; }
+.editor-toolbar { background: #2a2d36; border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.editor-toolbar span { font-size: 13px; color: #888; font-family: var(--font-mono); }
+.run-btn { padding: 8px 28px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+.run-btn:hover { background: #9FE1CB; }
+textarea.code-input { width: 100%; background: #0D1117; border: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); color: #E6EDF3; font-family: var(--font-mono); font-size: 15px; padding: 1.25rem 1.5rem; line-height: 1.9; resize: none; outline: none; display: block; overflow: hidden; }
+.result-header { background: var(--color-background-secondary); border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; border: 0.5px solid var(--color-border-tertiary); border-bottom: none; display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+.result-dot { width: 7px; height: 7px; border-radius: 50%; background: #185FA5; }
+.result-header span { font-size: 13px; color: var(--color-text-secondary); }
+.result-output { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-top: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); padding: 1rem 1.5rem; font-family: var(--font-mono); font-size: 15px; line-height: 1.9; min-height: 60px; color: var(--color-text-primary); white-space: pre-wrap; margin-bottom: 1.25rem; }
+.result-output.empty { color: var(--color-text-tertiary); font-style: italic; font-size: 13px; }
+.ch-area { margin-bottom: 1rem; }
+.ch-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.ch-list { display: flex; flex-direction: column; gap: 6px; }
+.ch-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .7rem 1rem; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; display: flex; gap: 10px; align-items: flex-start; }
+.chnum { width: 20px; height: 20px; border-radius: 50%; background: #185FA5; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.nav-row { display: flex; gap: 8px; margin-top: .75rem; }
+.nav-btn { flex: 1; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-sans); }
+.nav-btn:hover { background: var(--color-background-secondary); }
+.nav-btn.primary { background: #185FA5; color: white; border-color: #185FA5; }
+.nav-btn.primary:hover { background: #0C447C; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">03 프로그래밍의 이해 — 변수·자료형, 표준입출력·파일입출력, 다차원 데이터 구조 수업 자료</h2>
+
+<div class="hd">
+  <div class="badge">고등학교 정보 · 03단원</div>
+  <h1>프로그래밍의 이해</h1>
+  <p>변수·자료형 / 표준입출력·파일입출력 / 다차원 데이터 구조</p>
+</div>
+
+<div class="tl" id="tl">
+  <div class="ti active" onclick="showSec(0)"><span class="ic">📦</span><div class="tm">소단원 1</div><div class="tl2">변수와 자료형</div></div>
+  <div class="ti" onclick="showSec(1)"><span class="ic">⌨️</span><div class="tm">소단원 2</div><div class="tl2">표준·파일 입출력</div></div>
+  <div class="ti" onclick="showSec(2)"><span class="ic">🗂️</span><div class="tm">소단원 3</div><div class="tl2">다차원 데이터 구조</div></div>
+</div>
+
+<!-- 섹션 0: 변수와 자료형 -->
+<div class="sc visible" id="sec0">
+  <div class="stitle"><div class="dot"></div>변수와 자료형</div>
+
+  <div class="cgrid">
+    <div class="cbox"><div class="clabel">변수란?</div><div class="cval">프로그램에서 값을 저장하는 기억 공간. <code style="background:var(--color-background-secondary);padding:1px 5px;border-radius:3px;font-size:12px;">=</code> 을 이용해 저장하고 변경할 수 있다.</div></div>
+    <div class="cbox"><div class="clabel">형식</div><div class="cval" style="font-family:var(--font-mono);font-size:13px;">변수명 = 저장할 값<br>(상수, 변수, 수식 등)</div></div>
+  </div>
+
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">자료형 4가지</p>
+  <div class="type-grid">
+    <div class="type-card"><div class="type-hd" style="background:#0C447C;">int 정수</div><div class="type-body"><div class="type-ex">예: 10, -3, 0</div><div class="type-desc">소수점 없는 정수</div></div></div>
+    <div class="type-card"><div class="type-hd" style="background:#185FA5;">float 실수</div><div class="type-body"><div class="type-ex">예: 2.5, 3.14</div><div class="type-desc">소수점 있는 실수</div></div></div>
+    <div class="type-card"><div class="type-hd" style="background:#378ADD;">str 문자열</div><div class="type-body"><div class="type-ex">예: "A", "안녕"</div><div class="type-desc">따옴표로 감싼 문자</div></div></div>
+    <div class="type-card"><div class="type-hd" style="background:#00897B;">bool 불리언</div><div class="type-body"><div class="type-ex">예: True, False</div><div class="type-desc">참/거짓 논리값</div></div></div>
+  </div>
+
+  <div class="cgrid">
+    <div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">코드 예시</p>
+      <div class="code-wrap">
+<span class="c-cm"># 변수 저장 및 변경</span>
+<span class="c-wh">a = </span><span class="c-nm">10</span>
+<span class="c-wh">b, c = </span><span class="c-nm">2.5</span><span class="c-wh">, </span><span class="c-st">"A"</span>
+<span class="c-fn">print</span><span class="c-wh">(a, b, c)   </span><span class="c-cm"># 10 2.5 A</span>
+<span class="c-wh">a = a * </span><span class="c-nm">2</span>
+<span class="c-fn">print</span><span class="c-wh">(a, b, c)   </span><span class="c-cm"># 20 2.5 A</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">퀴즈</p>
+      <div class="quiz-area">
+        <div class="qi"><div class="qq">❓ 10 % 3 의 결과는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">0</button><button class="cb" onclick="chkQ(this,true)">1</button><button class="cb" onclick="chkQ(this,false)">3</button><button class="cb" onclick="chkQ(this,false)">3.33</button></div></div>
+        <div class="qi"><div class="qq">❓ type("안녕") 의 결과는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">&lt;class 'int'&gt;</button><button class="cb" onclick="chkQ(this,false)">&lt;class 'float'&gt;</button><button class="cb" onclick="chkQ(this,true)">&lt;class 'str'&gt;</button></div></div>
+        <div class="qi"><div class="qq">❓ 변수명으로 사용 불가한 것은?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">my_name</button><button class="cb" onclick="chkQ(this,true)">2score</button><button class="cb" onclick="chkQ(this,false)">score_2</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 테스트 샌드박스 -->
+  <div class="sandbox-wrap">
+    <div class="sb-hdr">
+      <div class="sb-hdr-l"><span>⚡ 바로 테스트해보기</span><span class="sb-badge">자유롭게 입력</span></div>
+      <button class="sb-run" onclick="runSandbox()">▶ 실행</button>
+    </div>
+    <div class="snip-row">
+      <span class="snip-lbl">예제 →</span>
+      <button class="snip-btn" onclick="loadSnip('var')">변수 저장</button>
+      <button class="snip-btn" onclick="loadSnip('type')">자료형 확인</button>
+      <button class="snip-btn" onclick="loadSnip('calc')">연산</button>
+      <button class="snip-btn" onclick="clearSb()">🗑 초기화</button>
+    </div>
+    <div class="sb-editor">
+      <div class="lnums" id="lnums">1</div>
+      <textarea class="sbi" id="sbi" spellcheck="false" placeholder="코드를 입력하고 실행해 보세요!"></textarea>
+    </div>
+    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+    <div class="sb-out-wrap">
+      <div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div>
+      <div class="sb-out empty" id="sbo">▶ 실행 버튼을 누르면 결과가 나타나요</div>
+    </div>
+  </div>
+
+  <div class="nav-row" style="margin-top:1rem;">
+    <button class="nav-btn primary" onclick="showSec(1)">다음: 표준·파일 입출력 →</button>
+  </div>
+</div>
+
+<!-- 섹션 1: 표준·파일 입출력 -->
+<div class="sc" id="sec1">
+  <div class="stitle"><div class="dot"></div>표준입출력과 파일입출력</div>
+
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">① 표준입출력 — input() / print()</p>
+  <div class="func-grid">
+    <div class="func-card">
+      <div class="func-hd" style="background:#00695C;">input()</div>
+      <div class="func-body">
+        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">키보드로 데이터를 입력받는 함수. 입력값은 <strong style="font-weight:500;">문자열(str)</strong>로 처리됨.</p>
+        <div class="code-wrap" style="margin-bottom:0;">
+<span class="c-wh">변수명 = </span><span class="c-fn">input</span><span class="c-wh">()</span>
+<span class="c-wh">변수명 = </span><span class="c-fn">input</span><span class="c-wh">(</span><span class="c-st">"안내 문구"</span><span class="c-wh">)</span>
+<span class="c-cm"># 숫자로 쓰려면 int() 변환 필요</span>
+<span class="c-wh">n = </span><span class="c-kw">int</span><span class="c-wh">(</span><span class="c-fn">input</span><span class="c-wh">(</span><span class="c-st">"숫자: "</span><span class="c-wh">))</span>
+        </div>
+      </div>
+    </div>
+    <div class="func-card">
+      <div class="func-hd" style="background:#0C447C;">print()</div>
+      <div class="func-body">
+        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">처리 결과를 모니터로 출력하는 함수. 콤마로 여러 값 출력 가능.</p>
+        <div class="code-wrap" style="margin-bottom:0;">
+<span class="c-fn">print</span><span class="c-wh">(값)</span>
+<span class="c-fn">print</span><span class="c-wh">(</span><span class="c-st">"문자열"</span><span class="c-wh">, 변수명)</span>
+<span class="c-fn">print</span><span class="c-wh">(a, b, c)  </span><span class="c-cm"># 공백 구분</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:.75rem 0 8px;">② 파일입출력 — open() / read() / write() / close()</p>
+  <div class="flow-steps">
+    <div class="fstep"><div class="fnum">1</div>파일 열기 <code style="background:var(--color-background-primary);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-mono);">open()</code></div>
+    <span style="color:var(--color-text-secondary);">→</span>
+    <div class="fstep"><div class="fnum">2</div>읽기·쓰기 <code style="background:var(--color-background-primary);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-mono);">read() / write()</code></div>
+    <span style="color:var(--color-text-secondary);">→</span>
+    <div class="fstep"><div class="fnum">3</div>파일 닫기 <code style="background:var(--color-background-primary);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-mono);">close()</code></div>
+  </div>
+
+  <div class="mode-grid">
+    <div class="mode-card"><div class="mode-hd" style="background:#185FA5;">"r" 읽기 모드</div><div class="mode-body">기존 파일 읽기</div></div>
+    <div class="mode-card"><div class="mode-hd" style="background:#0C447C;">"w" 쓰기 모드</div><div class="mode-body">내용 지우고 새로 쓰기</div></div>
+    <div class="mode-card"><div class="mode-hd" style="background:#00695C;">"a" 추가 모드</div><div class="mode-body">파일 끝에 내용 추가</div></div>
+  </div>
+
+  <div class="cgrid">
+    <div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">파일 읽기</p>
+      <div class="code-wrap">
+<span class="c-wh">f = </span><span class="c-fn">open</span><span class="c-wh">(</span><span class="c-st">"파일.txt"</span><span class="c-wh">, </span><span class="c-st">"r"</span><span class="c-wh">)</span>
+<span class="c-wh">data = f.</span><span class="c-fn">read</span><span class="c-wh">()</span>
+<span class="c-fn">print</span><span class="c-wh">(data)</span>
+<span class="c-wh">f.</span><span class="c-fn">close</span><span class="c-wh">()</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">파일 쓰기</p>
+      <div class="code-wrap">
+<span class="c-wh">f = </span><span class="c-fn">open</span><span class="c-wh">(</span><span class="c-st">"파일.txt"</span><span class="c-wh">, </span><span class="c-st">"w"</span><span class="c-wh">)</span>
+<span class="c-wh">f.</span><span class="c-fn">write</span><span class="c-wh">(</span><span class="c-st">"저장할 내용"</span><span class="c-wh">)</span>
+<span class="c-wh">f.</span><span class="c-fn">close</span><span class="c-wh">()</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-area">
+    <div class="qi"><div class="qq">❓ input()으로 입력받은 값의 자료형은?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">int</button><button class="cb" onclick="chkQ(this,false)">float</button><button class="cb" onclick="chkQ(this,true)">str</button><button class="cb" onclick="chkQ(this,false)">bool</button></div></div>
+    <div class="qi"><div class="qq">❓ 파일의 기존 내용을 모두 지우고 새로 쓸 때 사용하는 모드는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">"r"</button><button class="cb" onclick="chkQ(this,true)">"w"</button><button class="cb" onclick="chkQ(this,false)">"a"</button></div></div>
+  </div>
+
+
+  <!-- 표준·파일 입출력 실습 -->
+  <div class="sandbox-wrap">
+    <div class="sb-hdr">
+      <div class="sb-hdr-l"><span>⚡ 파이썬 입출력 실습</span><span class="sb-badge">input · print · file</span></div>
+      <button class="sb-run" onclick="runIoPractice()">▶ 실행</button>
+    </div>
+    <div class="snip-row">
+      <span class="snip-lbl">예제 →</span>
+      <button class="snip-btn" onclick="loadIoSnip('print')">print 출력</button>
+      <button class="snip-btn" onclick="loadIoSnip('input')">input 입력</button>
+      <button class="snip-btn" onclick="loadIoSnip('convert')">숫자 변환</button>
+      <button class="snip-btn" onclick="loadIoSnip('filew')">파일 쓰기</button>
+      <button class="snip-btn" onclick="loadIoSnip('filer')">파일 읽기</button>
+      <button class="snip-btn" onclick="clearIoPractice()">🗑 초기화</button>
+    </div>
+    <div style="background:#161b22;padding:10px 12px;border-bottom:0.5px solid #0A0F17;">
+      <label for="ioStdInput" style="display:block;font-size:12px;color:#8b949e;margin-bottom:6px;">표준 입력값 <span style="color:#555;">input()을 여러 번 쓰면 줄 순서대로 사용됩니다.</span></label>
+      <textarea id="ioStdInput" spellcheck="false" placeholder="예:&#10;홍길동&#10;17" style="width:100%;min-height:54px;background:#0A0F17;border:0.5px solid #30363d;border-radius:var(--border-radius-md);color:#E6EDF3;font-family:var(--font-mono);font-size:13px;line-height:1.6;padding:.6rem .75rem;resize:vertical;outline:none;"></textarea>
+    </div>
+    <div class="sb-editor">
+      <div class="lnums" id="ioLnums">1</div>
+      <textarea class="sbi" id="ioCodeInput" spellcheck="false" placeholder="표준입출력 또는 파일입출력 코드를 입력해 보세요!">name = input("이름: ")
+age = int(input("나이: "))
+print(name, "은", age, "살입니다.")</textarea>
+    </div>
+    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+    <div class="sb-out-wrap">
+      <div class="sb-out-hdr"><div class="sb-out-dot"></div><span>실행 결과</span></div>
+      <div class="sb-out empty" id="ioOutput">▶ 실행 버튼을 누르면 결과가 나타나요</div>
+    </div>
+  </div>
+
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="showSec(0)">← 이전</button>
+    <button class="nav-btn primary" onclick="showSec(2)">다음: 다차원 데이터 구조 →</button>
+  </div>
+</div>
+
+<!-- 섹션 2: 다차원 데이터 구조 -->
+<div class="sc" id="sec2">
+  <div class="stitle"><div class="dot"></div>다차원 데이터 구조</div>
+
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;">컴퓨터가 처리하는 자료는 다양한 형태로 존재하므로 자료의 특성에 맞는 데이터 구조를 선택해야 합니다.</p>
+
+  <div class="dim-grid">
+    <div class="dim-card">
+      <div class="dim-hd" style="background:#042C53;">1차원</div>
+      <div class="dim-body">
+        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">하나의 행으로 구성된 선형 데이터 구조</p>
+        <div class="code-wrap" style="margin-bottom:0;"><span class="c-wh">[80, 100, 90]</span></div>
+      </div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-hd" style="background:#185FA5;">2차원</div>
+      <div class="dim-body">
+        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">행과 열로 구성된 표 형태</p>
+        <div class="code-wrap" style="margin-bottom:0;font-size:12px;"><span class="c-wh">[[80,100,90],<br> [93,85,70],<br> [55,72,75]]</span></div>
+      </div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-hd" style="background:#378ADD;">3차원</div>
+      <div class="dim-body">
+        <p style="font-size:13px;color:var(--color-text-primary);margin-bottom:8px;">행·열·높이로 구성된 입체 구조</p>
+        <div class="code-wrap" style="margin-bottom:0;font-size:12px;"><span class="c-wh">이미지(RGB)<br>R·G·B 3채널</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">컴퓨터 이미지 표현</p>
+  <div class="img-grid">
+    <div class="cbox">
+      <div class="clabel">흑백 이미지 (2차원)</div>
+      <div class="cval">밝기값(0~255)만으로 구성된 2차원 배열<br>0 = 검정, 255 = 흰색</div>
+    </div>
+    <div class="cbox">
+      <div class="clabel">컬러 이미지 (3차원)</div>
+      <div class="cval">빨강(R), 초록(G), 파랑(B) 3채널<br>각 채널 0~255 밝기값</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">이미지 시각화 (matplotlib)</p>
+  <div class="code-wrap">
+<span class="c-kw">import</span><span class="c-wh"> matplotlib.pyplot </span><span class="c-kw">as</span><span class="c-wh"> plt</span>
+<span class="c-cm"># 흑백 이미지 (2차원)</span>
+<span class="c-wh">gray = [[</span><span class="c-nm">255</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">],[</span><span class="c-nm">0</span><span class="c-wh">,</span><span class="c-nm">255</span><span class="c-wh">]]</span>
+<span class="c-wh">plt.</span><span class="c-fn">imshow</span><span class="c-wh">(gray, cmap=</span><span class="c-st">'gray'</span><span class="c-wh">)</span>
+<span class="c-cm"># 컬러 이미지 (3차원 RGB)</span>
+<span class="c-wh">color = [[[</span><span class="c-nm">255</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">],[</span><span class="c-nm">0</span><span class="c-wh">,</span><span class="c-nm">255</span><span class="c-wh">,</span><span class="c-nm">0</span><span class="c-wh">]]]  </span><span class="c-cm"># 빨강, 초록</span>
+<span class="c-wh">plt.</span><span class="c-fn">imshow</span><span class="c-wh">(color)</span>
+<span class="c-wh">plt.</span><span class="c-fn">show</span><span class="c-wh">()</span>
+  </div>
+
+  <!-- 다차원 데이터 구조 실습 -->
+  <div class="sandbox-wrap">
+    <div class="sb-hdr">
+      <div class="sb-hdr-l"><span>⚡ 다차원 구조 실습</span><span class="sb-badge">list · index · RGB</span></div>
+      <button class="sb-run" onclick="runDimPractice()">▶ 실행</button>
+    </div>
+    <div class="snip-row">
+      <span class="snip-lbl">예제 →</span>
+      <button class="snip-btn" onclick="loadDimSnip('one')">1차원 리스트</button>
+      <button class="snip-btn" onclick="loadDimSnip('two')">2차원 성적표</button>
+      <button class="snip-btn" onclick="loadDimSnip('index')">인덱스 접근</button>
+      <button class="snip-btn" onclick="loadDimSnip('gray')">흑백 이미지</button>
+      <button class="snip-btn" onclick="loadDimSnip('rgb')">RGB 색상</button>
+      <button class="snip-btn" onclick="clearDimPractice()">🗑 초기화</button>
+    </div>
+    <div style="background:#161b22;padding:10px 12px;border-bottom:0.5px solid #0A0F17;">
+      <div style="font-size:12px;color:#8b949e;line-height:1.6;">
+        리스트, 중첩 리스트, 인덱스, len(), sum(), type()을 연습할 수 있습니다. 복잡한 반복문이나 matplotlib 그래프는 예시 설명용으로만 사용하세요.
+      </div>
+    </div>
+    <div class="sb-editor">
+      <div class="lnums" id="dimLnums">1</div>
+      <textarea class="sbi" id="dimCodeInput" spellcheck="false" placeholder="다차원 데이터 구조 코드를 입력해 보세요!">scores = [80, 100, 90]
+print(scores)
+print('첫 번째 점수:', scores[0])
+print('점수 개수:', len(scores))
+print('합계:', sum(scores))</textarea>
+    </div>
+    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+    <div class="sb-out-wrap">
+      <div class="sb-out-hdr"><div class="sb-out-dot"></div><span>실행 결과</span></div>
+      <div class="sb-out empty" id="dimOutput">▶ 실행 버튼을 누르면 결과가 나타나요</div>
+    </div>
+  </div>
+
+  <div class="ch-area" style="margin-top:1rem;">
+    <div class="ch-title">도전 과제</div>
+    <div class="ch-list">
+      <div class="ch-item"><div class="chnum">1</div><span>이름(str), 학년(int), 평균 점수(float) 변수를 선언하고 type()으로 각 자료형을 출력하세요.</span></div>
+      <div class="ch-item"><div class="chnum">2</div><span>1차원·2차원 리스트를 각각 만들고 print()로 출력해 보세요.</span></div>
+      <div class="ch-item"><div class="chnum">3</div><span>input()으로 이름과 나이를 입력받아 "홍길동은 17살입니다." 형태로 출력해 보세요.</span></div>
+    </div>
+  </div>
+
+  <div class="quiz-area">
+    <div class="qi"><div class="qq">❓ 컬러 이미지를 저장하는 데이터 구조는?</div><div class="qcs"><button class="cb" onclick="chkQ(this,false)">1차원</button><button class="cb" onclick="chkQ(this,false)">2차원</button><button class="cb" onclick="chkQ(this,true)">3차원</button></div></div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="showSec(1)">← 이전</button>
+  </div>
+</div>
+
+<script>
+
+const ioSnips = {
+  print: "name = '홍길동'\nscore = 95\nprint('이름:', name)\nprint('점수:', score)",
+  input: "name = input('이름: ')\nage = input('나이: ')\nprint(name, '은', age, '살입니다.')",
+  convert: "a = int(input('첫 번째 숫자: '))\nb = int(input('두 번째 숫자: '))\nprint('합계:', a + b)\nprint('평균:', (a + b) / 2)",
+  filew: "f = open('memo.txt', 'w')\nf.write('안녕하세요')\nf.close()\nprint('memo.txt 파일에 저장했습니다.')",
+  filer: "f = open('memo.txt', 'w')\nf.write('파이썬 파일 입출력 연습')\nf.close()\nf = open('memo.txt', 'r')\ndata = f.read()\nf.close()\nprint(data)"
+};
+function splitArgs(s) {
+  const arr=[]; let cur='', q=null, depth=0;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(q){cur+=ch;if(ch===q && s[i-1] !== '\\') q=null; continue;}
+    if(ch==="'"||ch==='"'){q=ch;cur+=ch;continue;}
+    if(ch==='('||ch==='['){depth++;cur+=ch;continue;}
+    if(ch===')'||ch===']'){depth--;cur+=ch;continue;}
+    if(ch===','&&depth===0){arr.push(cur.trim());cur='';continue;}
+    cur+=ch;
+  }
+  if(cur.trim()) arr.push(cur.trim());
+  return arr;
+}
+function pyToJsExpr(expr, vars, inputQueue, prompts) {
+  let e=expr.trim();
+  e=e.replace(/\binput\(([^)]*)\)/g, (_, prompt)=>{
+    if(prompt && prompt.trim()) {
+      try { prompts.push(String(eval(prompt))); } catch(err) { prompts.push(prompt.replace(/^['"]|['"]$/g,'')); }
+    }
+    return JSON.stringify(inputQueue.length ? inputQueue.shift() : '');
+  });
+  e=e.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false');
+  e=e.replace(/\bint\(([^()]+)\)/g,'Math.trunc(Number($1))');
+  e=e.replace(/\bfloat\(([^()]+)\)/g,'Number($1)');
+  e=e.replace(/\bstr\(([^()]+)\)/g,'String($1)');
+  e=e.replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!');
+  e=e.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g,'Math.pow($1,$2)');
+  e=e.replace(/\b([a-zA-Z_]\w*)\b/g, m => Object.prototype.hasOwnProperty.call(vars,m) ? JSON.stringify(vars[m]) : m);
+  return e;
+}
+function evalPyExpr(expr, vars, inputQueue, prompts) {
+  const js=pyToJsExpr(expr, vars, inputQueue, prompts);
+  return eval(js);
+}
+function execIoCode(code, inputText) {
+  const vars={}, outputs=[], prompts=[], files={}, handles={}, inputQueue=inputText.split(/\r?\n/);
+  for(const raw of code.split('\n')) {
+    const line=raw.trim();
+    if(!line || line.startsWith('#')) continue;
+    try {
+      let m=line.match(/^([a-zA-Z_]\w*)\s*=\s*open\((.+)\)$/);
+      if(m){ const a=splitArgs(m[2]); const fn=String(evalPyExpr(a[0],vars,inputQueue,prompts)); const mode=a[1]?String(evalPyExpr(a[1],vars,inputQueue,prompts)):'r'; if(mode==='w') files[fn]=''; handles[m[1]]={fn,mode}; continue; }
+      m=line.match(/^([a-zA-Z_]\w*)\.write\((.*)\)$/);
+      if(m && handles[m[1]]){ const h=handles[m[1]]; files[h.fn]=(files[h.fn]||'')+String(evalPyExpr(m[2],vars,inputQueue,prompts)); continue; }
+      m=line.match(/^([a-zA-Z_]\w*)\s*=\s*([a-zA-Z_]\w*)\.read\(\)$/);
+      if(m && handles[m[2]]){ vars[m[1]]=files[handles[m[2]].fn]||''; continue; }
+      m=line.match(/^([a-zA-Z_]\w*)\.close\(\)$/);
+      if(m){ delete handles[m[1]]; continue; }
+      m=line.match(/^print\(type\((.+)\)\)$/);
+      if(m){ const v=evalPyExpr(m[1],vars,inputQueue,prompts); const t=typeof v==='number'?(Number.isInteger(v)?'int':'float'):typeof v==='boolean'?'bool':'str'; outputs.push(`<class '${t}'>`); continue; }
+      m=line.match(/^print\((.*)\)$/);
+      if(m){ const vals=splitArgs(m[1]).map(part=>{ const r=evalPyExpr(part,vars,inputQueue,prompts); return r===true?'True':r===false?'False':String(r); }); outputs.push(vals.join(' ')); continue; }
+      m=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+      if(m){ vars[m[1]]=evalPyExpr(m[2],vars,inputQueue,prompts); continue; }
+    } catch(e) {
+      outputs.push('오류: ' + e.message);
+      break;
+    }
+  }
+  return prompts.concat(outputs);
+}
+function loadIoSnip(k) {
+  const ta=document.getElementById('ioCodeInput');
+  ta.value=ioSnips[k]; updateIOLN(ta);
+  const input=document.getElementById('ioStdInput');
+  if(k==='input') input.value='홍길동\n17';
+  else if(k==='convert') input.value='10\n20';
+  else input.value='';
+}
+function clearIoPractice() {
+  const ta=document.getElementById('ioCodeInput'); ta.value=''; updateIOLN(ta);
+  document.getElementById('ioStdInput').value='';
+  const o=document.getElementById('ioOutput'); o.classList.add('empty'); o.textContent='▶ 실행 버튼을 누르면 결과가 나타나요';
+}
+function updateIOLN(ta) {
+  const n=ta.value.split('\n').length;
+  document.getElementById('ioLnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');
+  ta.style.height='auto'; ta.style.height=Math.max(ta.scrollHeight,120)+'px';
+}
+function runIoPractice() {
+  const outs=execIoCode(document.getElementById('ioCodeInput').value, document.getElementById('ioStdInput').value);
+  const o=document.getElementById('ioOutput');
+  o.classList.remove('empty'); o.textContent=outs.length?outs.join('\n'):'(출력 없음)';
+}
+
+
+const dimSnips = {
+  one: "scores = [80, 100, 90]\nprint(scores)\nprint('첫 번째 점수:', scores[0])\nprint('점수 개수:', len(scores))\nprint('합계:', sum(scores))",
+  two: "scores = [[80, 100, 90], [93, 85, 70], [55, 72, 75]]\nprint(scores)\nprint('1행:', scores[0])\nprint('2행 3열:', scores[1][2])\nprint('행의 개수:', len(scores))",
+  index: "image = [[0, 128, 255], [255, 128, 0]]\nprint('전체:', image)\nprint('첫 번째 행:', image[0])\nprint('1행 3열 밝기:', image[0][2])\nprint('2행 1열 밝기:', image[1][0])",
+  gray: "gray = [[255, 0], [0, 255]]\nprint('흑백 이미지 데이터')\nprint(gray)\nprint('왼쪽 위:', gray[0][0])\nprint('오른쪽 아래:', gray[1][1])",
+  rgb: "red = [255, 0, 0]\ngreen = [0, 255, 0]\ncolor = [[red, green]]\nprint('빨강 RGB:', red)\nprint('초록 RGB:', green)\nprint('첫 번째 픽셀:', color[0][0])\nprint('두 번째 픽셀:', color[0][1])"
+};
+function toPyString(v) {
+  if(Array.isArray(v)) return '[' + v.map(toPyString).join(', ') + ']';
+  if(v===true) return 'True';
+  if(v===false) return 'False';
+  return String(v);
+}
+function pyTypeName(v) {
+  if(Array.isArray(v)) return 'list';
+  if(typeof v==='number') return Number.isInteger(v)?'int':'float';
+  if(typeof v==='boolean') return 'bool';
+  return 'str';
+}
+function evalDimExpr(expr, vars) {
+  let e=expr.trim();
+  e=e.replace(/#.*$/,'');
+  e=e.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false');
+  e=e.replace(/\bint\(([^()]+)\)/g,'Math.trunc(Number($1))');
+  e=e.replace(/\bfloat\(([^()]+)\)/g,'Number($1)');
+  e=e.replace(/\bstr\(([^()]+)\)/g,'String($1)');
+  e=e.replace(/\blen\(([^()]+)\)/g,'($1).length');
+  e=e.replace(/\bsum\(([^()]+)\)/g,'($1).reduce((a,b)=>a+b,0)');
+  e=e.replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!');
+  e=e.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g,'Math.pow($1,$2)');
+  e=e.replace(/\b([a-zA-Z_]\w*)\b/g, m => Object.prototype.hasOwnProperty.call(vars,m) ? JSON.stringify(vars[m]) : m);
+  return eval(e);
+}
+function execDimCode(code) {
+  const vars={}, outputs=[];
+  for(const raw of code.split('\n')) {
+    const line=raw.trim();
+    if(!line || line.startsWith('#')) continue;
+    try {
+      let m=line.match(/^print\(type\((.+)\)\)$/);
+      if(m){ outputs.push(`<class '${pyTypeName(evalDimExpr(m[1], vars))}'>`); continue; }
+      m=line.match(/^print\((.*)\)$/);
+      if(m){ const vals=splitArgs(m[1]).map(part=>toPyString(evalDimExpr(part, vars))); outputs.push(vals.join(' ')); continue; }
+      m=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+      if(m){ vars[m[1]]=evalDimExpr(m[2], vars); continue; }
+    } catch(e) {
+      outputs.push('오류: ' + e.message);
+      break;
+    }
+  }
+  return outputs;
+}
+function loadDimSnip(k) {
+  const ta=document.getElementById('dimCodeInput');
+  ta.value=dimSnips[k]; updateDimLN(ta);
+}
+function clearDimPractice() {
+  const ta=document.getElementById('dimCodeInput'); ta.value=''; updateDimLN(ta);
+  const o=document.getElementById('dimOutput'); o.classList.add('empty'); o.textContent='▶ 실행 버튼을 누르면 결과가 나타나요';
+}
+function updateDimLN(ta) {
+  const n=ta.value.split('\n').length;
+  document.getElementById('dimLnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');
+  ta.style.height='auto'; ta.style.height=Math.max(ta.scrollHeight,120)+'px';
+}
+function runDimPractice() {
+  const outs=execDimCode(document.getElementById('dimCodeInput').value);
+  const o=document.getElementById('dimOutput');
+  o.classList.remove('empty'); o.textContent=outs.length?outs.join('\n'):'(출력 없음)';
+}
+
+const snips = {
+  var:  "name = '홍길동'\nage = 17\nprint(name, age)",
+  type: "a = 10\nb = 2.5\nc = '안녕'\nprint(type(a))\nprint(type(b))\nprint(type(c))",
+  calc: "x = 15\ny = 4\nprint(x + y, x - y)\nprint(x * y, x / y)\nprint(x // y, x % y)"
+};
+function showSec(i) {
+  for(let j=0;j<3;j++){
+    document.getElementById('sec'+j).classList.toggle('visible',j===i);
+    document.querySelectorAll('.ti')[j].classList.toggle('active',j===i);
+  }
+}
+function chkQ(btn, ok) {
+  const p=btn.closest('.qcs');
+  if(p.querySelector('.correct,.wrong')) return;
+  p.querySelectorAll('.cb').forEach(b=>{b.disabled=true;});
+  btn.classList.add(ok?'correct':'wrong');
+}
+function loadSnip(k) {
+  const ta=document.getElementById('sbi');
+  ta.value=snips[k]; updateLN(ta);
+}
+function clearSb() {
+  const ta=document.getElementById('sbi'); ta.value=''; updateLN(ta);
+  const o=document.getElementById('sbo'); o.classList.add('empty'); o.textContent='▶ 실행 버튼을 누르면 결과가 나타나요';
+}
+function updateLN(ta) {
+  const n=ta.value.split('\n').length;
+  document.getElementById('lnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');
+  ta.style.height='auto'; ta.style.height=Math.max(ta.scrollHeight,120)+'px';
+}
+function execCode(code) {
+  const vars={}, outputs=[];
+  for(const raw of code.split('\n')) {
+    const line=raw.trim();
+    if(!line||line.startsWith('#')) continue;
+    const tm=line.match(/^print\(type\((.+)\)\)$/);
+    if(tm){const v=vars[tm[1].trim()];if(v!==undefined){const t=typeof v==='number'?(Number.isInteger(v)?'int':'float'):typeof v==='boolean'?'bool':'str';outputs.push(`<class '${t}'>`);}continue;}
+    const am=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+    if(am){let val=am[2].trim().replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!').replace(/\b([a-zA-Z_]\w*)\b/g,m=>vars.hasOwnProperty(m)&&m!=='print'&&m!=='type'&&m!=='int'&&m!=='float'&&m!=='str'?JSON.stringify(vars[m]):m);val=val.replace(/\bint\(([^)]+)\)/g,(_,n)=>`Math.trunc(${n})`).replace(/\bfloat\(([^)]+)\)/g,(_,n)=>`parseFloat(${n})`).replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g,'Math.pow($1,$2)');try{vars[am[1]]=eval(val);}catch(e){}continue;}
+    const pm=line.match(/^print\((.+)\)$/);
+    if(pm){outputs.push(pm[1].split(',').map(p=>{let r=p.trim().replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!').replace(/\b([a-zA-Z_]\w*)\b/g,m=>vars.hasOwnProperty(m)?JSON.stringify(vars[m]):m);r=r.replace(/(\d+(?:\.\d+)?)\s*\*\*\s*(\d+(?:\.\d+)?)/g,'Math.pow($1,$2)');try{let res=eval(r);if(res===true)return'True';if(res===false)return'False';return String(res);}catch(e){return p.trim();}}).join(' '));}
+  }
+  return outputs;
+}
+function runSandbox() {
+  const o=document.getElementById('sbo');
+  const outs=execCode(document.getElementById('sbi').value);
+  o.classList.remove('empty'); o.textContent=outs.length?outs.join('\n'):'(출력 없음)';
+}
+function runCode() {
+  const ta=document.getElementById('codeInput');
+  ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px';
+  const o=document.getElementById('resultOutput');
+  const outs=execCode(ta.value);
+  o.classList.remove('empty'); o.textContent=outs.length?outs.join('\n'):'(출력 없음)';
+}
+window.addEventListener('load',()=>{
+  const dim=document.getElementById('dimCodeInput');
+  updateDimLN(dim);
+  dim.addEventListener('input',()=>updateDimLN(dim));
+  dim.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runDimPractice();}});
+  const sb=document.getElementById('sbi');
+  sb.addEventListener('input',()=>updateLN(sb));
+  sb.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runSandbox();}});
+  const io=document.getElementById('ioCodeInput');
+  updateIOLN(io);
+  io.addEventListener('input',()=>updateIOLN(io));
+  io.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runIoPractice();}});
+});
+</script>
