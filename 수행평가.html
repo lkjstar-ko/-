@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알고리즘·프로그래밍 수행평가 작성지</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<style>
+:root{
+  --bg:#f0f4f9;
+  --card:#ffffff;
+  --ink:#1a2332;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --primary:#1d4ed8;
+  --primary-dark:#1e40af;
+  --soft:#eff6ff;
+  --accent:#0ea5e9;
+  --algo:#7c3aed;
+  --algo-soft:#f5f3ff;
+  --prog:#0f766e;
+  --prog-soft:#f0fdfa;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.7;
+}
+header{
+  background:linear-gradient(135deg,#0f2462 0%,#1d4ed8 60%,#0ea5e9 100%);
+  color:white;padding:26px 20px 20px;
+}
+.header-inner{max-width:1100px;margin:0 auto}
+h1{margin:0;font-size:26px;letter-spacing:-0.5px}
+.subtitle{margin:5px 0 0;color:#bfdbfe;font-size:13px}
+main{max-width:1100px;margin:20px auto;padding:0 16px 60px}
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 4px 16px rgba(15,23,42,.07);
+  margin-bottom:16px;
+}
+.student-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+label{font-weight:700;font-size:13px;display:block;margin-bottom:5px;color:var(--muted)}
+input,textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:9px;
+  padding:9px 12px;font-size:14px;background:white;font-family:inherit;
+  transition:border-color .15s;
+}
+input:focus,textarea:focus{border-color:var(--primary);outline:none}
+textarea{resize:vertical}
+.codebox{min-height:130px;font-family:"Consolas","D2Coding",monospace;font-size:13.5px;line-height:1.65}
+.writebox{min-height:90px;font-size:14px}
+.shortbox{min-height:60px}
+
+/* 진행바 */
+.progress-bar{height:6px;background:#e2e8f0;border-radius:999px;margin:12px 0 4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);border-radius:999px;width:0%;transition:width .4s}
+
+/* 탭 */
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0}
+.tab-btn{
+  border:1.5px solid var(--line);background:white;color:var(--muted);
+  padding:9px 16px;border-radius:999px;cursor:pointer;font-weight:700;font-size:13px;transition:all .15s;
+}
+.tab-btn:hover{border-color:var(--primary);color:var(--primary)}
+.tab-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+.tab{display:none}.tab.active{display:block}
+
+/* 섹션 헤더 */
+.section-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:6px;
+}
+.section-header h2{margin:0;font-size:20px}
+.badge{
+  display:inline-block;border-radius:999px;padding:4px 12px;
+  font-size:12px;font-weight:800;
+}
+.badge-algo{background:var(--algo-soft);color:var(--algo);border:1px solid #ddd6fe}
+.badge-prog{background:var(--prog-soft);color:var(--prog);border:1px solid #99f6e4}
+.badge-gray{background:#f1f5f9;color:var(--muted);border:1px solid var(--line)}
+.score-note{font-size:13px;color:var(--muted);margin-bottom:16px;padding:8px 12px;background:#f8fafc;border-radius:8px}
+
+/* 루브릭 평가 요소 체크리스트 표시 */
+.rubric-check{
+  display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px;
+}
+.rc-item{
+  display:flex;align-items:center;gap:5px;
+  background:#f8fafc;border:1.5px solid var(--line);border-radius:8px;
+  padding:5px 10px;font-size:12px;font-weight:700;color:var(--muted);
+}
+.rc-item.algo{border-color:#ddd6fe;background:#faf5ff;color:var(--algo)}
+.rc-item.prog{border-color:#99f6e4;background:#f0fdfa;color:var(--prog)}
+
+/* 문제 카드 */
+.problem{
+  border:1.5px solid var(--line);border-radius:14px;
+  padding:16px 18px;background:#fafcff;margin-bottom:14px;
+}
+.problem.algo-p{border-color:#ddd6fe;background:#faf5ff}
+.problem.prog-p{border-color:#a7f3d0;background:#f0fdfc}
+.problem h3{
+  margin:0 0 6px;font-size:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.pnum-algo{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--algo);color:white;border-radius:6px;
+  width:28px;height:28px;font-size:12px;font-weight:900;flex-shrink:0;
+}
+.pnum-prog{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--prog);color:white;border-radius:6px;
+  width:28px;height:28px;font-size:12px;font-weight:900;flex-shrink:0;
+}
+.tag-elem{
+  display:inline-block;font-size:11px;font-weight:700;
+  border-radius:4px;padding:2px 7px;
+}
+.tag-algo{background:#ede9fe;color:#6d28d9}
+.tag-prog{background:#d1fae5;color:#065f46}
+.pts{font-size:12px;color:var(--muted);font-weight:400;margin-left:auto}
+.meta{
+  font-size:13px;color:var(--ink);
+  border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+  padding:8px 12px;margin-bottom:10px;background:#f1f5f9;
+}
+.hint{font-size:12px;color:var(--muted);margin-bottom:8px;font-style:italic}
+
+pre{
+  background:#0f172a;color:#e2e8f0;border-radius:10px;
+  padding:12px 14px;overflow:auto;font-size:13px;margin:8px 0 10px;line-height:1.7;
+}
+.ex-table{width:100%;border-collapse:collapse;margin:8px 0 10px;font-size:13px}
+.ex-table th{background:#1d4ed8;color:white;padding:7px 10px;text-align:center}
+.ex-table td{border:1px solid var(--line);padding:6px 10px;text-align:center}
+.ex-table tr:nth-child(even) td{background:#f8fafc}
+.ex-table input{padding:5px 8px;font-size:13px;border-radius:6px}
+
+.result{margin-top:8px;padding:8px 12px;border-radius:8px;display:none;font-size:13px;font-weight:700}
+.result.ok{display:block;background:#dcfce7;color:#166534;border:1px solid #86efac}
+.result.bad{display:block;background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+
+.controls{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+button{
+  border:none;border-radius:8px;padding:8px 14px;cursor:pointer;
+  font-weight:700;font-size:13px;font-family:inherit;transition:background .12s;
+}
+.btn-run{
+  background:linear-gradient(135deg,#0f766e,#0ea5e9);
+  color:white;border-radius:8px;padding:8px 18px;
+  font-size:13px;font-weight:800;border:none;cursor:pointer;
+  transition:opacity .15s;display:flex;align-items:center;gap:5px;
+}
+.btn-run:hover{opacity:.85}
+.btn-run:disabled{opacity:.5;cursor:not-allowed}
+.run-output{
+  margin-top:8px;
+  background:#0f172a;
+  color:#a3e635;
+  border-radius:10px;
+  padding:11px 14px;
+  font-family:"Consolas","D2Coding",monospace;
+  font-size:13px;
+  white-space:pre-wrap;
+  min-height:32px;
+  line-height:1.7;
+  border:1.5px solid #1e293b;
+}
+.run-output.error{color:#f87171}
+.run-output.loading{color:#94a3b8;font-style:italic}
+
+/* input 모달 */
+.input-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+}
+.input-modal{
+  background:white;border-radius:16px;padding:24px 28px;
+  min-width:320px;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.input-modal h4{margin:0 0 8px;font-size:16px;color:var(--ink)}
+.input-modal .prompt-text{
+  font-size:14px;color:var(--muted);margin-bottom:12px;
+  background:#f1f5f9;padding:8px 10px;border-radius:8px;
+}
+.input-modal input{
+  border:1.5px solid var(--line);border-radius:8px;
+  padding:10px 12px;font-size:15px;width:100%;
+}
+.input-modal input:focus{border-color:var(--prog);outline:none}
+.input-modal-btns{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.input-modal-btns button{padding:8px 18px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer}
+.btn-modal-ok{background:var(--prog);color:white}
+.btn-modal-ok:hover{opacity:.85}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-gray{background:#e5e7eb;color:#374151}
+.btn-gray:hover{background:#d1d5db}
+
+/* 채점 요약 */
+.score-board{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:14px 0;
+}
+.score-section{
+  border-radius:14px;padding:16px;
+}
+.score-section.algo-s{background:var(--algo-soft);border:1.5px solid #ddd6fe}
+.score-section.prog-s{background:var(--prog-soft);border:1.5px solid #99f6e4}
+.score-section h3{margin:0 0 10px;font-size:15px}
+.score-elem-list{display:flex;flex-direction:column;gap:5px}
+.score-elem{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.score-elem .elem-name{color:var(--muted)}
+.score-elem .elem-status{font-weight:700;font-size:12px}
+.elem-done{color:#166534}
+.elem-empty{color:#9ca3af}
+.total-score-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:10px;padding-top:10px;border-top:1px solid currentColor;opacity:.5;
+}
+.total-score-row strong{font-size:20px}
+
+.output-box{
+  background:#f8fafc;border:1.5px dashed #94a3b8;border-radius:10px;
+  padding:12px;min-height:40px;white-space:pre-wrap;
+  font-family:"Consolas","D2Coding",monospace;font-size:13px;
+}
+.small{font-size:12px;color:var(--muted);margin-top:8px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.q-label{font-weight:700;font-size:13px;color:var(--muted);margin-bottom:4px}
+
+/* 루브릭 안내 표 */
+.rubric-table{width:100%;border-collapse:collapse;font-size:13px}
+.rubric-table th{background:#1e40af;color:white;padding:8px 12px;text-align:left}
+.rubric-table td{border:1px solid var(--line);padding:7px 12px;vertical-align:top}
+.rubric-table tr:nth-child(even) td{background:#f8fafc}
+.rubric-table td:last-child{text-align:center;font-weight:700;color:var(--primary-dark);white-space:nowrap}
+
+.divider{border:none;border-top:1.5px dashed var(--line);margin:18px 0}
+
+@media(max-width:750px){
+  .student-grid,.two-col,.score-board{grid-template-columns:1fr}
+}
+@media print{
+  header,.tabs,.controls,.no-print,#submit{display:none!important}
+  body{background:white}
+  main{max-width:none;margin:0;padding:0}
+  .panel,.problem{box-shadow:none;break-inside:avoid}
+  .tab{display:block!important}
+  .result{display:none!important}
+  .progress-bar,.small{display:none!important}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <h1>알고리즘·프로그래밍 수행평가 작성지</h1>
+    <p class="subtitle">Ⅲ. 알고리즘과 프로그래밍 | 알고리즘 표현(40점) + 프로그램 작성(60점) = 총 100점</p>
+  </div>
+</header>
+
+<main>
+  <!-- 학생 정보 -->
+  <section class="panel">
+    <div class="student-grid">
+      <div>
+        <label>학번</label>
+        <input id="stuNo" type="text" placeholder="예: 1101" maxlength="4" inputmode="numeric"
+          style="letter-spacing:2px">
+        <span style="font-size:11px;color:var(--muted)">학년(1)+반번호(2자리)+번호(1자리) → 예: 1101</span>
+      </div>
+      <div>
+        <label>이름</label>
+        <input id="stuName" type="text" placeholder="홍길동">
+      </div>
+      <div>
+        <label>반</label>
+        <select id="stuClass" style="width:100%;border:1.5px solid var(--line);border-radius:9px;
+          padding:9px 12px;font-size:14px;background:white;font-family:inherit;
+          transition:border-color .15s;cursor:pointer">
+          <option value="">-- 반 선택 --</option>
+          <option>그린자원1반</option>
+          <option>그린자원2반</option>
+          <option>관광경영1반</option>
+          <option>관광경영2반</option>
+          <option>중국어반</option>
+          <option>일본어반</option>
+          <option>영어반</option>
+          <option>조리1반</option>
+          <option>조리2반</option>
+        </select>
+      </div>
+      <div>
+        <label>제출일</label>
+        <input id="submitDate" type="date" readonly
+          style="background:#f1f5f9;color:var(--muted);cursor:default">
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="small" id="progressText">작성 진행률: 0%</span>
+    </div>
+  </section>
+
+  <!-- 탭 -->
+  <nav class="tabs no-print">
+    <button class="tab-btn active" onclick="showTab('guide',this)">📋 채점 기준</button>
+    <button class="tab-btn" onclick="showTab('algo',this)">🟣 알고리즘 표현 (40점)</button>
+    <button class="tab-btn" onclick="showTab('prog',this)">🟢 프로그램 작성 (60점)</button>
+    <button class="tab-btn" onclick="showTab('submit',this)">📤 제출하기</button>
+  </nav>
+
+  <!-- ===== 채점 기준 탭 ===== -->
+  <section id="guide" class="tab active">
+    <div class="panel">
+      <div class="section-header">
+        <h2>수행평가 채점 기준</h2>
+        <span class="badge badge-gray">총 100점</span>
+      </div>
+
+      <div style="margin-bottom:18px">
+        <p style="font-size:14px;margin:0 0 10px"><strong>수행 과제:</strong> 주어진 조건(알고리즘, 자료형, 입출력, 데이터 구조, 제어구조)을 활용하여 프로그래밍 작성하기</p>
+      </div>
+
+      <div class="two-col" style="margin-bottom:18px">
+        <div>
+          <div class="section-header">
+            <span style="font-size:15px;font-weight:800;color:var(--algo)">🟣 알고리즘 표현 (40점)</span>
+          </div>
+          <div class="rubric-check" style="flex-direction:column;gap:6px">
+            <div class="rc-item algo">① 알고리즘이 무엇인지 설명할 수 있는가?</div>
+            <div class="rc-item algo">② 적절한 알고리즘 설계구조를 선택할 수 있는가?</div>
+            <div class="rc-item algo">③ 문제 해결 절차에 따라 문제를 해결할 수 있는가?</div>
+            <div class="rc-item algo">④ 문제를 해결 가능한 작은 문제로 분해할 수 있는가?</div>
+          </div>
+          <table class="rubric-table" style="margin-top:8px">
+            <tr><th>충족 수준</th><th>배점</th></tr>
+            <tr><td>4가지 요소 모두 충족</td><td>40점</td></tr>
+            <tr><td>4가지 요소 중 90% 이상</td><td>35점</td></tr>
+            <tr><td>4가지 요소 중 75% 이상</td><td>30점</td></tr>
+            <tr><td>4가지 요소 중 50% 이상</td><td>25점</td></tr>
+            <tr><td>4가지 요소 중 50% 미만</td><td>20점</td></tr>
+            <tr><td>이름만 작성하여 제출</td><td>10점</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="section-header">
+            <span style="font-size:15px;font-weight:800;color:var(--prog)">🟢 프로그램 작성 (60점)</span>
+          </div>
+          <div class="rubric-check" style="flex-direction:column;gap:6px">
+            <div class="rc-item prog">① 변수를 활용하여 프로그램을 작성할 수 있는가?</div>
+            <div class="rc-item prog">② 자료형을 활용하여 프로그램을 작성할 수 있는가?</div>
+            <div class="rc-item prog">③ 표준입출력을 활용하여 프로그램을 작성할 수 있는가?</div>
+            <div class="rc-item prog">④ 파일입출력을 활용하여 프로그램을 작성할 수 있는가?</div>
+          </div>
+          <table class="rubric-table" style="margin-top:8px">
+            <tr><th>충족 수준</th><th>배점</th></tr>
+            <tr><td>4가지 요소 모두 충족</td><td>60점</td></tr>
+            <tr><td>4가지 요소 중 90% 이상</td><td>54점</td></tr>
+            <tr><td>4가지 요소 중 75% 이상</td><td>48점</td></tr>
+            <tr><td>4가지 요소 중 50% 이상</td><td>42점</td></tr>
+            <tr><td>4가지 요소 중 50% 미만</td><td>36점</td></tr>
+            <tr><td>이름만 작성하여 제출</td><td>20점</td></tr>
+            <tr><td>활동 참여, 만족 항목 없음 (기본점수)</td><td>30점</td></tr>
+            <tr><td>미응시 (미인정결석 등)</td><td>20점</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <p style="font-size:13px;color:var(--muted);margin:0">
+        교과서 92~135쪽을 참고하여 작성합니다. 코드는 파이썬(Python) 구글 코랩 또는 IDLE에서 작성·실행 확인 후 입력하세요.<br>
+        학번 입력 형식: <strong>학년(1자리) + 반번호(2자리) + 번호(1자리)</strong> &nbsp;예) 1학년 1반 1번 → <strong>1101</strong>, 1학년 2반 14번 → <strong>1214</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 알고리즘 표현 탭 ===== -->
+  <section id="algo" class="tab">
+    <div class="panel">
+      <div class="section-header">
+        <h2>알고리즘 표현</h2>
+        <span class="badge badge-algo">40점</span>
+      </div>
+      <div class="score-note">
+        4가지 평가 요소: ①알고리즘 설명 &nbsp;②설계구조 선택 &nbsp;③절차적 문제 해결 &nbsp;④문제 분해
+      </div>
+      <div class="rubric-check">
+        <span class="rc-item algo">① 알고리즘 설명</span>
+        <span class="rc-item algo">② 설계구조 선택</span>
+        <span class="rc-item algo">③ 절차적 해결</span>
+        <span class="rc-item algo">④ 문제 분해</span>
+      </div>
+
+      <!-- A1 알고리즘 개념 -->
+      <div class="problem algo-p">
+        <h3>
+          <span class="pnum-algo">A1</span>
+          알고리즘의 개념 설명
+          <span class="tag-elem tag-algo">① 알고리즘 설명</span>
+          <span class="pts">/ 8점</span>
+        </h3>
+        <div class="meta">
+          다음 두 가지를 서술하시오.<br>
+          (1) 알고리즘이란 무엇인지 자신의 말로 설명하시오.<br>
+          (2) 알고리즘의 3가지 제어 구조(순차·선택·반복)를 각각 간단한 예를 들어 설명하시오.
+        </div>
+        <div class="hint">💡 교과서 93쪽 — 알고리즘은 입력 → 처리 → 출력 구조를 가집니다.</div>
+        <div class="q-label">(1) 알고리즘의 정의</div>
+        <textarea id="a1-def" class="writebox shortbox" placeholder="알고리즘이란 ..."></textarea>
+        <div class="q-label" style="margin-top:10px">(2) 세 가지 제어 구조 예시</div>
+        <textarea id="a1-struct" class="writebox" placeholder="순차 구조: 예) ...&#10;선택 구조: 예) ...&#10;반복 구조: 예) ..."></textarea>
+      </div>
+
+      <!-- A2 정렬 알고리즘 -->
+      <div class="problem algo-p">
+        <h3>
+          <span class="pnum-algo">A2</span>
+          정렬 알고리즘 과정과 비교
+          <span class="tag-elem tag-algo">② 설계구조</span>
+          <span class="tag-elem tag-algo">③ 절차적 해결</span>
+          <span class="pts">/ 16점</span>
+        </h3>
+        <div class="meta">
+          배열 <strong>[5, 2, 7, 3]</strong>을 오름차순으로 정렬하는 과정을 두 가지 방법으로 작성하고 비교하시오.
+        </div>
+
+        <p style="font-weight:700;font-size:13px;margin:10px 0 6px;color:var(--algo)">(1) 버블 정렬 — 단계별 과정</p>
+        <div class="hint">💡 인접한 두 수를 비교하여 앞 수가 더 크면 교환합니다. 교과서 98쪽 참고</div>
+        <table class="ex-table">
+          <tr><th style="width:70px">단계</th><th>진행 내용</th><th style="width:150px">결과 배열</th></tr>
+          <tr><td>1단계</td><td><input type="text" id="a2-b1" placeholder="5와 2 비교 → 교환, 이후..."></td><td><input type="text" id="a2-br1" placeholder="[ , , , ]"></td></tr>
+          <tr><td>2단계</td><td><input type="text" id="a2-b2" placeholder=""></td><td><input type="text" id="a2-br2" placeholder="[ , , , ]"></td></tr>
+          <tr><td>3단계</td><td><input type="text" id="a2-b3" placeholder=""></td><td><input type="text" id="a2-br3" placeholder="[ , , , ]"></td></tr>
+        </table>
+
+        <p style="font-weight:700;font-size:13px;margin:10px 0 6px;color:var(--algo)">(2) 선택 정렬 — 단계별 과정</p>
+        <div class="hint">💡 기준 위치 이후에서 최솟값을 찾아 기준 위치와 교환합니다. 교과서 99쪽 참고</div>
+        <table class="ex-table">
+          <tr><th style="width:70px">단계</th><th>기준 값 → 최솟값</th><th style="width:100px">교환</th><th style="width:150px">결과 배열</th></tr>
+          <tr><td>1단계</td><td><input type="text" id="a2-s1" placeholder=""></td><td><input type="text" id="a2-se1" placeholder="O / X"></td><td><input type="text" id="a2-sr1" placeholder="[ , , , ]"></td></tr>
+          <tr><td>2단계</td><td><input type="text" id="a2-s2" placeholder=""></td><td><input type="text" id="a2-se2" placeholder="O / X"></td><td><input type="text" id="a2-sr2" placeholder="[ , , , ]"></td></tr>
+          <tr><td>3단계</td><td><input type="text" id="a2-s3" placeholder=""></td><td><input type="text" id="a2-se3" placeholder="O / X"></td><td><input type="text" id="a2-sr3" placeholder="[ , , , ]"></td></tr>
+        </table>
+
+        <p style="font-weight:700;font-size:13px;margin:10px 0 6px;color:var(--algo)">(3) 두 정렬 알고리즘 비교</p>
+        <div class="hint">💡 교과서 100~101쪽 — 비교 횟수는 같지만 교환 횟수에서 차이가 납니다.</div>
+        <textarea id="a2-compare" class="writebox shortbox" placeholder="공통점: &#10;차이점(교환 횟수 관점): &#10;더 효율적인 알고리즘:"></textarea>
+      </div>
+
+      <!-- A3 탐색 알고리즘 -->
+      <div class="problem algo-p">
+        <h3>
+          <span class="pnum-algo">A3</span>
+          탐색 알고리즘 과정과 비교
+          <span class="tag-elem tag-algo">③ 절차적 해결</span>
+          <span class="tag-elem tag-algo">④ 문제 분해</span>
+          <span class="pts">/ 16점</span>
+        </h3>
+        <div class="meta">
+          정렬된 데이터 <strong>[10, 20, 30, 40, 50, 60, 70]</strong>에서 값 <strong>50</strong>을 찾는 과정을 두 가지 방법으로 작성하고, 각 방법의 특징과 효율을 비교하시오.
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="q-label">(1) 순차 탐색 과정</div>
+            <div class="hint">💡 처음부터 하나씩 비교합니다. 교과서 102쪽</div>
+            <textarea id="a3-seq" class="writebox" placeholder="1단계: 10과 50 비교 → 다름&#10;2단계: 20과 50 비교 → 다름&#10;..."></textarea>
+          </div>
+          <div>
+            <div class="q-label">(2) 이진 탐색 과정</div>
+            <div class="hint">💡 L, M, R 위치를 표시합니다. 교과서 104쪽</div>
+            <textarea id="a3-bin" class="writebox" placeholder="1단계: L=0, R=6, M=3 → 중앙값 40&#10;  50 > 40 → 오른쪽 탐색&#10;2단계: ..."></textarea>
+          </div>
+        </div>
+
+        <div class="q-label" style="margin-top:10px">(3) 두 탐색 방법의 특징 및 효율 비교</div>
+        <div class="hint">💡 교과서 104쪽 — 속도 차이와 이진 탐색 사용 전 필요한 조건을 함께 서술합니다.</div>
+        <textarea id="a3-compare" class="writebox shortbox" placeholder="순차 탐색: &#10;이진 탐색: &#10;더 효율적인 방법과 이유:"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 프로그램 작성 탭 ===== -->
+  <section id="prog" class="tab">
+    <div class="panel">
+      <div class="section-header">
+        <h2>프로그램 작성</h2>
+        <span class="badge badge-prog">60점</span>
+      </div>
+      <div class="score-note">
+        4가지 평가 요소: ①변수 활용 &nbsp;②자료형 활용 &nbsp;③표준입출력 활용 &nbsp;④파일입출력 활용
+      </div>
+      <div class="rubric-check">
+        <span class="rc-item prog">① 변수 활용</span>
+        <span class="rc-item prog">② 자료형 활용</span>
+        <span class="rc-item prog">③ 표준입출력</span>
+        <span class="rc-item prog">④ 파일입출력</span>
+      </div>
+
+      <!-- P1 변수·자료형 -->
+      <div class="problem prog-p">
+        <h3>
+          <span class="pnum-prog">P1</span>
+          변수와 자료형 활용
+          <span class="tag-elem tag-prog">① 변수</span>
+          <span class="tag-elem tag-prog">② 자료형</span>
+          <span class="pts">/ 12점</span>
+        </h3>
+        <div class="meta">
+          학생의 이름(문자열), 나이(정수), 키(실수)를 각각 적절한 자료형 변수에 저장하고 아래 형식으로 출력하시오.<br>
+          <em>출력 예) 이름: 홍길동 / 나이: 17 / 키: 165.5</em>
+        </div>
+        <div class="hint">💡 문자열은 ' ', 정수는 int, 실수는 float 자료형을 사용합니다. 교과서 110~111쪽 참고</div>
+        <textarea id="p1" class="codebox" placeholder="name =          # 문자열&#10;age =           # 정수&#10;height =        # 실수&#10;print('이름:', name)&#10;print('나이:', age)&#10;print('키:', height)"></textarea>
+        <div class="controls">
+          <button class="btn-run" onclick="runCode('p1','out-p1')">▶ 실행</button>
+        </div>
+        <div id="out-p1" class="run-output" style="display:none"></div>
+      </div>
+
+      <!-- P2 표준입출력 -->
+      <div class="problem prog-p">
+        <h3>
+          <span class="pnum-prog">P2</span>
+          표준입출력 — 성적 처리
+          <span class="tag-elem tag-prog">③ 표준입출력</span>
+          <span class="tag-elem tag-prog">① 변수</span>
+          <span class="pts">/ 16점</span>
+        </h3>
+        <div class="meta">
+          키보드로 국어, 영어, 수학 점수를 입력받아 총점, 평균, 학점을 출력하는 프로그램을 작성하시오.<br>
+          <em>학점 기준: 90 이상 A / 80 이상 B / 70 이상 C / 그 외 D</em><br>
+          <em>출력 예) 국어: 85, 영어: 90, 수학: 78 → 총점: 253 / 평균: 84.3 / 학점: B</em>
+        </div>
+        <div class="hint">💡 input()으로 받은 값은 int()로 변환해야 합니다. 교과서 114쪽 / 126쪽 참고</div>
+        <textarea id="p2" class="codebox" placeholder="korean = int(input('국어: '))&#10;english = &#10;math = &#10;total = &#10;avg = &#10;if avg >= 90:&#10;    grade = 'A'&#10;elif &#10;    &#10;elif &#10;    &#10;else:&#10;    grade = 'D'&#10;print('총점:', total)&#10;print('평균:', round(avg, 1))&#10;print('학점:', grade)"></textarea>
+        <div class="controls">
+          <button class="btn-run" onclick="runCode('p2','out-p2')">▶ 실행</button>
+        </div>
+        <div id="out-p2" class="run-output" style="display:none"></div>
+      </div>
+
+      <!-- P3 반복·제어 구조 -->
+      <div class="problem prog-p">
+        <h3>
+          <span class="pnum-prog">P3</span>
+          제어 구조 활용 — 합격자 처리
+          <span class="tag-elem tag-prog">② 자료형</span>
+          <span class="tag-elem tag-prog">③ 표준입출력</span>
+          <span class="pts">/ 16점</span>
+        </h3>
+        <div class="meta">
+          학생 5명의 점수를 입력받아 리스트에 저장한 후, 60점 이상인 학생 수(합격자 수)와 최고점·최저점·평균을 출력하시오.
+        </div>
+        <div class="hint">💡 빈 리스트에 append()로 추가 → for문으로 반복 → if문으로 조건 처리. 교과서 129~130쪽 참고</div>
+        <textarea id="p3" class="codebox" placeholder="scores = []&#10;for i in range(5):&#10;    s = int(input('점수 입력: '))&#10;    scores.append(s)&#10;&#10;count = 0&#10;for score in scores:&#10;    if score >= 60:&#10;        count +=&#10;&#10;print('합격자 수:', count)&#10;print('최고점:', max(scores))&#10;print('최저점:', min(scores))&#10;print('평균:', round(sum(scores)/len(scores), 1))"></textarea>
+        <div class="controls">
+          <button class="btn-run" onclick="runCode('p3','out-p3')">▶ 실행</button>
+        </div>
+        <div id="out-p3" class="run-output" style="display:none"></div>
+      </div>
+
+      <!-- P4 파일입출력 -->
+      <div class="problem prog-p">
+        <h3>
+          <span class="pnum-prog">P4</span>
+          파일입출력 활용
+          <span class="tag-elem tag-prog">④ 파일입출력</span>
+          <span class="pts">/ 16점</span>
+        </h3>
+        <div class="meta">
+          (1) 학생 이름 3개를 키보드로 입력받아 <code>students.txt</code> 파일에 한 줄씩 저장하는 프로그램을 작성하시오.<br>
+          (2) 저장된 <code>students.txt</code> 파일을 읽어 화면에 출력하는 프로그램을 작성하시오.
+        </div>
+        <div class="hint">💡 교과서 116~117쪽 — open(파일명, 'w')로 쓰기, open(파일명, 'r')로 읽기, 마지막에 f.close()로 닫습니다.<br>
+        ※ 실행 환경에서는 가상 파일 시스템으로 동작합니다.</div>
+
+        <div class="q-label">(1) 파일 쓰기</div>
+        <textarea id="p4-write" class="codebox" placeholder="f = open('students.txt', 'w')&#10;for i in range(3):&#10;    name = input('이름 입력: ')&#10;    f.write(name + '\n')&#10;f.close()&#10;print('저장 완료')"></textarea>
+        <div class="controls">
+          <button class="btn-run" onclick="runCode('p4-write','out-p4-write')">▶ 실행</button>
+        </div>
+        <div id="out-p4-write" class="run-output" style="display:none"></div>
+
+        <div class="q-label" style="margin-top:14px">(2) 파일 읽기</div>
+        <textarea id="p4-read" class="codebox" placeholder="f = open('students.txt', 'r')&#10;for row in f:&#10;    print(row, end='')&#10;f.close()"></textarea>
+        <div class="controls">
+          <button class="btn-run" onclick="runCode('p4-read','out-p4-read')">▶ 실행</button>
+        </div>
+        <div id="out-p4-read" class="run-output" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 제출하기 탭 ===== -->
+  <section id="submit" class="tab">
+    <div class="panel">
+      <div class="section-header">
+        <h2>제출하기</h2>
+        <span class="badge badge-gray">최종 제출</span>
+      </div>
+
+      <!-- 제출 안내 -->
+      <div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:12px;padding:16px 18px;margin-bottom:18px;font-size:14px">
+        <p style="margin:0 0 8px;font-weight:800;color:#92400e">📋 제출 전 확인사항</p>
+        <ul style="margin:0;padding-left:18px;line-height:2;color:#78350f">
+          <li>상단 학번(예: 1101)·이름·반이 정확히 입력/선택되어 있는지 확인하세요.</li>
+          <li>알고리즘 표현(A1~A3)과 프로그램 작성(P1~P4) 문제를 모두 작성했는지 확인하세요.</li>
+          <li><strong>① 제출하기</strong> 버튼을 눌러 Google Drive에 답안을 전송한 후,<br>
+              <strong>② PDF 저장</strong> 버튼을 눌러 인쇄 창에서 <em>"PDF로 저장"</em>을 선택하여 PDF 파일도 제출합니다.</li>
+          <li>제출 완료 메시지가 나타나면 PDF 저장을 진행하세요.</li>
+        </ul>
+      </div>
+
+      <!-- 작성 현황 미리보기 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        <div style="background:var(--algo-soft);border:1.5px solid #ddd6fe;border-radius:12px;padding:14px">
+          <p style="margin:0 0 8px;font-weight:800;color:var(--algo);font-size:13px">🟣 알고리즘 표현</p>
+          <div style="display:flex;flex-direction:column;gap:4px;font-size:13px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">A1 알고리즘 개념</span><span id="chk-a1" style="font-weight:700">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">A2 정렬 알고리즘</span><span id="chk-a2" style="font-weight:700">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">A3 탐색 알고리즘</span><span id="chk-a3" style="font-weight:700">—</span></div>
+          </div>
+        </div>
+        <div style="background:var(--prog-soft);border:1.5px solid #99f6e4;border-radius:12px;padding:14px">
+          <p style="margin:0 0 8px;font-weight:800;color:var(--prog);font-size:13px">🟢 프로그램 작성</p>
+          <div style="display:flex;flex-direction:column;gap:4px;font-size:13px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">P1 변수·자료형</span><span id="chk-p1" style="font-weight:700">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">P2 표준입출력</span><span id="chk-p2" style="font-weight:700">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">P3 제어구조</span><span id="chk-p3" style="font-weight:700">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">P4 파일입출력</span><span id="chk-p4" style="font-weight:700">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 제출 버튼 영역 -->
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <!-- ① 제출하기 -->
+        <button id="submitBtn" onclick="submitAssignment()"
+          style="width:100%;padding:16px;font-size:17px;font-weight:900;
+                 background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+                 color:white;border:none;border-radius:12px;cursor:pointer;
+                 letter-spacing:0.3px;transition:opacity .15s">
+          ① 제출하기 — Google Drive에 답안 전송
+        </button>
+
+        <!-- ② PDF 저장 (제출 완료 후 활성화) -->
+        <button id="pdfBtn" onclick="printForPDF()" disabled
+          style="width:100%;padding:16px;font-size:17px;font-weight:900;
+                 background:#e5e7eb;color:#9ca3af;
+                 border:none;border-radius:12px;cursor:not-allowed;
+                 letter-spacing:0.3px;transition:all .3s">
+          ② PDF 저장 — 인쇄 창에서 'PDF로 저장' 선택
+        </button>
+
+        <!-- 초기화 -->
+        <button onclick="resetAll()"
+          style="width:100%;padding:11px;font-size:14px;font-weight:700;
+                 background:#f1f5f9;color:#64748b;
+                 border:1.5px solid var(--line);border-radius:10px;cursor:pointer">
+          전체 초기화
+        </button>
+      </div>
+
+      <!-- 제출 상태 메시지 -->
+      <div id="submitResult" style="display:none;margin-top:14px;padding:14px 16px;
+           border-radius:12px;font-size:14px;font-weight:700;text-align:center"></div>
+
+      <p class="small" style="margin-top:16px">
+        ⚠️ 제출 후 수정이 필요하면 재제출 가능합니다. Google Sheets에 시간 순으로 기록됩니다.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxUUKeTro5Un16J6wAFrNU57-cT1GikRqOQZVPA_Ucge8-RK8l3n3k_7C-qaDTXQpeS/exec";
+
+const algoWriteIds  = ['a1-def','a1-struct','a2-compare','a3-seq','a3-bin','a3-compare'];
+const algoTableIds  = ['a2-b1','a2-br1','a2-b2','a2-br2','a2-b3','a2-br3',
+                       'a2-s1','a2-se1','a2-sr1','a2-s2','a2-se2','a2-sr2','a2-s3','a2-se3','a2-sr3'];
+const progIds       = ['p1','p2','p3','p4-write','p4-read'];
+let passSet = new Set();
+
+/* ── 탭 전환 ── */
+function showTab(id, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(id==='submit') refreshSubmitStatus();
+}
+
+/* ── Pyodide 로드 ── */
+let pyodideReady = null;
+let pyodideInstance = null;
+
+async function getPyodide(){
+  if(pyodideInstance) return pyodideInstance;
+  if(!pyodideReady){
+    pyodideReady = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' });
+  }
+  pyodideInstance = await pyodideReady;
+  return pyodideInstance;
+}
+
+/* ── input() 모달 ── */
+function showInputModal(prompt){
+  return new Promise(resolve=>{
+    const overlay = document.createElement('div');
+    overlay.className = 'input-modal-overlay';
+    overlay.innerHTML = `
+      <div class="input-modal">
+        <h4>⌨️ 입력 대기 중</h4>
+        <div class="prompt-text">${prompt || '값을 입력하세요:'}</div>
+        <input id="modalInput" type="text" autofocus placeholder="입력 후 확인을 누르세요">
+        <div class="input-modal-btns">
+          <button class="btn-modal-ok" id="modalOk">확인</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const inp = overlay.querySelector('#modalInput');
+    const ok  = overlay.querySelector('#modalOk');
+    inp.focus();
+    const done = ()=>{
+      const val = inp.value;
+      document.body.removeChild(overlay);
+      resolve(val);
+    };
+    ok.addEventListener('click', done);
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') done(); });
+  });
+}
+
+/* ── 코드 실행 ── */
+async function runCode(codeId, outputId){
+  const code = document.getElementById(codeId)?.value?.trim();
+  const outEl = document.getElementById(outputId);
+  if(!code){ outEl.style.display='block'; outEl.className='run-output loading'; outEl.textContent='코드를 먼저 작성하세요.'; return; }
+
+  const btn = outEl.previousElementSibling.querySelector('button');
+  btn.disabled = true; btn.textContent = '⏳ 실행 중...';
+  outEl.style.display = 'block';
+  outEl.className = 'run-output loading';
+  outEl.textContent = 'Python 엔진 준비 중... (최초 실행 시 10~20초 소요)';
+
+  try{
+    const py = await getPyodide();
+    let output = '';
+    const inputValues = [];
+
+    // input() 호출 수 미리 파악해서 순서대로 모달 표시
+    const inputCount = (code.match(/\binput\s*\(/g)||[]).length;
+    if(inputCount > 0){
+      outEl.textContent = `input() 함수가 ${inputCount}번 호출됩니다. 순서대로 값을 입력해 주세요.`;
+      // 코드에서 input() 프롬프트 문자열 추출
+      const promptRe = /input\s*\(\s*(['"`])(.*?)\1\s*\)/g;
+      const prompts = [];
+      let m;
+      const codeCopy = code;
+      while((m=promptRe.exec(codeCopy))!==null) prompts.push(m[2]);
+      for(let i=0;i<inputCount;i++){
+        const val = await showInputModal(prompts[i] || `입력 ${i+1}:`);
+        inputValues.push(val);
+      }
+    }
+
+    // input() 순서대로 반환하는 mock
+    py.globals.set('_input_values', py.toPy(inputValues));
+    py.runPython(`
+import sys, io
+_input_idx = 0
+def _mock_input(prompt=''):
+    global _input_idx
+    val = _input_values[_input_idx] if _input_idx < len(_input_values) else ''
+    _input_idx += 1
+    return val
+import builtins
+builtins.input = _mock_input
+_stdout = io.StringIO()
+sys.stdout = _stdout
+`);
+
+    // 파일입출력은 Pyodide 가상 파일 시스템(/tmp) 사용
+    const safeCode = code.replace(/open\s*\(\s*(['"`])(.*?)\1/g, (match,q,fname)=>{
+      // 상대경로 파일명이면 /tmp/ 로 리다이렉트
+      if(!fname.startsWith('/')) return `open(${q}/tmp/${fname}${q}`;
+      return match;
+    });
+
+    py.runPython(safeCode);
+    output = py.runPython('_stdout.getvalue()');
+    py.runPython('import sys, io; sys.stdout = sys.__stdout__');
+
+    outEl.className = 'run-output';
+    outEl.textContent = output || '(출력 없음)';
+    passSet.add(codeId);
+    updateProgress();
+
+  } catch(err){
+    outEl.className = 'run-output error';
+    // 에러 메시지 한국어 안내
+    const msg = err.message || String(err);
+    outEl.textContent = '❌ 오류 발생\n' + translateError(msg);
+    passSet.delete(codeId);
+  } finally{
+    btn.disabled = false; btn.textContent = '▶ 실행';
+  }
+}
+
+/* ── 에러 메시지 간단 번역 ── */
+function translateError(msg){
+  const lines = msg.split('\n').filter(l=>l.trim());
+  // 마지막 오류 줄만 추출
+  const errLine = lines[lines.length-1] || msg;
+  const map = [
+    [/NameError.*name '(.+?)' is not defined/, m=>`이름 오류: '${m[1]}' 변수가 정의되지 않았습니다.`],
+    [/SyntaxError/, ()=>`문법 오류: 코드 형식을 확인하세요 (들여쓰기, 괄호, 따옴표).`],
+    [/IndentationError/, ()=>`들여쓰기 오류: 코드 들여쓰기를 확인하세요.`],
+    [/TypeError.*unsupported operand/, m=>`타입 오류: 자료형이 맞지 않습니다. int(), float() 변환을 확인하세요.`],
+    [/ZeroDivisionError/, ()=>`오류: 0으로 나눌 수 없습니다.`],
+    [/IndexError/, ()=>`인덱스 오류: 리스트 범위를 벗어났습니다.`],
+    [/FileNotFoundError/, ()=>`파일 오류: 파일을 찾을 수 없습니다. 파일 쓰기를 먼저 실행하세요.`],
+    [/ValueError/, ()=>`값 오류: 숫자가 아닌 값을 변환하려 했습니다.`],
+  ];
+  for(const [re, fn] of map){
+    const m = errLine.match(re);
+    if(m) return fn(m);
+  }
+  return errLine;
+}
+
+/* ── 작성 여부 ── */
+function isWritten(id){
+  const el = document.getElementById(id);
+  return el && el.value.trim().length > 3;
+}
+
+/* ── 진행 표시 ── */
+function updateProgress(){
+  const algoW = algoWriteIds.filter(isWritten).length;
+  const progW = progIds.filter(isWritten).length;
+  const total = algoWriteIds.length + progIds.length;
+  const pct = Math.round(((algoW+progW)/total)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressText').textContent =
+    '작성 진행률: '+pct+'%  (알고리즘 '+algoW+'/'+algoWriteIds.length+' · 프로그래밍 '+progW+'/'+progIds.length+')';
+}
+
+/* ── 제출 탭 현황 갱신 ── */
+function refreshSubmitStatus(){
+  const checks = [
+    {id:'chk-a1', done: isWritten('a1-def') && isWritten('a1-struct')},
+    {id:'chk-a2', done: ['a2-b1','a2-br1','a2-s1','a2-sr1','a2-compare'].some(isWritten)},
+    {id:'chk-a3', done: isWritten('a3-seq') || isWritten('a3-bin')},
+    {id:'chk-p1', done: isWritten('p1')},
+    {id:'chk-p2', done: isWritten('p2')},
+    {id:'chk-p3', done: isWritten('p3')},
+    {id:'chk-p4', done: isWritten('p4-write') || isWritten('p4-read')},
+  ];
+  checks.forEach(c=>{
+    const el = document.getElementById(c.id);
+    if(!el) return;
+    el.textContent = c.done ? '✅ 작성' : '○ 미작성';
+    el.style.color  = c.done ? '#166534' : '#9ca3af';
+  });
+}
+
+/* ── 답안 문자열 생성 ── */
+function buildAnswerText(){
+  const v = id => document.getElementById(id)?.value || '';
+  return [
+    '학번: '+v('stuNo'),
+    '이름: '+v('stuName'),
+    '반: '+v('stuClass'),
+    '제출일: '+v('submitDate'),
+    '',
+    '====== 알고리즘 표현 ======',
+    '[A1] 알고리즘 정의\n'+v('a1-def'),
+    '[A1] 제어 구조\n'+v('a1-struct'),
+    '[A2-버블] 단계별 과정',
+    '1단계: '+v('a2-b1')+' → '+v('a2-br1'),
+    '2단계: '+v('a2-b2')+' → '+v('a2-br2'),
+    '3단계: '+v('a2-b3')+' → '+v('a2-br3'),
+    '[A2-선택] 단계별 과정',
+    '1단계: '+v('a2-s1')+' / '+v('a2-se1')+' → '+v('a2-sr1'),
+    '2단계: '+v('a2-s2')+' / '+v('a2-se2')+' → '+v('a2-sr2'),
+    '3단계: '+v('a2-s3')+' / '+v('a2-se3')+' → '+v('a2-sr3'),
+    '[A2] 두 정렬 비교\n'+v('a2-compare'),
+    '[A3] 순차 탐색\n'+v('a3-seq'),
+    '[A3] 이진 탐색\n'+v('a3-bin'),
+    '[A3] 탐색 비교\n'+v('a3-compare'),
+    '',
+    '====== 프로그램 작성 ======',
+    '[P1] 변수·자료형\n'+v('p1'),
+    '[P2] 표준입출력·성적처리\n'+v('p2'),
+    '[P3] 제어구조·합격자\n'+v('p3'),
+    '[P4-쓰기] 파일입출력\n'+v('p4-write'),
+    '[P4-읽기] 파일입출력\n'+v('p4-read'),
+  ].join('\n\n');
+}
+
+/* ── ① 제출하기 ── */
+async function submitAssignment(){
+  const name  = document.getElementById('stuName').value.trim();
+  const stuNo = document.getElementById('stuNo').value.trim();
+  const cls   = document.getElementById('stuClass').value;
+
+  if(!name)  { alert('이름을 입력하세요.'); return; }
+  if(!stuNo) { alert('학번을 입력하세요.'); return; }
+  if(!/^[0-9]{4}$/.test(stuNo)){ alert('학번은 숫자 4자리로 입력하세요.\n예) 1학년 1반 1번 → 1101'); return; }
+  if(!cls)   { alert('반을 선택하세요.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  const resultEl = document.getElementById('submitResult');
+
+  btn.disabled = true;
+  btn.textContent = '전송 중...';
+  btn.style.opacity = '0.6';
+  resultEl.style.display = 'block';
+  resultEl.style.background = '#fef9c3';
+  resultEl.style.color = '#92400e';
+  resultEl.style.border = '1.5px solid #fde68a';
+  resultEl.textContent = '⏳ Google Drive에 답안을 전송하고 있습니다...';
+
+  try{
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({
+        name: name,
+        studentId: stuNo,
+        className: cls,
+        problem: 'algo_prog_assessment',
+        code: buildAnswerText()
+      })
+    });
+
+    // 제출 성공
+    resultEl.style.background = '#dcfce7';
+    resultEl.style.color = '#166534';
+    resultEl.style.border = '1.5px solid #86efac';
+    resultEl.innerHTML = '✅ 제출 완료! Google Drive에 저장되었습니다.<br><span style="font-size:13px;font-weight:400">아래 ② PDF 저장 버튼을 눌러 PDF 파일도 제출하세요.</span>';
+
+    btn.textContent = '✅ 제출 완료 (재제출 가능)';
+    btn.style.background = '#16a34a';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+
+    // PDF 버튼 활성화
+    const pdfBtn = document.getElementById('pdfBtn');
+    pdfBtn.disabled = false;
+    pdfBtn.style.background = 'linear-gradient(135deg,#0f766e,#0ea5e9)';
+    pdfBtn.style.color = 'white';
+    pdfBtn.style.cursor = 'pointer';
+
+  } catch(err){
+    resultEl.style.background = '#fee2e2';
+    resultEl.style.color = '#991b1b';
+    resultEl.style.border = '1.5px solid #fecaca';
+    resultEl.textContent = '❌ 서버 연결 오류. 네트워크를 확인한 후 다시 시도하세요.';
+    btn.disabled = false;
+    btn.textContent = '① 제출하기 — Google Drive에 답안 전송';
+    btn.style.opacity = '1';
+  }
+}
+
+/* ── ② PDF 저장 ── */
+function printForPDF(){
+  // 모든 탭을 인쇄용으로 펼치고 인쇄 창 열기
+  window.print();
+}
+
+/* ── 전체 초기화 ── */
+function resetAll(){
+  if(!confirm('모든 입력 내용을 초기화할까요?')) return;
+  [...algoWriteIds,...algoTableIds,...progIds].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.querySelectorAll('.result').forEach(r=>{r.textContent='';r.className='result';});
+  passSet.clear();
+  // 제출 버튼·결과 초기화
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = '① 제출하기 — Google Drive에 답안 전송';
+  btn.style.background = 'linear-gradient(135deg,#1d4ed8,#0ea5e9)';
+  btn.style.opacity = '1';
+  btn.disabled = false;
+  const pdfBtn = document.getElementById('pdfBtn');
+  pdfBtn.disabled = true;
+  pdfBtn.style.background = '#e5e7eb';
+  pdfBtn.style.color = '#9ca3af';
+  pdfBtn.style.cursor = 'not-allowed';
+  const res = document.getElementById('submitResult');
+  if(res){ res.style.display='none'; res.textContent=''; }
+  updateProgress();
+}
+
+/* ── 초기 실행 ── */
+document.getElementById('submitDate').valueAsDate = new Date();
+[...algoWriteIds,...algoTableIds,...progIds].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input', updateProgress);
+});
+updateProgress();
+</script>
+</body>
+</html>
