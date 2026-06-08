@@ -1,0 +1,422 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.hd { background: linear-gradient(135deg, #1A0A00, #7B3F00); border-radius: var(--border-radius-lg); padding: 1.5rem 2rem; margin-bottom: 1.25rem; }
+.hd .badge { display: inline-block; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px 12px; font-size: 12px; margin-bottom: .6rem; color: white; }
+.hd h1 { font-size: 22px; font-weight: 500; color: white; margin-bottom: .3rem; }
+.hd p { font-size: 13px; color: rgba(255,255,255,.75); }
+.tl { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.25rem; }
+.ti { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: .75rem; text-align: center; cursor: pointer; }
+.ti:hover { border-color: var(--color-border-secondary); }
+.ti.active { border: 1.5px solid #A0522D; background: #FFF8F0; }
+.ti .tm { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.ti .tl2 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.ti .ic { font-size: 18px; margin-bottom: 4px; display: block; }
+.sc { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: none; }
+.sc.visible { display: block; }
+.stitle { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #A0522D; flex-shrink: 0; }
+.cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.cbox { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.clabel { font-size: 11px; color: #7B3F00; font-weight: 500; letter-spacing: .5px; margin-bottom: 6px; }
+.cval { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; }
+.code-wrap { background: #0D0F0A; border-radius: var(--border-radius-md); padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 13px; line-height: 1.9; margin-bottom: .75rem; border-left: 3px solid #A0522D; }
+.c-cm{color:#98C379;} .c-kw{color:#C678DD;} .c-fn{color:#E5C07B;} .c-st{color:#98C379;} .c-nm{color:#D19A66;} .c-op{color:#56B6C2;} .c-wh{color:#E8E0D0;}
+.quiz-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1rem; }
+.qi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.qq { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.qcs { display: flex; flex-wrap: wrap; gap: 6px; }
+.cb { padding: 5px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: 20px; background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-mono); }
+.cb:hover { background: #FFF8F0; border-color: #A0522D; }
+.cb.correct { background: #FFF8F0; border-color: #A0522D; color: #7B3F00; font-weight: 500; }
+.cb.wrong { background: #FAECE7; border-color: #993C1D; color: #4A1B0C; }
+.qfb { margin-top: 8px; padding: 7px 10px; border-radius: var(--border-radius-md); font-size: 12px; display: none; }
+.qfb.show { display: block; }
+.qfb.ok { background: #FFF8F0; color: #7B3F00; }
+.qfb.ng { background: #FAECE7; color: #7B2A0E; }
+.if-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 13px; }
+.if-table th { background: #7B3F00; color: white; padding: 7px 10px; text-align: left; font-weight: 500; }
+.if-table td { padding: 7px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.if-table tr:nth-child(even) td { background: var(--color-background-secondary); }
+.kw-tag { display: inline-block; background: #FFF8F0; color: #7B3F00; border: 0.5px solid #CD853F; border-radius: 4px; padding: 1px 7px; font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+.range-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1rem; }
+.range-card { border-radius: var(--border-radius-md); overflow: hidden; }
+.range-hd { padding: .5rem .75rem; color: white; font-size: 12px; font-weight: 500; font-family: var(--font-mono); }
+.range-body { padding: .5rem .75rem; background: var(--color-background-secondary); font-size: 12px; color: var(--color-text-secondary); }
+.sandbox-wrap { border: 1.5px solid #A0522D; border-radius: var(--border-radius-lg); overflow: hidden; margin-top: 1.25rem; }
+.sb-hdr { background: #7B3F00; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.sb-hdr-l { display: flex; align-items: center; gap: 8px; }
+.sb-hdr-l span { font-size: 13px; color: white; font-weight: 500; }
+.sb-badge { background: rgba(255,255,255,.2); font-size: 11px; color: white; padding: 2px 8px; border-radius: 10px; }
+.snip-row { background: #A0522D; padding: 8px 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.snip-lbl { font-size: 11px; color: rgba(255,255,255,.6); margin-right: 4px; }
+.snip-btn { padding: 4px 10px; background: rgba(255,255,255,.12); border: 0.5px solid rgba(255,255,255,.2); border-radius: 12px; font-size: 12px; color: #DEB887; cursor: pointer; font-family: var(--font-mono); }
+.snip-btn:hover { background: rgba(255,255,255,.22); }
+.sb-editor { display: flex; }
+.lnums { background: #080A06; padding: 1rem .6rem 1rem .75rem; font-family: var(--font-mono); font-size: 14px; line-height: 1.9; color: #555; text-align: right; user-select: none; min-width: 36px; }
+textarea.sbi { flex: 1; background: #0D0F0A; border: none; color: #E8E0D0; font-family: var(--font-mono); font-size: 14px; padding: 1rem 1.25rem; line-height: 1.9; resize: none; outline: none; overflow: hidden; min-height: 120px; }
+.sb-run-bar { background: #131510; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+.sb-run-bar span { font-size: 12px; color: #555; }
+.sb-run { padding: 7px 24px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+.sb-run:hover { background: #9FE1CB; }
+.sb-out-wrap { border-top: 0.5px solid #131510; }
+.sb-out-hdr { background: #080A06; padding: 6px 14px; display: flex; align-items: center; gap: 6px; }
+.sb-out-dot { width: 6px; height: 6px; border-radius: 50%; background: #CD853F; }
+.sb-out-hdr span { font-size: 12px; color: #666; }
+.sb-out { background: #080A06; padding: .75rem 1.25rem; font-family: var(--font-mono); font-size: 14px; line-height: 1.9; color: #DEB887; white-space: pre-wrap; min-height: 48px; }
+.sb-out.empty { color: #444; font-style: italic; font-size: 13px; }
+.editor-toolbar { background: #2a2d36; border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.editor-toolbar span { font-size: 13px; color: #888; font-family: var(--font-mono); }
+.run-btn { padding: 8px 28px; background: #5DCAA5; color: #04342C; border: none; border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; }
+.run-btn:hover { background: #9FE1CB; }
+textarea.code-input { width: 100%; background: #0D0F0A; border: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); color: #E8E0D0; font-family: var(--font-mono); font-size: 15px; padding: 1.25rem 1.5rem; line-height: 1.9; resize: none; outline: none; display: block; overflow: hidden; }
+.result-header { background: var(--color-background-secondary); border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; padding: 10px 16px; border: 0.5px solid var(--color-border-tertiary); border-bottom: none; display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+.result-dot { width: 7px; height: 7px; border-radius: 50%; background: #A0522D; }
+.result-header span { font-size: 13px; color: var(--color-text-secondary); }
+.result-output { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-top: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); padding: 1rem 1.5rem; font-family: var(--font-mono); font-size: 15px; line-height: 1.9; min-height: 60px; color: var(--color-text-primary); white-space: pre-wrap; margin-bottom: 1.25rem; }
+.result-output.empty { color: var(--color-text-tertiary); font-style: italic; font-size: 13px; }
+.ch-area { margin-bottom: 1rem; }
+.ch-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.ch-list { display: flex; flex-direction: column; gap: 6px; }
+.ch-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .7rem 1rem; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; display: flex; gap: 10px; align-items: flex-start; }
+.chnum { width: 20px; height: 20px; border-radius: 50%; background: #A0522D; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.nav-row { display: flex; gap: 8px; margin-top: .75rem; }
+.nav-btn { flex: 1; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); font-family: var(--font-sans); }
+.nav-btn:hover { background: var(--color-background-secondary); }
+.nav-btn.primary { background: #7B3F00; color: white; border-color: #7B3F00; }
+.nav-btn.primary:hover { background: #1A0A00; }
+
+.quiz-head { background: linear-gradient(135deg,#FFF8F0,#FFFFFF); border: .5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.quiz-head h3 { font-size: 16px; color: var(--color-text-primary); margin-bottom: 6px; font-weight: 600; }
+.quiz-head p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.quiz-controls { display:flex; gap:8px; margin-top:1rem; flex-wrap:wrap; }
+.score-box { background:#FFF8F0; border:1px solid #CD853F; color:#7B3F00; border-radius:var(--border-radius-md); padding:.8rem 1rem; font-size:14px; font-weight:500; margin-top:1rem; display:none; }
+.score-box.show { display:block; }
+.quiz-tab .qi { border: .5px solid var(--color-border-tertiary); }
+.tl { grid-template-columns: repeat(6,1fr); }
+@media (max-width: 900px){ .tl{grid-template-columns:repeat(2,1fr);} .cgrid,.range-grid{grid-template-columns:1fr;} }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">04 제어 구조의 응용 — 조건문, 반복문, 제어 구조 프로그래밍 수업 자료</h2>
+
+<div class="hd">
+  <div class="badge">고등학교 정보 · 04단원</div>
+  <h1>제어 구조의 응용</h1>
+  <p>조건문(if/elif/else) / 반복문(for/while) / 제어 구조 프로그래밍</p>
+</div>
+
+<div class="tl" id="tl">
+  <div class="ti active" onclick="showSec(0)"><span class="ic">↳</span><div class="tm">소단원 1</div><div class="tl2">조건문</div></div>
+  <div class="ti" onclick="showSec(1)"><span class="ic">Q</span><div class="tm">소단원 1</div><div class="tl2">조건문 퀴즈</div></div>
+  <div class="ti" onclick="showSec(2)"><span class="ic">↻</span><div class="tm">소단원 2</div><div class="tl2">반복문</div></div>
+  <div class="ti" onclick="showSec(3)"><span class="ic">Q</span><div class="tm">소단원 2</div><div class="tl2">반복문 퀴즈</div></div>
+  <div class="ti" onclick="showSec(4)"><span class="ic">▦</span><div class="tm">소단원 3</div><div class="tl2">제어 구조</div></div>
+  <div class="ti" onclick="showSec(5)"><span class="ic">Q</span><div class="tm">소단원 3</div><div class="tl2">제어 구조 퀴즈</div></div>
+</div>
+
+<div class="sc visible" id="sec0">
+  <div class="stitle"><div class="dot"></div>조건문 — if / elif / else</div>
+  <table class="if-table">
+    <thead><tr><th>구문</th><th>역할</th><th>실행 조건</th></tr></thead>
+    <tbody>
+      <tr><td><span class="kw-tag">if</span></td><td>첫 조건 확인</td><td>조건식이 True일 때 실행</td></tr>
+      <tr><td><span class="kw-tag">elif</span></td><td>추가 조건 확인</td><td>앞 조건이 False이고 이 조건이 True일 때</td></tr>
+      <tr><td><span class="kw-tag">else</span></td><td>나머지 처리</td><td>앞 모든 조건이 False일 때 실행</td></tr>
+    </tbody>
+  </table>
+  <div class="cgrid">
+    <div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">if문 형식</p>
+      <div class="code-wrap"><span class="c-kw">if</span><span class="c-wh"> 조건식 :</span>
+<span class="c-wh">    명령문1   </span><span class="c-cm"># 참일 때 실행</span>
+<span class="c-wh">명령문2       </span><span class="c-cm"># 조건과 상관없이 실행</span></div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">if-elif-else 형식</p>
+      <div class="code-wrap" style="margin-bottom:0;"><span class="c-kw">if</span><span class="c-wh"> 조건식1 :</span>
+<span class="c-wh">    명령문1</span>
+<span class="c-kw">elif</span><span class="c-wh"> 조건식2 :</span>
+<span class="c-wh">    명령문2</span>
+<span class="c-kw">else</span><span class="c-wh"> :</span>
+<span class="c-wh">    명령문3</span></div>
+    </div>
+    <div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">예제: 점수 등급</p>
+      <div class="code-wrap"><span class="c-wh">score = </span><span class="c-nm">85</span>
+<span class="c-kw">if</span><span class="c-wh"> score </span><span class="c-op">&gt;=</span><span class="c-wh"> </span><span class="c-nm">90</span><span class="c-wh"> :</span>
+<span class="c-wh">    </span><span class="c-fn">print</span><span class="c-wh">(</span><span class="c-st">"A"</span><span class="c-wh">)</span>
+<span class="c-kw">elif</span><span class="c-wh"> score </span><span class="c-op">&gt;=</span><span class="c-wh"> </span><span class="c-nm">80</span><span class="c-wh"> :</span>
+<span class="c-wh">    </span><span class="c-fn">print</span><span class="c-wh">(</span><span class="c-st">"B"</span><span class="c-wh">)</span>
+<span class="c-kw">else</span><span class="c-wh"> :</span>
+<span class="c-wh">    </span><span class="c-fn">print</span><span class="c-wh">(</span><span class="c-st">"C 이하"</span><span class="c-wh">)</span></div>
+    </div>
+  </div>
+  <div class="sandbox-wrap">
+    <div class="sb-hdr"><div class="sb-hdr-l"><span>바로 테스트해보기</span><span class="sb-badge">조건문</span></div><button class="sb-run" onclick="runSandbox()">실행</button></div>
+    <div class="snip-row"><span class="snip-lbl">예제 →</span><button class="snip-btn" onclick="loadSnip('if1')">단순 if</button><button class="snip-btn" onclick="loadSnip('score')">점수 등급</button><button class="snip-btn" onclick="loadSnip('age')">나이 판별</button><button class="snip-btn" onclick="clearSb()">초기화</button></div>
+    <div class="sb-editor"><div class="lnums" id="lnums">1</div><textarea class="sbi" id="sbi" spellcheck="false" placeholder="코드를 입력하고 실행해 보세요!"></textarea></div>
+    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+    <div class="sb-out-wrap"><div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div><div class="sb-out empty" id="sbo">실행 버튼을 누르면 결과가 나타나요</div></div>
+  </div>
+  <div class="nav-row"><button class="nav-btn primary" onclick="showSec(1)">다음: 조건문 퀴즈 →</button></div>
+</div>
+
+<div class="sc quiz-tab" id="sec1">
+  <div class="stitle"><div class="dot"></div>소단원 1 퀴즈 — 조건문</div>
+  <div class="quiz-head"><h3>조건문의 구조와 실행 흐름 확인</h3><p>문항을 선택한 뒤 점수 확인을 누르세요. 각 문항은 한 번만 선택할 수 있습니다.</p></div>
+  <div class="quiz-area" id="quiz0"></div>
+  <div class="quiz-controls"><button class="nav-btn primary" onclick="scoreQuiz(0)">점수 확인</button><button class="nav-btn" onclick="resetQuiz(0)">다시 풀기</button></div>
+  <div class="score-box" id="score0"></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(0)">← 조건문</button><button class="nav-btn primary" onclick="showSec(2)">다음: 반복문 →</button></div>
+</div>
+
+<div class="sc" id="sec2">
+  <div class="stitle"><div class="dot"></div>반복문 — for / while / break / continue</div>
+  <div class="cgrid">
+    <div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;"><span class="kw-tag">for</span> 문</p>
+      <div class="code-wrap"><span class="c-kw">for</span><span class="c-wh"> 변수 </span><span class="c-kw">in</span><span class="c-fn"> range</span><span class="c-wh">(횟수) :</span>
+<span class="c-wh">    반복할 명령문</span></div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;"><span class="kw-tag">while</span> 문</p>
+      <div class="code-wrap" style="margin-bottom:0;"><span class="c-kw">while</span><span class="c-wh"> 조건식 :</span>
+<span class="c-wh">    반복할 명령문</span>
+<span class="c-cm"># 조건이 True인 동안 반복</span></div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">예제: 1~100 합계</p>
+      <div class="code-wrap"><span class="c-wh">t = </span><span class="c-nm">0</span>
+<span class="c-kw">for</span><span class="c-wh"> a </span><span class="c-kw">in</span><span class="c-fn"> range</span><span class="c-wh">(</span><span class="c-nm">1</span><span class="c-wh">, </span><span class="c-nm">101</span><span class="c-wh">) :</span>
+<span class="c-wh">    t </span><span class="c-op">+=</span><span class="c-wh"> a</span>
+<span class="c-fn">print</span><span class="c-wh">(t)  </span><span class="c-cm"># 5050</span></div>
+    </div>
+  </div>
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">range() 함수</p>
+  <div class="range-grid">
+    <div class="range-card"><div class="range-hd" style="background:#7B3F00;">range(5)</div><div class="range-body">0, 1, 2, 3, 4</div></div>
+    <div class="range-card"><div class="range-hd" style="background:#A0522D;">range(1, 6)</div><div class="range-body">1, 2, 3, 4, 5</div></div>
+    <div class="range-card"><div class="range-hd" style="background:#CD853F;">range(1, 10, 2)</div><div class="range-body">1, 3, 5, 7, 9</div></div>
+  </div>
+
+
+  <div class="sandbox-wrap">
+    <div class="sb-hdr"><div class="sb-hdr-l"><span>바로 테스트해보기</span><span class="sb-badge">반복문</span></div><button class="sb-run" onclick="runLoopSandbox()">실행</button></div>
+    <div class="snip-row">
+      <span class="snip-lbl">예제 →</span>
+      <button class="snip-btn" onclick="loadLoopSnip('loop1')">1~5 출력</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopSum')">1~100 합계</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopEven')">짝수 출력</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopBreak')">break</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopContinue')">continue</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopGugu')">구구단 2단</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopNested')">구구단 전체</button>
+      <button class="snip-btn" onclick="clearLoopSb()">초기화</button>
+    </div>
+    <div class="sb-editor"><div class="lnums" id="loopLnums">1</div><textarea class="sbi" id="loopSbi" spellcheck="false" placeholder="반복문 코드를 입력하고 실행해 보세요!">for i in range(1, 6) :
+    print(i)</textarea></div>
+    <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
+    <div class="sb-out-wrap"><div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div><div class="sb-out empty" id="loopSbo">실행 버튼을 누르면 결과가 나타나요</div></div>
+  </div>
+
+  <div class="ch-area" style="margin-top:1rem;">
+    <div class="ch-title">반복문 도전 과제</div>
+    <div class="ch-list">
+      <div class="ch-item"><div class="chnum">1</div><span>for문으로 1부터 20까지의 홀수만 출력하세요.</span></div>
+      <div class="ch-item"><div class="chnum">2</div><span>for문으로 1부터 100까지의 합계를 구해 출력하세요.</span></div>
+      <div class="ch-item"><div class="chnum">3</div><span>중첩 for문으로 2단부터 5단까지의 구구단을 출력하세요.</span></div>
+    </div>
+  </div>
+
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(1)">← 조건문 퀴즈</button><button class="nav-btn primary" onclick="showSec(3)">다음: 반복문 퀴즈 →</button></div>
+</div>
+
+<div class="sc quiz-tab" id="sec3">
+  <div class="stitle"><div class="dot"></div>소단원 2 퀴즈 — 반복문</div>
+  <div class="quiz-head"><h3>반복문과 range(), break, continue 확인</h3><p>반복 횟수와 실행 결과를 중심으로 풀어보세요.</p></div>
+  <div class="quiz-area" id="quiz1"></div>
+  <div class="quiz-controls"><button class="nav-btn primary" onclick="scoreQuiz(1)">점수 확인</button><button class="nav-btn" onclick="resetQuiz(1)">다시 풀기</button></div>
+  <div class="score-box" id="score1"></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(2)">← 반복문</button><button class="nav-btn primary" onclick="showSec(4)">다음: 제어 구조 →</button></div>
+</div>
+
+<div class="sc" id="sec4">
+  <div class="stitle"><div class="dot"></div>제어 구조 프로그래밍 — 중첩 & 조합</div>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;">조건문과 반복문을 조합하면 더 복잡한 실생활 문제를 해결할 수 있습니다.</p>
+  <div class="cgrid">
+    <div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">예제: 구구단 전체</p>
+      <div class="code-wrap"><span class="c-kw">for</span><span class="c-wh"> dan </span><span class="c-kw">in</span><span class="c-fn"> range</span><span class="c-wh">(</span><span class="c-nm">2</span><span class="c-wh">, </span><span class="c-nm">10</span><span class="c-wh">) :</span>
+<span class="c-wh">    </span><span class="c-kw">for</span><span class="c-wh"> i </span><span class="c-kw">in</span><span class="c-fn"> range</span><span class="c-wh">(</span><span class="c-nm">1</span><span class="c-wh">, </span><span class="c-nm">10</span><span class="c-wh">) :</span>
+<span class="c-wh">        </span><span class="c-fn">print</span><span class="c-wh">(dan, </span><span class="c-st">"x"</span><span class="c-wh">, i, </span><span class="c-st">"="</span><span class="c-wh">, dan*i)</span></div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">예제: 조건 + 반복</p>
+      <div class="code-wrap"><span class="c-kw">for</span><span class="c-wh"> n </span><span class="c-kw">in</span><span class="c-fn"> range</span><span class="c-wh">(</span><span class="c-nm">1</span><span class="c-wh">, </span><span class="c-nm">11</span><span class="c-wh">) :</span>
+<span class="c-wh">    </span><span class="c-kw">if</span><span class="c-wh"> n </span><span class="c-op">%</span><span class="c-wh"> </span><span class="c-nm">2</span><span class="c-wh"> </span><span class="c-op">==</span><span class="c-wh"> </span><span class="c-nm">0</span><span class="c-wh"> :</span>
+<span class="c-wh">        </span><span class="c-fn">print</span><span class="c-wh">(n, </span><span class="c-st">"짝수"</span><span class="c-wh">)</span></div>
+    </div>
+  </div>
+  <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;">개인 실습 — 직접 코드 작성하고 실행해보기</p>
+  <div class="editor-toolbar"><span>main.py</span><button class="run-btn" onclick="runCode()">실행</button></div>
+  <textarea class="code-input" id="codeInput" spellcheck="false">score = 75
+if score >= 90 :
+    print("A")
+elif score >= 80 :
+    print("B")
+elif score >= 70 :
+    print("C")
+else :
+    print("D")
+</textarea>
+  <div class="result-header"><div class="result-dot"></div><span>실행 결과</span></div>
+  <div class="result-output empty" id="resultOutput">실행 버튼을 눌러보세요</div>
+  <div class="ch-area"><div class="ch-title">도전 과제</div><div class="ch-list">
+    <div class="ch-item"><div class="chnum">1</div><span>for문으로 1~50 중 짝수만 출력하세요.</span></div>
+    <div class="ch-item"><div class="chnum">2</div><span>중첩 for문으로 2단~5단 구구단을 출력하세요.</span></div>
+    <div class="ch-item"><div class="chnum">3</div><span>while문으로 사용자가 0을 입력할 때까지 숫자를 받아 합계를 출력하세요.</span></div>
+  </div></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(3)">← 반복문 퀴즈</button><button class="nav-btn primary" onclick="showSec(5)">다음: 제어 구조 퀴즈 →</button></div>
+</div>
+
+<div class="sc quiz-tab" id="sec5">
+  <div class="stitle"><div class="dot"></div>소단원 3 퀴즈 — 제어 구조 프로그래밍</div>
+  <div class="quiz-head"><h3>조건문과 반복문의 조합 확인</h3><p>중첩 반복문, 조건+반복, 문제 해결 흐름을 확인합니다.</p></div>
+  <div class="quiz-area" id="quiz2"></div>
+  <div class="quiz-controls"><button class="nav-btn primary" onclick="scoreQuiz(2)">점수 확인</button><button class="nav-btn" onclick="resetQuiz(2)">다시 풀기</button></div>
+  <div class="score-box" id="score2"></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(4)">← 제어 구조</button></div>
+</div>
+
+<script>
+const snips = {
+  if1: "speed = 45\nif speed > 30 :\n    print(\"과속입니다.\")\nprint(\"시속 30km를 유지하세요.\")",
+  score: "score = 85\nif score >= 90 :\n    print(\"A등급\")\nelif score >= 80 :\n    print(\"B등급\")\nelse :\n    print(\"C등급 이하\")",
+  age: "age = 17\nif age >= 19 :\n    print(\"성인\")\nelse :\n    print(\"청소년\")",
+  loop1: "for i in range(1, 6) :\n    print(i)",
+  loopSum: "total = 0\nfor i in range(1, 101) :\n    total += i\nprint(total)",
+  loopEven: "for i in range(1, 11) :\n    if i % 2 == 0 :\n        print(i)",
+  loopBreak: "for i in range(1, 11) :\n    if i == 6 :\n        break\n    print(i)",
+  loopContinue: "for i in range(1, 11) :\n    if i % 2 == 0 :\n        continue\n    print(i)",
+  loopGugu: "for i in range(1, 10) :\n    print(2, \"x\", i, \"=\", 2*i)",
+  loopNested: "for dan in range(2, 10) :\n    for i in range(1, 10) :\n        print(dan, \"x\", i, \"=\", dan*i)"
+};
+
+const quizzes = [
+  [
+    {q:"파이썬에서 조건문을 시작할 때 사용하는 키워드는?", c:["for","if","while","print"], a:1},
+    {q:"if 조건식 뒤에 반드시 붙는 기호는?", c:[";","="," :",","], a:2},
+    {q:"앞의 조건이 거짓일 때 추가 조건을 검사하는 키워드는?", c:["else","elif","again","case"], a:1},
+    {q:"모든 조건이 거짓일 때 실행되는 구문은?", c:["if","elif","else","while"], a:2},
+    {q:"파이썬에서 조건문 블록을 구분하는 방법은?", c:["중괄호","들여쓰기","따옴표","마침표"], a:1},
+    {q:"score=85일 때, if score>=90: A / elif score>=80: B 의 결과는?", c:["A","B","C","출력 없음"], a:1},
+    {q:"비교 연산자 중 '같다'를 의미하는 것은?", c:["=","==","!=","=>"], a:1},
+    {q:"조건식의 결과로 나올 수 있는 값은?", c:["True 또는 False","문자열만","정수만","리스트만"], a:0},
+    {q:"age=17일 때 age>=19의 결과는?", c:["True","False","17","19"], a:1},
+    {q:"if문 안의 명령문은 보통 몇 칸 들여쓰기를 사용하는가?", c:["1칸","2칸","4칸","10칸"], a:2}
+  ],
+  [
+    {q:"정해진 횟수만큼 반복할 때 주로 사용하는 반복문은?", c:["if","for","elif","def"], a:1},
+    {q:"조건이 True인 동안 반복하는 구문은?", c:["while","else","input","return"], a:0},
+    {q:"range(5)가 만드는 값은?", c:["1,2,3,4,5","0,1,2,3,4","0,1,2,3,4,5","5"], a:1},
+    {q:"range(1,6)이 만드는 값은?", c:["1~5","1~6","0~5","0~6"], a:0},
+    {q:"range(1,10,2)의 결과는?", c:["1,2,3,4,5","1,3,5,7,9","2,4,6,8","1,10,2"], a:1},
+    {q:"반복문을 즉시 종료하는 명령어는?", c:["continue","break","pass","stop"], a:1},
+    {q:"현재 반복 회차만 건너뛰고 다음 반복으로 넘어가는 명령어는?", c:["continue","break","exit","else"], a:0},
+    {q:"for i in range(3): print(i)의 출력은?", c:["1 2 3","0 1 2","0 1 2 3","3"], a:1},
+    {q:"무한 반복이 발생할 가능성이 큰 구문은?", c:["while True:","if True:","print(True)","range(10)"], a:0},
+    {q:"1부터 100까지 합계를 구할 때 필요한 변수 t의 초기값으로 적절한 것은?", c:["0","100","문자열","True"], a:0}
+  ],
+  [
+    {q:"반복문 안에 반복문이 들어간 구조를 무엇이라고 하는가?", c:["단순 반복","중첩 반복문","선택 구조","순차 구조"], a:1},
+    {q:"바깥 반복 3번, 안쪽 반복 5번이면 총 반복 횟수는?", c:["8번","15번","3번","5번"], a:1},
+    {q:"구구단 전체를 출력할 때 적절한 구조는?", c:["if만 사용","중첩 for문","print 한 번","input만 사용"], a:1},
+    {q:"1~10 중 짝수만 출력하려면 필요한 조건식은?", c:["n % 2 == 0","n % 2 == 1","n + 2 == 0","n == True"], a:0},
+    {q:"조건문과 반복문을 함께 쓰는 이유로 적절한 것은?", c:["복잡한 조건을 반복 처리하기 위해","코드를 무조건 길게 만들기 위해","출력을 막기 위해","변수를 삭제하기 위해"], a:0},
+    {q:"while문에서 사용자가 0을 입력하면 종료하도록 할 때 필요한 명령은?", c:["break","continue","elif","print"], a:0},
+    {q:"중첩 반복문에서 안쪽 반복문은 언제 실행되는가?", c:["바깥 반복이 한 번 실행될 때마다","프로그램 시작 전에","항상 한 번만","절대 실행되지 않음"], a:0},
+    {q:"for dan in range(2,10)에서 dan의 마지막 값은?", c:["8","9","10","11"], a:1},
+    {q:"조건문으로 홀수/짝수를 판별할 때 자주 쓰는 연산자는?", c:["%","+","//","**"], a:0},
+    {q:"문제 해결 프로그램을 만들 때 가장 먼저 해야 할 일은?", c:["무작정 코딩하기","문제 조건과 처리 흐름 파악하기","결과 삭제하기","들여쓰기 없애기"], a:1}
+  ]
+];
+
+function showSec(i){for(let j=0;j<6;j++){document.getElementById('sec'+j).classList.toggle('visible',j===i);document.querySelectorAll('.ti')[j].classList.toggle('active',j===i);}}
+function renderQuizzes(){
+  quizzes.forEach((set, qi)=>{
+    const box=document.getElementById('quiz'+qi);
+    box.innerHTML=set.map((item,idx)=>`<div class="qi" data-q="${idx}"><div class="qq">${idx+1}. ${item.q}</div><div class="qcs">${item.c.map((ch,ci)=>`<button class="cb" onclick="chooseAnswer(${qi},${idx},${ci},this)">${ch}</button>`).join('')}</div><div class="qfb" id="qfb-${qi}-${idx}"></div></div>`).join('');
+  });
+}
+function chooseAnswer(qi,idx,ci,btn){
+  const p=btn.closest('.qcs');
+  if(p.querySelector('.correct,.wrong')) return;
+  p.querySelectorAll('.cb').forEach(b=>b.disabled=true);
+  const ok=ci===quizzes[qi][idx].a;
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) p.querySelectorAll('.cb')[quizzes[qi][idx].a].classList.add('correct');
+  const fb=document.getElementById(`qfb-${qi}-${idx}`);
+  fb.textContent=ok?'정답입니다.':'오답입니다. 표시된 정답을 확인하세요.';
+  fb.className='qfb show '+(ok?'ok':'ng');
+}
+function scoreQuiz(qi){
+  let correct=0;
+  const items=document.querySelectorAll(`#quiz${qi} .qi`);
+  items.forEach((item,idx)=>{ const chosen=item.querySelector('.cb.wrong,.cb.correct'); if(chosen && chosen.classList.contains('correct') && Array.from(chosen.parentElement.children).indexOf(chosen)===quizzes[qi][idx].a) correct++; });
+  const score=document.getElementById('score'+qi);
+  score.className='score-box show';
+  score.textContent=`점수: ${correct} / ${quizzes[qi].length}점`;
+}
+function resetQuiz(qi){renderQuizzes();const s=document.getElementById('score'+qi);s.className='score-box';s.textContent='';}
+function loadSnip(k){const ta=document.getElementById('sbi');ta.value=snips[k];updateLN(ta);}
+function clearSb(){const ta=document.getElementById('sbi');ta.value='';updateLN(ta);const o=document.getElementById('sbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
+function updateLN(ta){const n=ta.value.split('\n').length;document.getElementById('lnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,120)+'px';}
+function execCode(code){
+  const vars={}, outputs=[], inputs=[];
+  const rawLines=code.replace(/\t/g,'    ').split('\n');
+  function indentOf(line){const m=line.match(/^\s*/);return m?m[0].length:0;}
+  function splitArgs(s){const arr=[];let cur='',q=null,depth=0;for(let ch of s){if(q){cur+=ch;if(ch===q)q=null;continue;}if(ch==='"'||ch==="'"){q=ch;cur+=ch;continue;}if(ch==='('||ch==='['||ch==='{')depth++;if(ch===')'||ch===']'||ch==='}')depth--;if(ch===','&&depth===0){arr.push(cur.trim());cur='';}else cur+=ch;}if(cur.trim()||s.trim()==='')arr.push(cur.trim());return arr;}
+  function pyRange(args){let a=args.map(Number);let start=0,end=0,step=1;if(a.length===1){end=a[0];}else if(a.length===2){start=a[0];end=a[1];}else{start=a[0];end=a[1];step=a[2]||1;}const res=[];for(let x=start;(step>0?x<end:x>end);x+=step)res.push(x);return res;}
+  function evalExpr(expr){
+    let e=expr.trim();
+    if(e==='') return '';
+    e=e.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\bNone\b/g,'null')
+       .replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!')
+       .replace(/\bint\s*\(/g,'Math.trunc(').replace(/\bfloat\s*\(/g,'Number(').replace(/\bstr\s*\(/g,'String(');
+    try{
+      const names=Object.keys(vars);
+      const vals=Object.values(vars);
+      const fn=new Function(...names,'range','len','sum',`return (${e});`);
+      return fn(...vals,(...a)=>pyRange(a),x=>String(x).length,x=>Array.isArray(x)?x.reduce((s,v)=>s+Number(v),0):0);
+    }catch(err){
+      return expr.trim().replace(/^['"]|['"]$/g,'');
+    }
+  }
+  function findBlockEnd(start, parentIndent){let j=start;while(j<rawLines.length){const t=rawLines[j].trim();if(t && indentOf(rawLines[j])<=parentIndent)break;j++;}return j;}
+  function runBlock(start,end,indent,limit=10000){let i=start,steps=0;while(i<end&&steps++<limit){let raw=rawLines[i], line=raw.trim();if(!line||line.startsWith('#')){i++;continue;}let ind=indentOf(raw);if(ind<indent)break;if(ind>indent){i++;continue;}
+      let m=line.match(/^for\s+(\w+)\s+in\s+range\((.*)\)\s*:/);
+      if(m){const v=m[1], args=splitArgs(m[2]).filter(Boolean).map(evalExpr);const bStart=i+1,bEnd=findBlockEnd(bStart,ind);for(const val of pyRange(args)){vars[v]=val;const sig=runBlock(bStart,bEnd,ind+1);if(sig==='break')break;if(sig==='continue')continue;if(outputs.length>300){outputs.push('...출력이 많아 일부만 표시합니다.');return;}}i=bEnd;continue;}
+      m=line.match(/^while\s+(.+)\s*:/);
+      if(m){const cond=m[1];const bStart=i+1,bEnd=findBlockEnd(bStart,ind);let guard=0;while(evalExpr(cond)&&guard++<100){const sig=runBlock(bStart,bEnd,ind+1);if(sig==='break')break;if(sig==='continue')continue;if(outputs.length>300){outputs.push('...출력이 많아 일부만 표시합니다.');break;}}i=bEnd;continue;}
+      if(line.startsWith('if ')&&line.endsWith(':')){let executed=false;let cur=i;while(cur<end){const head=rawLines[cur].trim();const hInd=indentOf(rawLines[cur]);if(hInd!==ind)break;let cond=null,isElse=false;if(head.startsWith('if ')&&cur===i)cond=head.slice(3,-1);else if(head.startsWith('elif '))cond=head.slice(5,-1);else if(head.startsWith('else'))isElse=true;else break;const bStart=cur+1,bEnd=findBlockEnd(bStart,hInd);if(!executed&&(isElse||evalExpr(cond))){const sig=runBlock(bStart,bEnd,hInd+1);executed=true;if(sig)return sig;}cur=bEnd;}i=cur;continue;}
+      if(line==='break')return 'break';
+      if(line==='continue')return 'continue';
+      m=line.match(/^print\((.*)\)$/);if(m){const args=splitArgs(m[1]);outputs.push(args.map(a=>String(evalExpr(a))).join(' '));i++;continue;}
+      m=line.match(/^(\w+)\s*\+=\s*(.+)$/);if(m){vars[m[1]]=(vars[m[1]]||0)+Number(evalExpr(m[2]));i++;continue;}
+      m=line.match(/^(\w+)\s*-=?\s*(.+)$/);if(false){}
+      m=line.match(/^(\w+)\s*=\s*(.+)$/);if(m){vars[m[1]]=evalExpr(m[2]);i++;continue;}
+      i++;
+    }}
+  runBlock(0,rawLines.length,0);
+  return outputs;
+}
+
+function loadLoopSnip(k){const ta=document.getElementById('loopSbi');ta.value=snips[k];updateLoopLN(ta);}
+function clearLoopSb(){const ta=document.getElementById('loopSbi');ta.value='';updateLoopLN(ta);const o=document.getElementById('loopSbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
+function updateLoopLN(ta){const n=ta.value.split('\n').length;document.getElementById('loopLnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,120)+'px';}
+function runLoopSandbox(){const o=document.getElementById('loopSbo');const outs=execCode(document.getElementById('loopSbi').value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
+function runSandbox(){const o=document.getElementById('sbo');const outs=execCode(document.getElementById('sbi').value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
+function runCode(){const ta=document.getElementById('codeInput');ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';const o=document.getElementById('resultOutput');const outs=execCode(ta.value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
+window.addEventListener('load',()=>{
+  renderQuizzes();
+  const ta=document.getElementById('codeInput');ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
+  const sb=document.getElementById('sbi');sb.addEventListener('input',()=>updateLN(sb));sb.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runSandbox();}});
+  const loop=document.getElementById('loopSbi'); if(loop){ updateLoopLN(loop); loop.addEventListener('input',()=>updateLoopLN(loop)); loop.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runLoopSandbox();}}); }
+});
+</script>
