@@ -195,7 +195,6 @@ textarea.code-input { width: 100%; background: #0D0F0A; border: none; border-rad
     <div class="range-card"><div class="range-hd" style="background:#CD853F;">range(1, 10, 2)</div><div class="range-body">1, 3, 5, 7, 9</div></div>
   </div>
 
-
   <div class="sandbox-wrap">
     <div class="sb-hdr"><div class="sb-hdr-l"><span>바로 테스트해보기</span><span class="sb-badge">반복문</span></div><button class="sb-run" onclick="runLoopSandbox()">실행</button></div>
     <div class="snip-row">
@@ -206,24 +205,13 @@ textarea.code-input { width: 100%; background: #0D0F0A; border: none; border-rad
       <button class="snip-btn" onclick="loadLoopSnip('loopBreak')">break</button>
       <button class="snip-btn" onclick="loadLoopSnip('loopContinue')">continue</button>
       <button class="snip-btn" onclick="loadLoopSnip('loopGugu')">구구단 2단</button>
-      <button class="snip-btn" onclick="loadLoopSnip('loopNested')">구구단 전체</button>
+      <button class="snip-btn" onclick="loadLoopSnip('loopNested')">중첩 for</button>
       <button class="snip-btn" onclick="clearLoopSb()">초기화</button>
     </div>
-    <div class="sb-editor"><div class="lnums" id="loopLnums">1</div><textarea class="sbi" id="loopSbi" spellcheck="false" placeholder="반복문 코드를 입력하고 실행해 보세요!">for i in range(1, 6) :
-    print(i)</textarea></div>
+    <div class="sb-editor"><div class="lnums" id="loopLnums">1</div><textarea class="sbi" id="loopSbi" spellcheck="false" placeholder="반복문 코드를 입력하고 실행해 보세요!"></textarea></div>
     <div class="sb-run-bar"><span>Shift+Enter 로도 실행</span></div>
     <div class="sb-out-wrap"><div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div><div class="sb-out empty" id="loopSbo">실행 버튼을 누르면 결과가 나타나요</div></div>
   </div>
-
-  <div class="ch-area" style="margin-top:1rem;">
-    <div class="ch-title">반복문 도전 과제</div>
-    <div class="ch-list">
-      <div class="ch-item"><div class="chnum">1</div><span>for문으로 1부터 20까지의 홀수만 출력하세요.</span></div>
-      <div class="ch-item"><div class="chnum">2</div><span>for문으로 1부터 100까지의 합계를 구해 출력하세요.</span></div>
-      <div class="ch-item"><div class="chnum">3</div><span>중첩 for문으로 2단부터 5단까지의 구구단을 출력하세요.</span></div>
-    </div>
-  </div>
-
   <div class="nav-row"><button class="nav-btn" onclick="showSec(1)">← 조건문 퀴즈</button><button class="nav-btn primary" onclick="showSec(3)">다음: 반복문 퀴즈 →</button></div>
 </div>
 
@@ -288,14 +276,17 @@ else :
 const snips = {
   if1: "speed = 45\nif speed > 30 :\n    print(\"과속입니다.\")\nprint(\"시속 30km를 유지하세요.\")",
   score: "score = 85\nif score >= 90 :\n    print(\"A등급\")\nelif score >= 80 :\n    print(\"B등급\")\nelse :\n    print(\"C등급 이하\")",
-  age: "age = 17\nif age >= 19 :\n    print(\"성인\")\nelse :\n    print(\"청소년\")",
+  age: "age = 17\nif age >= 19 :\n    print(\"성인\")\nelse :\n    print(\"청소년\")"
+};
+
+const loopSnips = {
   loop1: "for i in range(1, 6) :\n    print(i)",
   loopSum: "total = 0\nfor i in range(1, 101) :\n    total += i\nprint(total)",
   loopEven: "for i in range(1, 11) :\n    if i % 2 == 0 :\n        print(i)",
-  loopBreak: "for i in range(1, 11) :\n    if i == 6 :\n        break\n    print(i)",
-  loopContinue: "for i in range(1, 11) :\n    if i % 2 == 0 :\n        continue\n    print(i)",
-  loopGugu: "for i in range(1, 10) :\n    print(2, \"x\", i, \"=\", 2*i)",
-  loopNested: "for dan in range(2, 10) :\n    for i in range(1, 10) :\n        print(dan, \"x\", i, \"=\", dan*i)"
+  loopBreak: "for i in range(1, 6) :\n    if i == 3 :\n        break\n    print(i)",
+  loopContinue: "for i in range(1, 6) :\n    if i == 3 :\n        continue\n    print(i)",
+  loopGugu: "dan = 2\nfor i in range(1, 10) :\n    print(dan, \"x\", i, \"=\", dan * i)",
+  loopNested: "for dan in range(2, 4) :\n    for i in range(1, 4) :\n        print(dan, \"x\", i, \"=\", dan * i)"
 };
 
 const quizzes = [
@@ -367,56 +358,214 @@ function resetQuiz(qi){renderQuizzes();const s=document.getElementById('score'+q
 function loadSnip(k){const ta=document.getElementById('sbi');ta.value=snips[k];updateLN(ta);}
 function clearSb(){const ta=document.getElementById('sbi');ta.value='';updateLN(ta);const o=document.getElementById('sbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
 function updateLN(ta){const n=ta.value.split('\n').length;document.getElementById('lnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,120)+'px';}
-function execCode(code){
-  const vars={}, outputs=[], inputs=[];
-  const rawLines=code.replace(/\t/g,'    ').split('\n');
-  function indentOf(line){const m=line.match(/^\s*/);return m?m[0].length:0;}
-  function splitArgs(s){const arr=[];let cur='',q=null,depth=0;for(let ch of s){if(q){cur+=ch;if(ch===q)q=null;continue;}if(ch==='"'||ch==="'"){q=ch;cur+=ch;continue;}if(ch==='('||ch==='['||ch==='{')depth++;if(ch===')'||ch===']'||ch==='}')depth--;if(ch===','&&depth===0){arr.push(cur.trim());cur='';}else cur+=ch;}if(cur.trim()||s.trim()==='')arr.push(cur.trim());return arr;}
-  function pyRange(args){let a=args.map(Number);let start=0,end=0,step=1;if(a.length===1){end=a[0];}else if(a.length===2){start=a[0];end=a[1];}else{start=a[0];end=a[1];step=a[2]||1;}const res=[];for(let x=start;(step>0?x<end:x>end);x+=step)res.push(x);return res;}
+function updateLoopLN(ta){const n=ta.value.split('\n').length;document.getElementById('loopLnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,120)+'px';}
+function loadLoopSnip(k){const ta=document.getElementById('loopSbi');ta.value=loopSnips[k];updateLoopLN(ta);}
+function clearLoopSb(){const ta=document.getElementById('loopSbi');ta.value='';updateLoopLN(ta);const o=document.getElementById('loopSbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
+function runLoopSandbox(){const o=document.getElementById('loopSbo');const outs=execCode(document.getElementById('loopSbi').value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
+
+function execCode(code, stdinText=''){
+  const vars = {};
+  const outputs = [];
+  const inputLines = String(stdinText || '').split(/\r?\n/);
+  let inputPtr = 0;
+  const rawLines = code.replace(/\t/g,'    ').split('\n');
+  const MAX_STEPS = 5000;
+  let steps = 0;
+
+  function indentOf(line){ return (line.match(/^ */) || [''])[0].length; }
+  function isBlank(line){ return line.trim()==='' || line.trim().startsWith('#'); }
+  function nextInput(){ return inputPtr < inputLines.length ? inputLines[inputPtr++] : ''; }
+  function pyInt(v){ const n = parseInt(v, 10); return Number.isNaN(n) ? 0 : n; }
+  function pyFloat(v){ const n = parseFloat(v); return Number.isNaN(n) ? 0 : n; }
+  function pyStr(v){ return String(v); }
+  function pyLen(v){ return v && v.length !== undefined ? v.length : 0; }
+  function pySum(v){ return Array.isArray(v) ? v.reduce((a,b)=>a+Number(b),0) : 0; }
+  function formatVal(v){
+    if(v === true) return 'True';
+    if(v === false) return 'False';
+    if(Array.isArray(v)) return '[' + v.map(formatVal).join(', ') + ']';
+    if(v === undefined) return 'None';
+    return String(v);
+  }
+  function splitArgs(text){
+    const parts=[]; let cur='', depth=0, quote=null;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i], prev=text[i-1];
+      if(quote){ cur+=ch; if(ch===quote && prev!=='\\') quote=null; continue; }
+      if(ch==='"' || ch==="'"){ quote=ch; cur+=ch; continue; }
+      if(ch==='(' || ch==='[' || ch==='{') depth++;
+      if(ch===')' || ch===']' || ch==='}') depth--;
+      if(ch===',' && depth===0){ parts.push(cur.trim()); cur=''; continue; }
+      cur+=ch;
+    }
+    if(cur.trim()!=='' || text.trim()==='') parts.push(cur.trim());
+    return parts;
+  }
+  function translate(expr){
+    return expr
+      .replace(/\bTrue\b/g,'true')
+      .replace(/\bFalse\b/g,'false')
+      .replace(/\bNone\b/g,'null')
+      .replace(/\band\b/g,'&&')
+      .replace(/\bor\b/g,'||')
+      .replace(/\bnot\b/g,'!')
+      .replace(/\bint\s*\(/g,'pyInt(')
+      .replace(/\bfloat\s*\(/g,'pyFloat(')
+      .replace(/\bstr\s*\(/g,'pyStr(')
+      .replace(/\blen\s*\(/g,'pyLen(')
+      .replace(/\bsum\s*\(/g,'pySum(')
+      .replace(/\binput\s*\(/g,'nextInput(');
+  }
   function evalExpr(expr){
-    let e=expr.trim();
-    if(e==='') return '';
-    e=e.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\bNone\b/g,'null')
-       .replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!')
-       .replace(/\bint\s*\(/g,'Math.trunc(').replace(/\bfloat\s*\(/g,'Number(').replace(/\bstr\s*\(/g,'String(');
+    expr = expr.trim();
+    if(expr==='') return '';
     try{
-      const names=Object.keys(vars);
-      const vals=Object.values(vars);
-      const fn=new Function(...names,'range','len','sum',`return (${e});`);
-      return fn(...vals,(...a)=>pyRange(a),x=>String(x).length,x=>Array.isArray(x)?x.reduce((s,v)=>s+Number(v),0):0);
-    }catch(err){
-      return expr.trim().replace(/^['"]|['"]$/g,'');
+      const names = Object.keys(vars);
+      const vals = Object.values(vars);
+      return Function(...names, 'nextInput','pyInt','pyFloat','pyStr','pyLen','pySum', `return (${translate(expr)});`)(...vals, nextInput, pyInt, pyFloat, pyStr, pyLen, pySum);
+    }catch(e){
+      return expr.replace(/^['"]|['"]$/g,'');
     }
   }
-  function findBlockEnd(start, parentIndent){let j=start;while(j<rawLines.length){const t=rawLines[j].trim();if(t && indentOf(rawLines[j])<=parentIndent)break;j++;}return j;}
-  function runBlock(start,end,indent,limit=10000){let i=start,steps=0;while(i<end&&steps++<limit){let raw=rawLines[i], line=raw.trim();if(!line||line.startsWith('#')){i++;continue;}let ind=indentOf(raw);if(ind<indent)break;if(ind>indent){i++;continue;}
-      let m=line.match(/^for\s+(\w+)\s+in\s+range\((.*)\)\s*:/);
-      if(m){const v=m[1], args=splitArgs(m[2]).filter(Boolean).map(evalExpr);const bStart=i+1,bEnd=findBlockEnd(bStart,ind);for(const val of pyRange(args)){vars[v]=val;const sig=runBlock(bStart,bEnd,ind+1);if(sig==='break')break;if(sig==='continue')continue;if(outputs.length>300){outputs.push('...출력이 많아 일부만 표시합니다.');return;}}i=bEnd;continue;}
-      m=line.match(/^while\s+(.+)\s*:/);
-      if(m){const cond=m[1];const bStart=i+1,bEnd=findBlockEnd(bStart,ind);let guard=0;while(evalExpr(cond)&&guard++<100){const sig=runBlock(bStart,bEnd,ind+1);if(sig==='break')break;if(sig==='continue')continue;if(outputs.length>300){outputs.push('...출력이 많아 일부만 표시합니다.');break;}}i=bEnd;continue;}
-      if(line.startsWith('if ')&&line.endsWith(':')){let executed=false;let cur=i;while(cur<end){const head=rawLines[cur].trim();const hInd=indentOf(rawLines[cur]);if(hInd!==ind)break;let cond=null,isElse=false;if(head.startsWith('if ')&&cur===i)cond=head.slice(3,-1);else if(head.startsWith('elif '))cond=head.slice(5,-1);else if(head.startsWith('else'))isElse=true;else break;const bStart=cur+1,bEnd=findBlockEnd(bStart,hInd);if(!executed&&(isElse||evalExpr(cond))){const sig=runBlock(bStart,bEnd,hInd+1);executed=true;if(sig)return sig;}cur=bEnd;}i=cur;continue;}
-      if(line==='break')return 'break';
-      if(line==='continue')return 'continue';
-      m=line.match(/^print\((.*)\)$/);if(m){const args=splitArgs(m[1]);outputs.push(args.map(a=>String(evalExpr(a))).join(' '));i++;continue;}
-      m=line.match(/^(\w+)\s*\+=\s*(.+)$/);if(m){vars[m[1]]=(vars[m[1]]||0)+Number(evalExpr(m[2]));i++;continue;}
-      m=line.match(/^(\w+)\s*-=?\s*(.+)$/);if(false){}
-      m=line.match(/^(\w+)\s*=\s*(.+)$/);if(m){vars[m[1]]=evalExpr(m[2]);i++;continue;}
+  function findBlockEnd(startIndex, parentIndent){
+    let j=startIndex;
+    while(j<rawLines.length){
+      if(isBlank(rawLines[j])){ j++; continue; }
+      if(indentOf(rawLines[j]) <= parentIndent) break;
+      j++;
+    }
+    return j;
+  }
+  function firstBodyIndent(startIndex, parentIndent){
+    for(let j=startIndex;j<rawLines.length;j++){
+      if(isBlank(rawLines[j])) continue;
+      const ind=indentOf(rawLines[j]);
+      return ind>parentIndent ? ind : parentIndent+4;
+    }
+    return parentIndent+4;
+  }
+  function evalRange(argText){
+    const args = splitArgs(argText).filter(x=>x!=='').map(x=>Number(evalExpr(x)));
+    let start=0, end=0, step=1;
+    if(args.length===1){ end=args[0]; }
+    else if(args.length===2){ start=args[0]; end=args[1]; }
+    else if(args.length>=3){ start=args[0]; end=args[1]; step=args[2]; }
+    const arr=[];
+    if(step===0) return arr;
+    for(let x=start; step>0 ? x<end : x>end; x+=step){ arr.push(x); if(arr.length>1000) break; }
+    return arr;
+  }
+  function runBlock(startIndex, blockIndent){
+    let i=startIndex;
+    while(i<rawLines.length){
+      if(++steps > MAX_STEPS){ outputs.push('[실행 중단] 반복 횟수가 너무 많습니다.'); return {i, signal:'break'}; }
+      const raw=rawLines[i];
+      if(isBlank(raw)){ i++; continue; }
+      const ind=indentOf(raw);
+      if(ind < blockIndent) break;
+      if(ind > blockIndent){ i++; continue; }
+      let line=raw.trim();
+
+      const ifM=line.match(/^if\s+(.+)\s*:\s*$/);
+      if(ifM){
+        let executed=false;
+        let chainIndex=i;
+        while(chainIndex<rawLines.length){
+          const branchRaw=rawLines[chainIndex];
+          if(isBlank(branchRaw)){ chainIndex++; continue; }
+          if(indentOf(branchRaw)!==ind) break;
+          const branch=branchRaw.trim();
+          const bIf=branch.match(/^(if|elif)\s+(.+)\s*:\s*$/);
+          const bElse=branch.match(/^else\s*:\s*$/);
+          if(!bIf && !bElse) break;
+          const bodyStart=chainIndex+1;
+          const bodyIndent=firstBodyIndent(bodyStart, ind);
+          const bodyEnd=findBlockEnd(bodyStart, ind);
+          let should=false;
+          if(!executed){
+            if(bIf) should=!!evalExpr(bIf[2]);
+            else if(bElse) should=true;
+          }
+          if(should){
+            const res=runBlock(bodyStart, bodyIndent);
+            executed=true;
+            if(res.signal) return {i:bodyEnd, signal:res.signal};
+          }
+          chainIndex=bodyEnd;
+        }
+        i=chainIndex;
+        continue;
+      }
+
+      const forM=line.match(/^for\s+([A-Za-z_]\w*)\s+in\s+range\((.*)\)\s*:\s*$/);
+      if(forM){
+        const varName=forM[1];
+        const vals=evalRange(forM[2]);
+        const bodyStart=i+1;
+        const bodyIndent=firstBodyIndent(bodyStart, ind);
+        const bodyEnd=findBlockEnd(bodyStart, ind);
+        for(const val of vals){
+          vars[varName]=val;
+          const res=runBlock(bodyStart, bodyIndent);
+          if(res.signal==='break') break;
+          if(res.signal==='continue') continue;
+        }
+        i=bodyEnd;
+        continue;
+      }
+
+      const whileM=line.match(/^while\s+(.+)\s*:\s*$/);
+      if(whileM){
+        const bodyStart=i+1;
+        const bodyIndent=firstBodyIndent(bodyStart, ind);
+        const bodyEnd=findBlockEnd(bodyStart, ind);
+        let guard=0;
+        while(!!evalExpr(whileM[1])){
+          if(++guard>1000){ outputs.push('[실행 중단] while 반복이 너무 많습니다.'); break; }
+          const res=runBlock(bodyStart, bodyIndent);
+          if(res.signal==='break') break;
+          if(res.signal==='continue') continue;
+        }
+        i=bodyEnd;
+        continue;
+      }
+
+      if(line==='break') return {i:i+1, signal:'break'};
+      if(line==='continue') return {i:i+1, signal:'continue'};
+      if(line==='pass'){ i++; continue; }
+
+      const augM=line.match(/^([A-Za-z_]\w*)\s*([+\-*/%])=\s*(.+)$/);
+      if(augM){
+        const name=augM[1], op=augM[2], val=evalExpr(augM[3]);
+        const cur=vars[name] ?? 0;
+        if(op==='+') vars[name]=cur+val;
+        if(op==='-') vars[name]=cur-val;
+        if(op==='*') vars[name]=cur*val;
+        if(op==='/') vars[name]=cur/val;
+        if(op==='%') vars[name]=cur%val;
+        i++; continue;
+      }
+
+      const assignM=line.match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/);
+      if(assignM){ vars[assignM[1]]=evalExpr(assignM[2]); i++; continue; }
+
+      const printM=line.match(/^print\((.*)\)$/);
+      if(printM){ outputs.push(splitArgs(printM[1]).map(x=>formatVal(evalExpr(x))).join(' ')); i++; continue; }
+
       i++;
-    }}
-  runBlock(0,rawLines.length,0);
+    }
+    return {i, signal:null};
+  }
+  runBlock(0,0);
   return outputs;
 }
 
-function loadLoopSnip(k){const ta=document.getElementById('loopSbi');ta.value=snips[k];updateLoopLN(ta);}
-function clearLoopSb(){const ta=document.getElementById('loopSbi');ta.value='';updateLoopLN(ta);const o=document.getElementById('loopSbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
-function updateLoopLN(ta){const n=ta.value.split('\n').length;document.getElementById('loopLnums').innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,120)+'px';}
-function runLoopSandbox(){const o=document.getElementById('loopSbo');const outs=execCode(document.getElementById('loopSbi').value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
 function runSandbox(){const o=document.getElementById('sbo');const outs=execCode(document.getElementById('sbi').value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
 function runCode(){const ta=document.getElementById('codeInput');ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';const o=document.getElementById('resultOutput');const outs=execCode(ta.value);o.classList.remove('empty');o.textContent=outs.length?outs.join('\n'):'(출력 없음)';}
 window.addEventListener('load',()=>{
   renderQuizzes();
   const ta=document.getElementById('codeInput');ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
   const sb=document.getElementById('sbi');sb.addEventListener('input',()=>updateLN(sb));sb.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runSandbox();}});
-  const loop=document.getElementById('loopSbi'); if(loop){ updateLoopLN(loop); loop.addEventListener('input',()=>updateLoopLN(loop)); loop.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runLoopSandbox();}}); }
+  const loopSb=document.getElementById('loopSbi');if(loopSb){loopSb.addEventListener('input',()=>updateLoopLN(loopSb));loopSb.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runLoopSandbox();}});}
 });
 </script>
