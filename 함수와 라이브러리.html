@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 함수와 라이브러리</title>
+<style>
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f6f8fb;
+  --color-border-tertiary:#d8dee9;
+  --color-border-secondary:#b8c2d1;
+  --color-text-primary:#1f2937;
+  --color-text-secondary:#5f6b7a;
+  --color-text-tertiary:#8993a3;
+  --border-radius-lg:18px;
+  --border-radius-md:10px;
+  --font-sans:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-mono:"Consolas","D2Coding","Courier New",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:#eef3f8;color:var(--color-text-primary);padding:18px;max-width:1180px;margin:0 auto}
+.hd{background:linear-gradient(135deg,#0A1628,#1A3A5C);border-radius:var(--border-radius-lg);padding:1.5rem 2rem;margin-bottom:1.25rem;color:white}
+.hd .badge{display:inline-block;background:rgba(255,255,255,.15);border-radius:20px;padding:3px 12px;font-size:12px;margin-bottom:.6rem}
+.hd h1{font-size:22px;font-weight:600;margin-bottom:.3rem}
+.hd p{font-size:13px;color:rgba(255,255,255,.78)}
+.tl{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:1.25rem}
+.ti{background:white;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem;text-align:center;cursor:pointer;transition:.15s}
+.ti:hover{border-color:#2E86AB}
+.ti.active{border:1.5px solid #2E86AB;background:#EAF4F4}
+.ti .tm{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.ti .tl2{font-size:13px;font-weight:600}
+.ti .ic{font-size:17px;margin-bottom:4px;display:block;color:#1E5799}
+.sc{background:white;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.5rem;margin-bottom:1rem;display:none}
+.sc.visible{display:block}
+.stitle{font-size:16px;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2E86AB;flex-shrink:0}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.cbox{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem}
+.clabel{font-size:11px;color:#1E5799;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.cval{font-size:13px;line-height:1.7}
+.kw-tag{display:inline-block;background:#EAF4F4;color:#1A3A5C;border:.5px solid #2E86AB;border-radius:4px;padding:1px 7px;font-family:var(--font-mono);font-size:13px;font-weight:600}
+.code-wrap{background:#0A0E1A;border-radius:var(--border-radius-md);padding:1rem 1.25rem;font-family:var(--font-mono);font-size:13px;line-height:1.9;margin-bottom:.75rem;border-left:3px solid #2E86AB;color:#CDD9E5;white-space:pre-wrap}
+.c-cm{color:#8B949E}.c-kw{color:#FF7B72}.c-fn{color:#D2A679}.c-st{color:#A5D6FF}.c-nm{color:#79C0FF}.c-op{color:#56B6C2}.c-wh{color:#CDD9E5}
+.fn-grid,.mod-grid,.lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.fn-card,.mod-card,.lib-card{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:white}
+.fn-hd,.mod-hd,.lib-hd{padding:.7rem 1rem;color:white;font-weight:600;font-size:14px}
+.fn-body,.mod-body,.lib-body{padding:.85rem 1rem;background:var(--color-background-secondary);font-size:12px;line-height:1.6}
+.fn-ex{font-family:var(--font-mono);color:var(--color-text-secondary);margin-bottom:4px}
+.lib-desc{font-size:12px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5}
+.sandbox-wrap{border:1.5px solid #2E86AB;border-radius:var(--border-radius-lg);overflow:hidden;margin-top:1.25rem}
+.sb-hdr{background:#1E5799;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.sb-hdr-l{display:flex;align-items:center;gap:8px}
+.sb-hdr-l span{font-size:13px;color:white;font-weight:600}
+.sb-badge{background:rgba(255,255,255,.2);font-size:11px;color:white;padding:2px 8px;border-radius:10px}
+.snip-row{background:#2E86AB;padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.snip-lbl{font-size:11px;color:rgba(255,255,255,.7);margin-right:4px}
+.snip-btn{padding:4px 10px;background:rgba(255,255,255,.12);border:.5px solid rgba(255,255,255,.24);border-radius:12px;font-size:12px;color:#EAFBFF;cursor:pointer;font-family:var(--font-mono)}
+.snip-btn:hover{background:rgba(255,255,255,.22)}
+.sb-editor{display:flex}
+.lnums{background:#060A12;padding:1rem .6rem 1rem .75rem;font-family:var(--font-mono);font-size:14px;line-height:1.9;color:#555;text-align:right;user-select:none;min-width:36px}
+textarea.sbi,textarea.code-input{background:#0A0E1A;border:none;color:#CDD9E5;font-family:var(--font-mono);font-size:14px;padding:1rem 1.25rem;line-height:1.9;resize:none;outline:none;overflow:hidden;min-height:150px;width:100%}
+textarea.sbi{flex:1}
+.sb-run-bar{background:#0D1220;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.sb-run-bar span{font-size:12px;color:#667}
+.sb-run,.run-btn{padding:7px 24px;background:#5DCAA5;color:#04342C;border:none;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;font-family:var(--font-sans);font-weight:700}
+.sb-run:hover,.run-btn:hover{background:#9FE1CB}
+.sb-out-wrap{border-top:.5px solid #0D1220}
+.sb-out-hdr{background:#060A12;padding:6px 14px;display:flex;align-items:center;gap:6px}
+.sb-out-dot{width:6px;height:6px;border-radius:50%;background:#2E86AB}
+.sb-out-hdr span{font-size:12px;color:#888}
+.sb-out{background:#060A12;padding:.75rem 1.25rem;font-family:var(--font-mono);font-size:14px;line-height:1.9;color:#A8DADC;white-space:pre-wrap;min-height:48px}
+.sb-out.empty{color:#555;font-style:italic;font-size:13px}
+.editor-toolbar{background:#2a2d36;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.editor-toolbar span{font-size:13px;color:#aaa;font-family:var(--font-mono)}
+.result-header{background:var(--color-background-secondary);border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;padding:10px 16px;border:.5px solid var(--color-border-tertiary);border-bottom:none;display:flex;align-items:center;gap:6px;margin-top:12px}
+.result-dot{width:7px;height:7px;border-radius:50%;background:#2E86AB}
+.result-header span{font-size:13px;color:var(--color-text-secondary)}
+.result-output{background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 var(--border-radius-md) var(--border-radius-md);padding:1rem 1.5rem;font-family:var(--font-mono);font-size:15px;line-height:1.9;min-height:60px;color:var(--color-text-primary);white-space:pre-wrap;margin-bottom:1.25rem}
+.result-output.empty{color:var(--color-text-tertiary);font-style:italic;font-size:13px}
+.ch-area{margin-bottom:1rem}
+.ch-title{font-size:13px;font-weight:700;margin-bottom:8px}
+.ch-list{display:flex;flex-direction:column;gap:6px}
+.ch-item{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.7rem 1rem;font-size:13px;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.chnum{width:20px;height:20px;border-radius:50%;background:#2E86AB;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.quiz-head{background:linear-gradient(135deg,#EAF4F4,#FFFFFF);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.quiz-head h3{font-size:16px;margin-bottom:6px}
+.quiz-head p{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.quiz-area{display:flex;flex-direction:column;gap:10px;margin-bottom:1rem}
+.qi{background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:1rem}
+.qq{font-size:14px;font-weight:600;margin-bottom:8px;line-height:1.5}
+.qcs{display:flex;flex-wrap:wrap;gap:6px}
+.cb{padding:6px 14px;border:.5px solid var(--color-border-secondary);border-radius:20px;background:white;font-size:13px;cursor:pointer;color:var(--color-text-primary);font-family:var(--font-mono)}
+.cb:hover{background:#EAF4F4;border-color:#2E86AB}
+.cb.correct{background:#EAF4F4;border-color:#2E86AB;color:#1A3A5C;font-weight:700}
+.cb.wrong{background:#FAECE7;border-color:#993C1D;color:#4A1B0C}
+.qfb{margin-top:8px;padding:7px 10px;border-radius:var(--border-radius-md);font-size:12px;display:none}
+.qfb.show{display:block}
+.qfb.ok{background:#EAF4F4;color:#1A3A5C}
+.qfb.ng{background:#FAECE7;color:#7B2A0E}
+.quiz-controls{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+.score-box{background:#EAF4F4;border:1px solid #2E86AB;color:#1A3A5C;border-radius:var(--border-radius-md);padding:.8rem 1rem;font-size:14px;font-weight:700;margin-top:1rem;display:none}
+.score-box.show{display:block}
+.nav-row{display:flex;gap:8px;margin-top:.75rem}
+.nav-btn{flex:1;padding:10px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:white;font-size:13px;cursor:pointer;color:var(--color-text-primary);font-family:var(--font-sans)}
+.nav-btn:hover{background:var(--color-background-secondary)}
+.nav-btn.primary{background:#1E5799;color:white;border-color:#1E5799}
+.nav-btn.primary:hover{background:#0A1628}
+@media (max-width: 900px){.tl{grid-template-columns:repeat(2,1fr)}.cgrid,.fn-grid,.mod-grid,.lib-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">05 함수와 라이브러리</h2>
+
+<div class="hd">
+  <div class="badge">고등학교 정보 · 05단원</div>
+  <h1>함수와 라이브러리</h1>
+  <p>함수(내장·사용자 정의) / 모듈과 라이브러리 / 외부 라이브러리 활용</p>
+</div>
+
+<div class="tl" id="tl">
+  <div class="ti active" onclick="showSec(0)"><span class="ic">F</span><div class="tm">소단원 1</div><div class="tl2">함수</div></div>
+  <div class="ti" onclick="showSec(1)"><span class="ic">Q</span><div class="tm">소단원 1</div><div class="tl2">함수 퀴즈</div></div>
+  <div class="ti" onclick="showSec(2)"><span class="ic">M</span><div class="tm">소단원 2</div><div class="tl2">모듈과 라이브러리</div></div>
+  <div class="ti" onclick="showSec(3)"><span class="ic">Q</span><div class="tm">소단원 2</div><div class="tl2">모듈 퀴즈</div></div>
+  <div class="ti" onclick="showSec(4)"><span class="ic">L</span><div class="tm">소단원 3</div><div class="tl2">외부 라이브러리</div></div>
+  <div class="ti" onclick="showSec(5)"><span class="ic">Q</span><div class="tm">소단원 3</div><div class="tl2">라이브러리 퀴즈</div></div>
+</div>
+
+<div class="sc visible" id="sec0">
+  <div class="stitle"><div class="dot"></div>함수 — 내장 함수와 사용자 정의 함수</div>
+  <div class="cgrid">
+    <div class="cbox"><div class="clabel">함수란?</div><div class="cval">특정 기능을 수행하는 명령문을 하나로 묶은 코드 단위입니다. 같은 작업을 반복할 때 함수로 만들면 코드를 더 간결하게 작성할 수 있습니다.</div></div>
+    <div class="cbox"><div class="clabel">함수의 기본 구조</div><div class="cval"><span class="kw-tag">def</span> 함수 정의<br><span class="kw-tag">매개변수</span> 함수에 전달되는 값<br><span class="kw-tag">return</span> 결과값 반환</div></div>
+  </div>
+  <div class="fn-grid">
+    <div class="fn-card"><div class="fn-hd" style="background:#1A3A5C;">내장 함수</div><div class="fn-body"><div class="fn-ex">print(), input(), int()</div><div class="fn-ex">float(), str(), len()</div><div class="fn-ex">range(), type(), abs()</div></div></div>
+    <div class="fn-card"><div class="fn-hd" style="background:#1E5799;">사용자 정의 함수</div><div class="fn-body"><div class="fn-ex">def add(a, b):</div><div class="fn-ex">    return a + b</div><div class="fn-ex">print(add(3, 5))</div></div></div>
+    <div class="fn-card"><div class="fn-hd" style="background:#2E86AB;">함수 호출</div><div class="fn-body"><div class="fn-ex">함수명()</div><div class="fn-ex">함수명(값)</div><div class="fn-ex">변수 = 함수명(값)</div></div></div>
+  </div>
+  <div class="cgrid">
+    <div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:6px;">예제: 인수 없고 반환값 없음</p>
+      <div class="code-wrap">def hello():
+    print("Hello world")
+
+hello()</div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:6px;">예제: 인수 있고 반환값 있음</p>
+      <div class="code-wrap">def add(a, b):
+    return a + b
+
+result = add(3, 5)
+print(result)</div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:6px;">예제: 환영 메시지 함수</p>
+      <div class="code-wrap">def greet(name):
+    print("환영합니다.")
+    print(name, "님 입장")
+    print("공지사항 확인하세요.")
+
+greet("홍길동")
+greet("김민지")</div>
+    </div>
+  </div>
+  <div class="sandbox-wrap">
+    <div class="sb-hdr"><div class="sb-hdr-l"><span>바로 테스트해보기</span><span class="sb-badge">함수</span></div><button class="sb-run" onclick="runSandbox()">실행</button></div>
+    <div class="snip-row"><span class="snip-lbl">예제 →</span><button class="snip-btn" onclick="loadSnip('fn1')">함수 기본</button><button class="snip-btn" onclick="loadSnip('fn2')">인수·반환값</button><button class="snip-btn" onclick="loadSnip('fn3')">환영 함수</button><button class="snip-btn" onclick="loadSnip('fn4')">반복 함수</button><button class="snip-btn" onclick="clearSb()">초기화</button></div>
+    <div class="sb-editor"><div class="lnums" id="lnums">1</div><textarea class="sbi" id="sbi" spellcheck="false" placeholder="코드를 입력하고 실행해 보세요!"></textarea></div>
+    <div class="sb-run-bar"><span>Shift+Enter로도 실행</span></div>
+    <div class="sb-out-wrap"><div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div><div class="sb-out empty" id="sbo">실행 버튼을 누르면 결과가 나타나요</div></div>
+  </div>
+  <div class="nav-row"><button class="nav-btn primary" onclick="showSec(1)">다음: 함수 퀴즈 →</button></div>
+</div>
+
+<div class="sc quiz-tab" id="sec1">
+  <div class="stitle"><div class="dot"></div>소단원 1 퀴즈 — 함수</div>
+  <div class="quiz-head"><h3>함수의 구조와 실행 흐름 확인</h3><p>사용자 정의 함수, 매개변수, 반환값, 함수 호출 개념을 확인합니다.</p></div>
+  <div class="quiz-area" id="quiz0"></div>
+  <div class="quiz-controls"><button class="nav-btn primary" onclick="scoreQuiz(0)">점수 확인</button><button class="nav-btn" onclick="resetQuiz(0)">다시 풀기</button></div>
+  <div class="score-box" id="score0"></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(0)">← 함수</button><button class="nav-btn primary" onclick="showSec(2)">다음: 모듈과 라이브러리 →</button></div>
+</div>
+
+<div class="sc" id="sec2">
+  <div class="stitle"><div class="dot"></div>모듈과 라이브러리</div>
+  <div class="cgrid">
+    <div class="cbox"><div class="clabel">모듈</div><div class="cval">함수, 변수, 클래스를 모아 놓은 하나의 파이썬 파일입니다. <code>import 모듈명</code>으로 불러와 사용합니다.</div></div>
+    <div class="cbox"><div class="clabel">라이브러리</div><div class="cval">여러 모듈을 모아 놓은 집합입니다. 파이썬 기본 제공 라이브러리와 설치가 필요한 외부 라이브러리로 나뉩니다.</div></div>
+  </div>
+  <p style="font-size:13px;font-weight:700;margin-bottom:8px;">모듈 사용 형식</p>
+  <div class="code-wrap">import 모듈명
+import 모듈명 as 별명
+
+모듈명.함수()
+별명.함수()</div>
+  <div class="mod-grid">
+    <div class="mod-card"><div class="mod-hd" style="background:#1A3A5C;">math</div><div class="mod-body">수학 함수: sqrt(), gcd(), pi</div></div>
+    <div class="mod-card"><div class="mod-hd" style="background:#1E5799;">random</div><div class="mod-body">난수 생성: randint(), sample()</div></div>
+    <div class="mod-card"><div class="mod-hd" style="background:#2E86AB;">별명 사용</div><div class="mod-body">import random as rd<br>rd.randint(1, 10)</div></div>
+  </div>
+  <div class="cgrid">
+    <div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:6px;">math 모듈</p>
+      <div class="code-wrap">import math
+
+print(math.sqrt(121))
+print(math.gcd(15, 18))
+print(math.pi)</div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:6px;">random 모듈</p>
+      <div class="code-wrap">import random as rd
+
+num = rd.randint(1, 10)
+print(num)
+
+items = [1, 2, 3, 4, 5]
+print(rd.sample(items, 3))</div>
+    </div>
+  </div>
+  <div class="sandbox-wrap">
+    <div class="sb-hdr"><div class="sb-hdr-l"><span>바로 테스트해보기</span><span class="sb-badge">모듈</span></div><button class="sb-run" onclick="runModuleSandbox()">실행</button></div>
+    <div class="snip-row"><span class="snip-lbl">예제 →</span><button class="snip-btn" onclick="loadModuleSnip('mod1')">math 기본</button><button class="snip-btn" onclick="loadModuleSnip('mod2')">별명 사용</button><button class="snip-btn" onclick="loadModuleSnip('mod3')">random 정수</button><button class="snip-btn" onclick="loadModuleSnip('mod4')">random sample</button><button class="snip-btn" onclick="clearModuleSb()">초기화</button></div>
+    <div class="sb-editor"><div class="lnums" id="mlnums">1</div><textarea class="sbi" id="msbi" spellcheck="false" placeholder="모듈 예제 코드를 입력하고 실행해 보세요!"></textarea></div>
+    <div class="sb-run-bar"><span>Shift+Enter로도 실행</span></div>
+    <div class="sb-out-wrap"><div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div><div class="sb-out empty" id="msbo">실행 버튼을 누르면 결과가 나타나요</div></div>
+  </div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(1)">← 함수 퀴즈</button><button class="nav-btn primary" onclick="showSec(3)">다음: 모듈 퀴즈 →</button></div>
+</div>
+
+<div class="sc quiz-tab" id="sec3">
+  <div class="stitle"><div class="dot"></div>소단원 2 퀴즈 — 모듈과 라이브러리</div>
+  <div class="quiz-head"><h3>모듈 불러오기와 별명 사용 확인</h3><p>import, as, math, random 모듈 사용법을 확인합니다.</p></div>
+  <div class="quiz-area" id="quiz1"></div>
+  <div class="quiz-controls"><button class="nav-btn primary" onclick="scoreQuiz(1)">점수 확인</button><button class="nav-btn" onclick="resetQuiz(1)">다시 풀기</button></div>
+  <div class="score-box" id="score1"></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(2)">← 모듈과 라이브러리</button><button class="nav-btn primary" onclick="showSec(4)">다음: 외부 라이브러리 →</button></div>
+</div>
+
+<div class="sc" id="sec4">
+  <div class="stitle"><div class="dot"></div>외부 라이브러리 — pandas, numpy, matplotlib</div>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;">외부 라이브러리는 표 데이터 처리, 배열 계산, 데이터 시각화처럼 기본 기능만으로 구현하기 어려운 작업을 쉽게 처리하도록 도와줍니다.</p>
+  <div class="lib-grid">
+    <div class="lib-card"><div class="lib-hd" style="background:#154360;">pandas</div><div class="lib-body"><p class="lib-desc">표(DataFrame) 형태의 데이터를 분석하고 조작합니다.</p><div class="code-wrap" style="font-size:11px;margin-bottom:0;">import pandas as pd
+df = pd.DataFrame({"Name":["Alice","Bob"], "Age":[25,30]})
+print(df)</div></div></div>
+    <div class="lib-card"><div class="lib-hd" style="background:#1A5276;">numpy</div><div class="lib-body"><p class="lib-desc">배열과 수치 계산을 효율적으로 처리합니다.</p><div class="code-wrap" style="font-size:11px;margin-bottom:0;">import numpy as np
+arr = np.array([1,2,3,4,5])
+print(np.mean(arr))
+print(np.max(arr))
+print(np.sum(arr))</div></div></div>
+    <div class="lib-card"><div class="lib-hd" style="background:#1A3A5C;">matplotlib</div><div class="lib-body"><p class="lib-desc">그래프와 차트를 그려 데이터를 시각화합니다.</p><div class="code-wrap" style="font-size:11px;margin-bottom:0;">import matplotlib.pyplot as plt
+x = [1,2,3,4,5]
+y = [20,30,65,87,93]
+plt.scatter(x, y)
+plt.show()</div></div></div>
+  </div>
+  <div class="sandbox-wrap">
+    <div class="sb-hdr"><div class="sb-hdr-l"><span>바로 테스트해보기</span><span class="sb-badge">외부 라이브러리 흉내 실행</span></div><button class="sb-run" onclick="runLibSandbox()">실행</button></div>
+    <div class="snip-row"><span class="snip-lbl">예제 →</span><button class="snip-btn" onclick="loadLibSnip('lib1')">pandas 표</button><button class="snip-btn" onclick="loadLibSnip('lib2')">numpy 계산</button><button class="snip-btn" onclick="loadLibSnip('lib3')">matplotlib 안내</button><button class="snip-btn" onclick="loadLibSnip('lib4')">리스트 평균</button><button class="snip-btn" onclick="clearLibSb()">초기화</button></div>
+    <div class="sb-editor"><div class="lnums" id="llnums">1</div><textarea class="sbi" id="lsbi" spellcheck="false" placeholder="라이브러리 예제 코드를 입력하고 실행해 보세요!"></textarea></div>
+    <div class="sb-run-bar"><span>이 실행기는 수업용 간단 실행기입니다. pandas, numpy, matplotlib 주요 예제만 흉내 냅니다.</span></div>
+    <div class="sb-out-wrap"><div class="sb-out-hdr"><div class="sb-out-dot"></div><span>출력 결과</span></div><div class="sb-out empty" id="lsbo">실행 버튼을 누르면 결과가 나타나요</div></div>
+  </div>
+  <div class="ch-area" style="margin-top:1rem"><div class="ch-title">도전 과제</div><div class="ch-list">
+    <div class="ch-item"><div class="chnum">1</div><span>리스트 [70, 80, 90]의 평균을 numpy 예제 형태로 출력해 보세요.</span></div>
+    <div class="ch-item"><div class="chnum">2</div><span>pandas DataFrame 예제에서 이름과 나이를 다른 값으로 바꾸어 보세요.</span></div>
+    <div class="ch-item"><div class="chnum">3</div><span>matplotlib 예제에서 x, y 값이 각각 무엇을 의미하는지 설명해 보세요.</span></div>
+  </div></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(3)">← 모듈 퀴즈</button><button class="nav-btn primary" onclick="showSec(5)">다음: 라이브러리 퀴즈 →</button></div>
+</div>
+
+<div class="sc quiz-tab" id="sec5">
+  <div class="stitle"><div class="dot"></div>소단원 3 퀴즈 — 외부 라이브러리 활용</div>
+  <div class="quiz-head"><h3>pandas, numpy, matplotlib 역할 확인</h3><p>각 라이브러리의 주요 기능과 사용 목적을 확인합니다.</p></div>
+  <div class="quiz-area" id="quiz2"></div>
+  <div class="quiz-controls"><button class="nav-btn primary" onclick="scoreQuiz(2)">점수 확인</button><button class="nav-btn" onclick="resetQuiz(2)">다시 풀기</button></div>
+  <div class="score-box" id="score2"></div>
+  <div class="nav-row"><button class="nav-btn" onclick="showSec(4)">← 외부 라이브러리</button></div>
+</div>
+
+<script>
+const snips={
+  fn1:'def hello():\n    print("Hello world")\n\nhello()',
+  fn2:'def add(a, b):\n    return a + b\n\nresult = add(3, 5)\nprint(result)',
+  fn3:'def greet(name):\n    print("환영합니다.")\n    print(name, "님 입장")\n    print("공지사항 확인하세요.")\n\ngreet("홍길동")\ngreet("김민지")',
+  fn4:'def repeat(word):\n    for i in range(3):\n        print(word)\n\nrepeat("파이썬")'
+};
+const moduleSnips={
+  mod1:'import math\n\nprint(math.sqrt(121))\nprint(math.gcd(15, 18))\nprint(math.pi)',
+  mod2:'import math as m\n\nprint(m.sqrt(25))\nprint(m.gcd(12, 18))',
+  mod3:'import random as rd\n\nnum = rd.randint(1, 10)\nprint(num)',
+  mod4:'import random as rd\n\nitems = [1, 2, 3, 4, 5]\nprint(rd.sample(items, 3))'
+};
+const libSnips={
+  lib1:'import pandas as pd\n\ndf = pd.DataFrame({"Name":["Alice","Bob"], "Age":[25,30]})\nprint(df)',
+  lib2:'import numpy as np\n\narr = np.array([1, 2, 3, 4, 5])\nprint(np.mean(arr))\nprint(np.max(arr))\nprint(np.sum(arr))',
+  lib3:'import matplotlib.pyplot as plt\n\nx = [1, 2, 3, 4, 5]\ny = [20, 30, 65, 87, 93]\nplt.scatter(x, y)\nplt.show()',
+  lib4:'scores = [70, 80, 90]\nprint(sum(scores) / len(scores))'
+};
+const quizzes=[
+  [
+    {q:"파이썬에서 사용자 정의 함수를 만들 때 사용하는 키워드는?",c:["function","def","func","make"],a:1},
+    {q:"함수의 결과값을 호출한 곳으로 돌려주는 키워드는?",c:["print","return","input","range"],a:1},
+    {q:"def add(a, b): 에서 a, b를 무엇이라고 하는가?",c:["매개변수","반복문","라이브러리","주석"],a:0},
+    {q:"add(3, 5)처럼 함수를 실행하는 것을 무엇이라고 하는가?",c:["정의","호출","설치","저장"],a:1},
+    {q:"print() 함수의 주요 역할은?",c:["값 입력","화면 출력","파일 삭제","반복 실행"],a:1},
+    {q:"input()으로 입력받은 값의 기본 자료형은?",c:["int","float","str","bool"],a:2},
+    {q:"return이 없는 함수는 결과값 대신 어떤 값이 반환되는가?",c:["None","True","0","문자열"],a:0},
+    {q:"함수를 사용하는 장점으로 적절한 것은?",c:["코드 재사용","오류 증가","실행 금지","변수 삭제"],a:0},
+    {q:"len([1,2,3])의 결과는?",c:["1","2","3","6"],a:2},
+    {q:"def f(): 다음 줄에 명령문을 작성할 때 필요한 것은?",c:["들여쓰기","따옴표","쉼표","중괄호"],a:0}
+  ],
+  [
+    {q:"모듈을 불러올 때 사용하는 키워드는?",c:["def","import","return","class"],a:1},
+    {q:"import math as m에서 m은 무엇인가?",c:["별명","함수","반복문","문자열"],a:0},
+    {q:"math.sqrt(121)의 결과는?",c:["10","11.0","121","3"],a:1},
+    {q:"math.gcd(15,18)의 결과는?",c:["1","3","5","18"],a:1},
+    {q:"random.randint(1,10)의 의미는?",c:["1 이상 10 이하 랜덤 정수","0부터 10까지 모두 출력","1부터 9까지 고정 출력","문자열 변환"],a:0},
+    {q:"모듈명.함수() 형태를 쓰는 이유는?",c:["어느 모듈의 함수인지 구분하기 위해","출력을 막기 위해","파일을 삭제하기 위해","반복문을 종료하기 위해"],a:0},
+    {q:"여러 모듈을 모아 놓은 집합을 무엇이라고 하는가?",c:["변수","라이브러리","조건문","매개변수"],a:1},
+    {q:"파이썬이 기본 제공하는 라이브러리를 무엇이라고 하는가?",c:["표준 라이브러리","외부 파일","웹 라이브러리","이미지"],a:0},
+    {q:"import random as rd 후 올바른 사용은?",c:["random.rd()","rd.randint(1,10)","as.randint(1,10)","randint.rd()"],a:1},
+    {q:"모듈을 사용하는 장점으로 적절한 것은?",c:["이미 만들어진 기능을 쉽게 사용","코드 실행 불가","변수명 금지","자료형 삭제"],a:0}
+  ],
+  [
+    {q:"pandas의 대표적인 기능은?",c:["표 형태 데이터 분석","랜덤 정수 생성","그래프만 출력","문자열만 변환"],a:0},
+    {q:"numpy의 대표적인 기능은?",c:["수치 계산과 배열 처리","문서 작성","웹 페이지 꾸미기","마우스 제어"],a:0},
+    {q:"matplotlib의 주요 목적은?",c:["데이터 시각화","파일 압축","비밀번호 생성","텍스트 번역"],a:0},
+    {q:"pandas에서 표 형태 자료를 다룰 때 자주 쓰는 객체는?",c:["DataFrame","range","input","print"],a:0},
+    {q:"numpy를 보통 어떤 별명으로 많이 불러오는가?",c:["np","pd","plt","rd"],a:0},
+    {q:"pandas를 보통 어떤 별명으로 많이 불러오는가?",c:["pd","np","plt","math"],a:0},
+    {q:"matplotlib.pyplot을 보통 어떤 별명으로 많이 불러오는가?",c:["plt","pd","np","rd"],a:0},
+    {q:"외부 라이브러리를 설치할 때 사용하는 명령어는?",c:["pip install","print install","def install","input install"],a:0},
+    {q:"np.mean([1,2,3])의 결과는?",c:["1","2","3","6"],a:1},
+    {q:"데이터 분석 수업에서 라이브러리를 사용하는 이유로 적절한 것은?",c:["복잡한 기능을 쉽게 활용하기 위해","코드를 무조건 숨기기 위해","실행을 막기 위해","자료형을 없애기 위해"],a:0}
+  ]
+];
+
+function showSec(i){for(let j=0;j<6;j++){document.getElementById('sec'+j).classList.toggle('visible',j===i);document.querySelectorAll('.ti')[j].classList.toggle('active',j===i);}}
+function renderQuizzes(){
+  quizzes.forEach((set,qi)=>{
+    const box=document.getElementById('quiz'+qi);
+    box.innerHTML=set.map((item,idx)=>`<div class="qi"><div class="qq">${idx+1}. ${item.q}</div><div class="qcs">${item.c.map((ch,ci)=>`<button class="cb" onclick="chooseAnswer(${qi},${idx},${ci},this)">${ch}</button>`).join('')}</div><div class="qfb" id="qfb-${qi}-${idx}"></div></div>`).join('');
+  });
+}
+function chooseAnswer(qi,idx,ci,btn){
+  const p=btn.closest('.qcs');
+  if(p.querySelector('.correct,.wrong'))return;
+  p.querySelectorAll('.cb').forEach(b=>b.disabled=true);
+  const ok=ci===quizzes[qi][idx].a;
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok)p.querySelectorAll('.cb')[quizzes[qi][idx].a].classList.add('correct');
+  const fb=document.getElementById(`qfb-${qi}-${idx}`);
+  fb.textContent=ok?'정답입니다.':'오답입니다. 표시된 정답을 확인하세요.';
+  fb.className='qfb show '+(ok?'ok':'ng');
+}
+function scoreQuiz(qi){
+  let correct=0;
+  document.querySelectorAll(`#quiz${qi} .qi`).forEach((item,idx)=>{
+    const chosen=item.querySelector('.cb.wrong,.cb.correct');
+    if(chosen && chosen.classList.contains('correct') && Array.from(chosen.parentElement.children).indexOf(chosen)===quizzes[qi][idx].a)correct++;
+  });
+  const score=document.getElementById('score'+qi);
+  score.className='score-box show';
+  score.textContent=`점수: ${correct} / ${quizzes[qi].length}점`;
+}
+function resetQuiz(qi){renderQuizzes();const s=document.getElementById('score'+qi);s.className='score-box';s.textContent='';}
+function loadSnip(k){const ta=document.getElementById('sbi');ta.value=snips[k];updateLN(ta,'lnums');}
+function clearSb(){const ta=document.getElementById('sbi');ta.value='';updateLN(ta,'lnums');const o=document.getElementById('sbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
+function loadModuleSnip(k){const ta=document.getElementById('msbi');ta.value=moduleSnips[k];updateLN(ta,'mlnums');}
+function clearModuleSb(){const ta=document.getElementById('msbi');ta.value='';updateLN(ta,'mlnums');const o=document.getElementById('msbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
+function loadLibSnip(k){const ta=document.getElementById('lsbi');ta.value=libSnips[k];updateLN(ta,'llnums');}
+function clearLibSb(){const ta=document.getElementById('lsbi');ta.value='';updateLN(ta,'llnums');const o=document.getElementById('lsbo');o.classList.add('empty');o.textContent='실행 버튼을 누르면 결과가 나타나요';}
+function updateLN(ta,id){const n=ta.value.split('\n').length;document.getElementById(id).innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,150)+'px';}
+
+function splitArgs(s){
+  const out=[];let cur='',q=null,depth=0;
+  for(let ch of s){
+    if(q){cur+=ch;if(ch===q)q=null;continue;}
+    if(ch==='"'||ch==="'"){q=ch;cur+=ch;continue;}
+    if(ch==='['||ch==='{'||ch==='(')depth++;
+    if(ch===']'||ch==='}'||ch===')')depth--;
+    if(ch===','&&depth===0){out.push(cur.trim());cur='';continue;}
+    cur+=ch;
+  }
+  if(cur.trim()!=='')out.push(cur.trim());
+  return out;
+}
+function translateExpr(expr,vars){
+  let r=expr.trim();
+  r=r.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\bNone\b/g,'null');
+  r=r.replace(/\bmath\.sqrt\(/g,'Math.sqrt(').replace(/\bm\.sqrt\(/g,'Math.sqrt(');
+  r=r.replace(/\bmath\.gcd\(([^,]+),([^)]+)\)/g,'gcd($1,$2)').replace(/\bm\.gcd\(([^,]+),([^)]+)\)/g,'gcd($1,$2)');
+  r=r.replace(/\bmath\.pi\b/g,'Math.PI').replace(/\bm\.pi\b/g,'Math.PI');
+  r=r.replace(/\brandom\.randint\(([^,]+),([^)]+)\)/g,'randint($1,$2)').replace(/\brd\.randint\(([^,]+),([^)]+)\)/g,'randint($1,$2)');
+  r=r.replace(/\brandom\.sample\(([^,]+),([^)]+)\)/g,'sample($1,$2)').replace(/\brd\.sample\(([^,]+),([^)]+)\)/g,'sample($1,$2)');
+  r=r.replace(/\bnp\.array\(([^)]*)\)/g,'$1');
+  r=r.replace(/\bnp\.mean\(([^)]+)\)/g,'mean($1)').replace(/\bnp\.max\(([^)]+)\)/g,'max($1)').replace(/\bnp\.sum\(([^)]+)\)/g,'sum($1)');
+  r=r.replace(/\blen\(([^)]+)\)/g,'len($1)').replace(/\bsum\(([^)]+)\)/g,'sum($1)').replace(/\bmax\(([^)]+)\)/g,'max($1)').replace(/\bmin\(([^)]+)\)/g,'min($1)').replace(/\babs\(([^)]+)\)/g,'Math.abs($1)');
+  r=r.replace(/\b([a-zA-Z_]\w*)\b/g,(m)=>Object.prototype.hasOwnProperty.call(vars,m)?`vars[${JSON.stringify(m)}]`:m);
+  return r;
+}
+function pyFormat(v){
+  if(Array.isArray(v))return '['+v.map(pyFormat).join(', ')+']';
+  if(v===true)return 'True';
+  if(v===false)return 'False';
+  if(v===null||v===undefined)return 'None';
+  if(typeof v==='number'){
+    if(Math.abs(v-Math.PI)<1e-12)return '3.141592653589793';
+    return Number.isInteger(v)?String(v):String(Math.round(v*1000000)/1000000);
+  }
+  if(typeof v==='object')return JSON.stringify(v);
+  return String(v);
+}
+function executePythonish(code){
+  const lines=code.replace(/\r/g,'').split('\n');
+  const outputs=[],vars={},fns={};
+  function gcd(a,b){a=Math.abs(Math.trunc(a));b=Math.abs(Math.trunc(b));while(b){[a,b]=[b,a%b]}return a;}
+  function randint(a,b){return Math.trunc(Number(a));}
+  function sample(arr,k){return arr.slice(0,Number(k));}
+  function mean(arr){return arr.reduce((a,b)=>a+Number(b),0)/arr.length;}
+  function sum(arr){return arr.reduce((a,b)=>a+Number(b),0);}
+  function max(arr){return Math.max(...arr);}
+  function min(arr){return Math.min(...arr);}
+  function len(x){return x.length;}
+  function evalExpr(expr,local={}){
+    const all=Object.assign({},vars,local);
+    let js=translateExpr(expr,all);
+    try{return Function('vars','gcd','randint','sample','mean','sum','max','min','len',`return (${js});`)(all,gcd,randint,sample,mean,sum,max,min,len);}
+    catch(e){return expr.trim().replace(/^['"]|['"]$/g,'');}
+  }
+  function indentOf(line){const m=line.match(/^ */);return m?m[0].length:0;}
+  function collectBlock(start,baseIndent){
+    const block=[];let i=start;
+    while(i<lines.length){
+      if(lines[i].trim()===''){block.push(lines[i]);i++;continue;}
+      if(indentOf(lines[i])<=baseIndent)break;
+      block.push(lines[i].slice(baseIndent+4));
+      i++;
+    }
+    return {block,next:i};
+  }
+  function runLines(block,local={}){
+    let i=0, ret=undefined;
+    while(i<block.length){
+      let raw=block[i], line=raw.trim();
+      if(!line||line.startsWith('#')||line.startsWith('import ')){i++;continue;}
+      if(line.startsWith('plt.')){
+        if(line.startsWith('plt.show'))outputs.push('(그래프 표시)');
+        i++;continue;
+      }
+      if(line.includes('pd.DataFrame')){
+        const v=line.match(/^(\w+)\s*=/);
+        if(v)vars[v[1]]='__DATAFRAME__';
+        i++;continue;
+      }
+      const defM=line.match(/^def\s+(\w+)\s*\(([^)]*)\)\s*:/);
+      if(defM){
+        const base=indentOf(raw);const got=collectBlock(i+1,base);
+        fns[defM[1]]={params:splitArgs(defM[2]).filter(Boolean),body:got.block};
+        i=got.next;continue;
+      }
+      const forM=line.match(/^for\s+(\w+)\s+in\s+range\(([^)]*)\)\s*:/);
+      if(forM){
+        const base=indentOf(raw);const got=collectBlock(i+1,base);
+        const args=splitArgs(forM[2]).map(a=>Number(evalExpr(a,local)));
+        let start=0,end=args[0],step=1;if(args.length===2){start=args[0];end=args[1];}if(args.length===3){start=args[0];end=args[1];step=args[2];}
+        for(let x=start;(step>0?x<end:x>end);x+=step){local[forM[1]]=x;runLines(got.block,local);if(outputs.length>300)break;}
+        i=got.next;continue;
+      }
+      const ifM=line.match(/^if\s+(.+)\s*:/);
+      if(ifM){
+        const base=indentOf(raw);const got=collectBlock(i+1,base);
+        if(evalExpr(ifM[1],local))runLines(got.block,local);
+        i=got.next;continue;
+      }
+      const retM=line.match(/^return\s+(.+)$/);
+      if(retM){return evalExpr(retM[1],local);}
+      const pm=line.match(/^print\((.*)\)$/);
+      if(pm){
+        const parts=splitArgs(pm[1]);
+        if(parts.length===1 && (parts[0]==='df'||parts[0].startsWith('pd.DataFrame'))){outputs.push('    Name  Age\n0  Alice   25\n1    Bob   30');}
+        else outputs.push(parts.map(p=>pyFormat(evalExpr(p,local))).join(' '));
+        i++;continue;
+      }
+      const callM=line.match(/^(\w+)\((.*)\)$/);
+      if(callM && fns[callM[1]]){
+        const fn=fns[callM[1]], args=splitArgs(callM[2]).map(a=>evalExpr(a,local)), loc={};
+        fn.params.forEach((p,idx)=>loc[p]=args[idx]);
+        runLines(fn.body,loc);
+        i++;continue;
+      }
+      const am=line.match(/^(\w+)\s*=\s*(.+)$/);
+      if(am){
+        const callAssign=am[2].trim().match(/^(\w+)\((.*)\)$/);
+        if(callAssign && fns[callAssign[1]]){
+          const fn=fns[callAssign[1]], args=splitArgs(callAssign[2]).map(a=>evalExpr(a,local)), loc={};
+          fn.params.forEach((p,idx)=>loc[p]=args[idx]);
+          vars[am[1]]=runLines(fn.body,loc);
+        }else{
+          vars[am[1]]=evalExpr(am[2],local);
+        }
+        i++;continue;
+      }
+      i++;
+    }
+    return ret;
+  }
+  runLines(lines,{});
+  return outputs;
+}
+function runTo(textareaId,outId){
+  const o=document.getElementById(outId);
+  const outs=executePythonish(document.getElementById(textareaId).value);
+  o.classList.remove('empty');
+  o.textContent=outs.length?outs.join('\n'):'(출력 없음)';
+}
+function runSandbox(){runTo('sbi','sbo')}
+function runModuleSandbox(){runTo('msbi','msbo')}
+function runLibSandbox(){runTo('lsbi','lsbo')}
+function runCode(){runTo('codeInput','resultOutput')}
+window.addEventListener('load',()=>{
+  renderQuizzes();
+  [['sbi','lnums'],['msbi','mlnums'],['lsbi','llnums'],['codeInput',null]].forEach(([tid,lid])=>{
+    const ta=document.getElementById(tid); if(!ta)return;
+    ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,150)+'px';
+    ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,150)+'px';if(lid)updateLN(ta,lid);});
+    ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault(); if(tid==='sbi')runSandbox(); if(tid==='msbi')runModuleSandbox(); if(tid==='lsbi')runLibSandbox(); if(tid==='codeInput')runCode();}});
+  });
+});
+</script>
+</body>
+</html>
