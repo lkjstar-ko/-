@@ -208,7 +208,8 @@ async function requestExamAuth() {
   }
 
   // 데이터 마운트 및 뷰 변경
-  examQuestions = res.questions;
+  const seed = getSessionSeed();
+  examQuestions = shuffleArray(res.questions, seed);
   serverRemainingMillis = res.remainingMillis;
   
   document.getElementById("gatePanel").style.display = "none";
