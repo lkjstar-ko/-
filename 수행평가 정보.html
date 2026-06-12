@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알고리즘·프로그래밍 수행평가 시스템</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<style>
+:root{
+  --bg:#f0f4f9; --card:#ffffff; --ink:#1a2332; --muted:#64748b; --line:#e2e8f0;
+  --primary:#1d4ed8; --primary-dark:#1e40af; --soft:#eff6ff; --accent:#0ea5e9;
+  --algo:#7c3aed; --algo-soft:#f5f3ff; --prog:#0f766e; --prog-soft:#f0fdfa;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:"Pretendard","Noto Sans KR",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7;
+}
+header{
+  background:linear-gradient(135deg,#0f2462 0%,#1d4ed8 60%,#0ea5e9 100%);
+  color:white; padding:26px 20px 20px;
+}
+.header-inner{max-width:1100px; margin:0 auto}
+h1{margin:0; font-size:26px; letter-spacing:-0.5px}
+.subtitle{margin:5px 0 0; color:#bfdbfe; font-size:13px}
+main{max-width:1100px; margin:20px auto; padding:0 16px 60px}
+
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:20px; box-shadow:0 4px 16px rgba(15,23,42,.07); margin-bottom:16px;
+}
+/* 대기실 전 전용 컴포넌트 */
+.gate-container { max-width: 500px; margin: 60px auto; }
+.gate-title { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 20px; color: var(--primary); }
+
+.student-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+label{font-weight:700; font-size:13px; display:block; margin-bottom:5px; color:var(--muted)}
+input,textarea,select{
+  width:100%; border:1.5px solid var(--line); border-radius:9px;
+  padding:9px 12px; font-size:14px; background:white; font-family:inherit;
+  transition:border-color .15s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--primary); outline:none}
+textarea{resize:vertical}
+.codebox{min-height:130px; font-family:"Consolas",monospace; font-size:13.5px; background:#0f172a; color:#f8fafc;}
+
+/* 타이머 바 */
+.timer-banner {
+  background: #fef2f2; border: 1.5px solid #fca5a5; color: #991b1b;
+  padding: 12px; border-radius: 12px; font-weight: 800; text-align: center;
+  font-size: 16px; margin-bottom: 15px; display: none;
+}
+
+.progress-bar{height:6px; background:#e2e8f0; border-radius:999px; margin:12px 0 4px; overflow:hidden}
+.progress-fill{height:100%; background:linear-gradient(90deg,#1d4ed8,#0ea5e9); width:0%; transition:width .4s}
+
+.tabs{display:flex; gap:7px; margin:16px 0}
+.tab-btn{
+  border:1.5px solid var(--line); background:white; color:var(--muted);
+  padding:9px 16px; border-radius:999px; cursor:pointer; font-weight:700; font-size:13px;
+}
+.tab-btn.active{background:var(--primary); color:white; border-color:var(--primary)}
+.tab{display:none} .tab.active{display:block}
+
+.problem{ border:1.5px solid var(--line); border-radius:14px; padding:16px 18px; background:#fafcff; margin-bottom:14px; display:none; }
+.problem.showing{ display:block; }
+.problem.algo-p{border-color:#ddd6fe; background:#faf5ff}
+.problem.prog-p{border-color:#a7f3d0; background:#f0fdfc}
+
+.pnum{
+  display:inline-flex; align-items:center; justify-content:center;
+  color:white; border-radius:6px; width:28px; height:28px; font-size:12px; font-weight:900;
+}
+.algo-p .pnum { background: var(--algo); }
+.prog-p .pnum { background: var(--prog); }
+
+.meta{ font-size:13px; padding:8px 12px; margin-bottom:10px; background:#f1f5f9; border-left:3px solid var(--accent); }
+.hint{ font-size:12px; color:var(--muted); margin-bottom:8px; font-style:italic }
+.run-output{ margin-top:8px; background:#0f172a; color:#a3e635; border-radius:10px; padding:11px 14px; font-family:monospace; font-size:13px; white-space:pre-wrap; min-height:32px; }
+
+/* 템플릿 하드코딩 전용 빈칸코드 스타일 */
+.blank-code{ background:#0f172a; color:#e2e8f0; border-radius:10px; padding:14px 16px; font-family:monospace; font-size:13px; line-height:2.2; margin:8px 0; }
+.blank-code input{ display:inline-block; width:110px; background:#1e293b; border:1.5px solid #475569; color:#fbbf24; padding:2px 6px; text-align:center; }
+
+.q-dots{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px}
+.q-dot{ width:34px; height:34px; border-radius:9px; border:1.5px solid var(--line); background:white; display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer; }
+.q-dot.current{ border-color:var(--primary); box-shadow:0 0 0 3px rgba(29,78,216,.15); }
+.q-dot.filled{ background:#dcfce7; border-color:#86efac; }
+
+.solve-nav{ display:flex; justify-content:space-between; gap:12px; margin-top:16px; }
+.solve-nav button{ flex:1; padding:13px; border-radius:11px; font-size:15px; font-weight:800; border:none; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>알고리즘·프로그래밍 온라인 수행평가</h1>
+    <p class="subtitle" id="classInfoViewer">보안 네트워크 모드 통합 제어</p>
+  </div>
+</header>
+
+<main>
+  <section id="gatePanel" class="panel gate-container">
+    <div class="gate-title">🔑 시험 본인인증 및 코드 검증</div>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div>
+        <label>반 선택</label>
+        <select id="stuClass">
+          <option value="">-- 소속 학과/반 선택 --</option>
+          <option>그린자원1반</option><option>그린자원2반</option>
+          <option>관광경영1반</option><option>관광경영2반</option>
+          <option>중국어반</option><option>일본어반</option>
+          <option>영어반</option><option>조리1반</option><option>조리2반</option>
+        </select>
+      </div>
+      <div>
+        <label>학번 (4자리 고정)</label>
+        <input id="stuNo" type="text" placeholder="예: 1101" maxlength="4">
+      </div>
+      <div>
+        <label>성명</label>
+        <input id="stuName" type="text" placeholder="홍길동">
+      </div>
+      <div>
+        <label>반별 시험 시작 코드</label>
+        <input id="startCode" type="password" placeholder="대소문자 정합성 필수">
+      </div>
+      <button onclick="requestExamAuth()" style="background:var(--primary); color:white; font-weight:bold; padding:12px; border:none; border-radius:8px; cursor:pointer; margin-top:10px;">
+        인증 및 문제 세트 실시간 호출
+      </button>
+    </div>
+  </section>
+
+  <div id="examArena" style="display:none;">
+    <div class="timer-banner" id="timerDisplay">⏰ 남은 시간: 계산 중...</div>
+
+    <section class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="studentIdentityDisplay" style="font-weight:bold;"></span>
+        <span class="small" id="progressText" style="font-size:12px; color:var(--muted)">진행률: 0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" id="btn-tab-solve" onclick="switchMainTab('solve')">✍️ 문항 풀이</button>
+      <button class="tab-btn" id="btn-tab-submit" onclick="switchMainTab('submit')">📤 최종 제출</button>
+    </nav>
+
+    <section id="tab-solve" class="tab active">
+      <div class="panel">
+        <div class="q-dots" id="qDotsContainer"></div>
+        <div id="dynamicStage"></div>
+        <div class="solve-nav">
+          <button style="background:#e2e8f0; color:var(--muted);" onclick="navigateQuestion(-1)">← 이전 문항</button>
+          <button style="background:linear-gradient(135deg,#1d4ed8,#0ea5e9); color:white;" onclick="navigateQuestion(1)">다음 문항 →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-submit" class="tab">
+      <div class="panel" style="text-align:center; padding:40px 20px;">
+        <h3 style="color:var(--primary); margin-top:0;">🛑 시험 최종 종료 및 제출</h3>
+        <p style="color:var(--muted); font-size:14px; line-height:1.8;">
+          제출 버튼을 누르면 인프라 정책에 따라 답안이 즉시 고정되며 **더 이상 수정할 수 없습니다.**<br>
+          미작성 내역이 없는지 좌측 인덱스를 다시 확인해 주세요.
+        </p>
+        <button id="finalSubmitBtn" onclick="executeFinalSubmit(false)" style="background:linear-gradient(135deg,#ef4444,#dc2626); color:white; padding:16px 40px; font-size:18px; font-weight:900; border:none; border-radius:12px; cursor:pointer; width:100%; max-width:400px; margin-top:20px;">
+          최종 답안 서버 전송 (락 선언)
+        </button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+// 배포 완료 후 획득한 Google Apps Script 웹 앱 URL 주소를 여기에 정확히 할당하세요.
+const DEPLOY_GAS_URL = "https://script.google.com/macros/s/AKfycbztcXdvPXVlajXdfS0ABhufrqn7LLtL82bWBh5bbZg3bX-qaqY80rmbxdEsJ9KVwOJK/exec"; 
+
+let examQuestions = [];
+let currentIndex = 0;
+let countdownInterval;
+let autoSaveInterval;
+let serverRemainingMillis = 0;
+
+async function requestExamAuth() {
+  const payload = {
+    action: "verifyCode",
+    className: document.getElementById("stuClass").value,
+    studentId: document.getElementById("stuNo").value.trim(),
+    studentName: document.getElementById("stuName").value.trim(),
+    startCode: document.getElementById("startCode").value.trim()
+  };
+
+  if(!payload.className || !payload.studentId || !payload.studentName || !payload.startCode) {
+    alert("모든 검증 필드를 빠짐없이 채워주십시오."); return;
+  }
+
+  const response = await fetch(DEPLOY_GAS_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+  const res = await response.json();
+
+  if(!res.success) {
+    alert(res.message); return;
+  }
+
+  // 데이터 마운트 및 뷰 변경
+  examQuestions = res.questions;
+  serverRemainingMillis = res.remainingMillis;
+  
+  document.getElementById("gatePanel").style.display = "none";
+  document.getElementById("examArena").style.display = "block";
+  document.getElementById("studentIdentityDisplay").textContent = `${payload.className} [학번: ${payload.studentId}] ${payload.studentName} 학생 응시 중`;
+  
+  buildDynamicEngine(res.savedAnswers);
+  initTimers();
+}
+
+function buildDynamicEngine(savedAnswers) {
+  const stage = document.getElementById("dynamicStage");
+  const dotsContainer = document.getElementById("qDotsContainer");
+  stage.innerHTML = ""; dotsContainer.innerHTML = "";
+
+  examQuestions.forEach((q, idx) => {
+    // 닷 헤더 맵핑
+    const dot = document.createElement("div");
+    dot.className = `q-dot ${idx === 0 ? 'current' : ''}`;
+    dot.id = `dot-${q.key}`;
+    dot.textContent = idx + 1;
+    dot.onclick = () => jumpToQuestion(idx);
+    dotsContainer.appendChild(dot);
+
+    // 문제 데이터 DOM 빌드 (보안 동적 랜더링)
+    const card = document.createElement("div");
+    card.className = `problem ${q.cat}-p ${idx === 0 ? 'showing' : ''}`;
+    card.id = `card-${idx}`;
+    
+    let innerStructure = `
+      <h3><span class="pnum">${q.key.toUpperCase()}</span> ${q.title}</h3>
+      <div class="meta">${q.meta}</div>
+      <div class="hint">${q.hint}</div>
+    `;
+
+    if(q.templateType === "TEXTAREA_DOUBLE") {
+      innerStructure += `
+        <label>문항 (1) 답안 서술</label>
+        <textarea id="ans-${q.key}-1" rows="3" oninput="trackProgress()"></textarea>
+        <label style="margin-top:10px;">문항 (2) 답안 서술</label>
+        <textarea id="ans-${q.key}-2" rows="3" oninput="trackProgress()"></textarea>
+      `;
+    } else if (q.templateType === "TEXTAREA_COMPARE") {
+      innerStructure += `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div><label>순차 탐색 과정</label><textarea id="ans-${q.key}-seq" rows="4" oninput="trackProgress()"></textarea></div>
+          <div><label>이진 탐색 과정</label><textarea id="ans-${q.key}-bin" rows="4" oninput="trackProgress()"></textarea></div>
+        </div>
+        <label style="margin-top:10px;">특징 최적화 비교</label>
+        <textarea id="ans-${q.key}-comp" rows="2" oninput="trackProgress()"></textarea>
+      `;
+    } else if (q.templateType === "PY_CODE") {
+      innerStructure += `
+        <textarea id="ans-${q.key}" class="codebox" rows="6" oninput="trackProgress()"></textarea>
+        <div style="margin-top:8px;"><button style="padding:6px 12px; background:var(--prog); color:white; border:none; border-radius:6px; cursor:pointer;" onclick="runPythonEngine('ans-${q.key}','out-${q.key}')">▶ 코드 실행 테스트</button></div>
+        <div id="out-${q.key}" class="run-output" style="display:none;"></div>
+      `;
+    } else if (q.templateType === "B1_BLANK") {
+      innerStructure += `
+        <div class="blank-code"># 오늘의 급식 칼로리 검증 구조
+menu_date = "2026년 6월 11일"
+main_dish = <input type="text" id="ans-b1-1" style="width:120px;" oninput="trackProgress()">
+total_students = 320
+total_calorie = <input type="text" id="ans-b1-2" style="width:80px;" oninput="trackProgress()">
+today_menu = ["쌀밥", "미역국", "제육볶음"]
+calories = [310, 80, 295]
+
+sum_cal = 0
+for i in range(<input type="text" id="ans-b1-3" style="width:60px;" oninput="trackProgress()">):
+    sum_cal = sum_cal + <input type="text" id="ans-b1-4" style="width:140px;" oninput="trackProgress()"></div>
+      `;
+    }
+
+    card.innerHTML = innerStructure;
+    stage.appendChild(card);
+  });
+
+  // 이어 풀기 백업 어플라이
+  if(savedAnswers && Object.keys(savedAnswers).length > 0) {
+    Object.keys(savedAnswers).forEach(id => {
+      const field = document.getElementById(id);
+      if(field) field.value = savedAnswers[id];
+    });
+  }
+  trackProgress();
+}
+
+function jumpToQuestion(idx) {
+  document.querySelectorAll('.problem').forEach(p => p.classList.remove('showing'));
+  document.querySelectorAll('.q-dot').forEach(d => d.classList.remove('current'));
+  
+  currentIndex = idx;
+  document.getElementById(`card-${idx}`).classList.add('showing');
+  document.querySelectorAll('.q-dot')[idx].classList.add('current');
+}
+
+function navigateQuestion(direction) {
+  let target = currentIndex + direction;
+  if(target >= 0 && target < examQuestions.length) {
+    jumpToQuestion(target);
+  }
+}
+
+function switchMainTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tabId}`).classList.add('active');
+  document.getElementById(`btn-tab-${tabId}`).classList.add('active');
+}
+
+function trackProgress() {
+  let totalInputs = 0;
+  let filledInputs = 0;
+  
+  examQuestions.forEach(q => {
+    let dot = document.getElementById(`dot-${q.key}`);
+    let isQFilled = true;
+    let localFields = [];
+
+    if(q.templateType === "TEXTAREA_DOUBLE") localFields = [`ans-${q.key}-1`, `ans-${q.key}-2`];
+    else if(q.templateType === "TEXTAREA_COMPARE") localFields = [`ans-${q.key}-seq`, `ans-${q.key}-bin`, `ans-${q.key}-comp`];
+    else if(q.templateType === "PY_CODE") localFields = [`ans-${q.key}`];
+    else if(q.templateType === "B1_BLANK") localFields = ['ans-b1-1', 'ans-b1-2', 'ans-b1-3', 'ans-b1-4'];
+
+    let anyLocalFilled = false;
+    localFields.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) {
+        totalInputs++;
+        if(el.value.trim().length > 0) {
+          filledInputs++;
+          anyLocalFilled = true;
+        } else {
+          isQFilled = false;
+        }
+      }
+    });
+
+    if(dot) {
+      if(isQFilled && localFields.length > 0) {
+        dot.className = "q-dot filled";
+      } else if (anyLocalFilled) {
+        dot.className = "q-dot current"; // 중간 진행 상태 표시
+      } else {
+        dot.className = "q-dot";
+      }
+    }
+  });
+
+  const pct = totalInputs > 0 ? Math.round((filledInputs / totalInputs) * 100) : 0;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+  document.getElementById("progressText").textContent = `시험지 작성 진행률: ${pct}%`;
+}
+
+function grabCurrentAnswers() {
+  const payload = {};
+  examQuestions.forEach(q => {
+    let ids = [];
+    if(q.templateType === "TEXTAREA_DOUBLE") ids = [`ans-${q.key}-1`, `ans-${q.key}-2`];
+    else if(q.templateType === "TEXTAREA_COMPARE") ids = [`ans-${q.key}-seq`, `ans-${q.key}-bin`, `ans-${q.key}-comp`];
+    else if(q.templateType === "PY_CODE") ids = [`ans-${q.key}`];
+    else if(q.templateType === "B1_BLANK") ids = ['ans-b1-1', 'ans-b1-2', 'ans-b1-3', 'ans-b1-4'];
+
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) payload[id] = el.value;
+    });
+  });
+  return payload;
+}
+
+function initTimers() {
+  countdownInterval = setInterval(() => {
+    serverRemainingMillis -= 1000;
+    if(serverRemainingMillis <= 0) {
+      clearInterval(countdownInterval);
+      clearInterval(autoSaveInterval);
+      alert("⏲️ 시험 제한시간이 만료되었습니다. 시스템에 의해 자동 최종 제출 처리됩니다.");
+      executeFinalSubmit(true);
+    } else {
+      let mins = Math.floor(serverRemainingMillis / 60000);
+      let secs = Math.floor((serverRemainingMillis % 60000) / 1000);
+      document.getElementById("timerDisplay").style.display = "block";
+      document.getElementById("timerDisplay").textContent = `⏰ 남은 시험 시간: ${mins}분 ${secs}초`;
+    }
+  }, 1000);
+
+  // 30초 주기 클라우드 실시간 동기화 자동 저장
+  autoSaveInterval = setInterval(async () => {
+    const backupData = {
+      action: "autoSave",
+      studentId: document.getElementById("stuNo").value.trim(),
+      className: document.getElementById("stuClass").value,
+      answers: grabCurrentAnswers()
+    };
+    fetch(DEPLOY_GAS_URL, { method: "POST", body: JSON.stringify(backupData) });
+  }, 30000);
+}
+
+async function executeFinalSubmit(isForced) {
+  if(!isForced && !confirm("정말로 최종 제출하시겠습니까? 제출 후 더 이상 재접속 및 수정이 불가합니다.")) return;
+
+  clearInterval(countdownInterval);
+  clearInterval(autoSaveInterval);
+  
+  document.getElementById("finalSubmitBtn").disabled = true;
+  document.getElementById("finalSubmitBtn").textContent = "데이터 클라우드 락 설정 및 암호화 중...";
+
+  const finalPayload = {
+    action: "submitFinal",
+    studentId: document.getElementById("stuNo").value.trim(),
+    studentName: document.getElementById("stuName").value.trim(),
+    className: document.getElementById("stuClass").value,
+    answers: grabCurrentAnswers()
+  };
+
+  try {
+    const res = await fetch(DEPLOY_GAS_URL, { method: "POST", body: JSON.stringify(finalPayload) });
+    const result = await res.json();
+    if(result.success) {
+      alert("🎉 수행평가 답안지가 정상적으로 최종 보관되었습니다. 창을 닫으셔도 됩니다.");
+      window.location.reload(); // 세션 클리어 및 락업
+    } else {
+      alert("오류: " + result.message);
+    }
+  } catch (e) {
+    alert("서버 통신 실패. 네트워크 연결이 끊겼습니다. 감독 교사에게 즉시 알리십시오.");
+  }
+}
+
+/* Pyodide 컴파일 자바스크립트 가상화 러너 인터페이스 인터셉터 */
+let pyodideReady = null; let pyodideInstance = null;
+async function getPyodide(){
+  if(pyodideInstance) return pyodideInstance;
+  if(!pyodideReady) pyodideReady = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' });
+  pyodideInstance = await pyodideReady; return pyodideInstance;
+}
+
+async function runPythonEngine(codeId, outputId) {
+  const code = document.getElementById(codeId)?.value?.trim();
+  const outEl = document.getElementById(outputId);
+  if(!code) return;
+  outEl.style.display = "block"; outEl.textContent = "Python 인터프리터 구동 중...";
+  try {
+    const py = await getPyodide();
+    py.runPython(`import sys, io\n_stdout = io.StringIO()\nsys.stdout = _stdout`);
+    py.runPython(code);
+    let output = py.runPython('_stdout.getvalue()');
+    outEl.textContent = output || "(정상 실행 완료 - 출력값 없음)";
+  } catch(err) {
+    outEl.textContent = "❌ 문법 및 실행 오류 발생\n" + err.message;
+  }
+}
+</script>
+</body>
+</html>

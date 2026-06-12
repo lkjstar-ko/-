@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>수행평가 교사 통합 중앙 관리자 센터</title>
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; margin: 0; padding: 20px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .card { background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  h2, h3 { margin-top: 0; color: #1e3a8a; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+  th { background: #f1f5f9; font-weight: bold; }
+  .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  .btn-primary { background: #2563eb; color: white; }
+  .btn-danger { background: #dc2626; color: white; }
+  .status-active { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;}
+  .status-ready { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>🛠️ 정보 교과수행평가 실시간 원격 통제 시스템</h2>
+  
+  <div id="authArea" class="card">
+    <h3>🔐 시스템 인증 관리자 기기 등록</h3>
+    <input type="password" id="adminPassword" placeholder="관리자 보안 패스워드 입력" style="padding:10px; width:250px; border-radius:6px; border:1px solid #cbd5e1;">
+    <button class="btn btn-primary" onclick="loadDashboard()">대시보드 동기화</button>
+  </div>
+
+  <div id="mainDashboard" style="display:none;">
+    <div class="card">
+      <h3>⚡ 분반별 출제 세트 및 타이머 실시간 하이재킹 제어</h3>
+      <table id="configTable">
+        <thead>
+          <tr>
+            <th>대상 분반</th><th>접속용 시작 코드</th><th>지정 문제세트ID</th><th>운영 상태</th><th>시험 시작 시각</th><th>시험 종료 시각</th><th>비상 강제종료</th>
+          </tr>
+        </thead>
+        <tbody id="configTbody"></tbody>
+      </table>
+      <div style="margin-top:15px; text-align:right;">
+        <button class="btn btn-primary" onclick="pushNewConfig()">💾 수정한 타임라인 세팅 일괄 반영</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📊 실시간 최종 제출자 관제 보드 (<span id="autosaveCounter">0</span>명 중간 작성 중)</h3>
+      <table id="submissionTable">
+        <thead>
+          <tr>
+            <th>수신 시각</th><th>학번</th><th>성명</th><th>소속 반</th><th>네트워크 IP</th><th>제출 답안 데이터 내용 요약</th>
+          </tr>
+        </thead>
+        <tbody id="subTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYSTEM_GAS_URL = "https://script.google.com/macros/s/AKfycbztcXdvPXVlajXdfS0ABhufrqn7LLtL82bWBh5bbZg3bX-qaqY80rmbxdEsJ9KVwOJK/exec"; // 학생용과 동일한 URL 할당
+
+let cachedPassword = "";
+let currentConfig = [];
+
+async function loadDashboard() {
+  cachedPassword = document.getElementById("adminPassword").value;
+  const res = await fetch(SYSTEM_GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "getAdminData", password: cachedPassword })
+  });
+  const data = await res.json();
+  
+  if(!data.success) {
+    alert("인증에 실패했습니다."); return;
+  }
+  
+  document.getElementById("authArea").style.display = "none";
+  document.getElementById("mainDashboard").style.display = "block";
+  document.getElementById("autosaveCounter").textContent = data.autosaveCount;
+
+  // 설정 렌더링
+  const cfgBody = document.getElementById("configTbody");
+  cfgBody.innerHTML = "";
+  currentConfig = data.config;
+  
+  currentConfig.forEach((row, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${row[0]}</strong></td>
+      <td><input type="text" value="${row[1]}" id="cfg-code-${idx}" style="width:80px;"></td>
+      <td><input type="text" value="${row[2]}" id="cfg-set-${idx}" style="width:80px;"></td>
+      <td>
+        <select id="cfg-status-${idx}">
+          <option ${row[3]==='READY'?'selected':''}>READY</option>
+          <option ${row[3]==='ACTIVE'?'selected':''}>ACTIVE</option>
+          <option ${row[3]==='DISABLED'?'selected':''}>DISABLED</option>
+        </select>
+      </td>
+      <td><input type="text" value="${row[4]}" id="cfg-start-${idx}" style="width:140px;"></td>
+      <td><input type="text" value="${row[5]}" id="cfg-end-${idx}" style="width:140px;"></td>
+      <td>
+        <select id="cfg-forced-${idx}">
+          <option value="FALSE" ${row[6]===false||row[6]==='FALSE'?'selected':''}>정상진행</option>
+          <option value="TRUE" ${row[6]===true||row[6]==='TRUE'?'selected':''}>🚨즉시종료</option>
+        </select>
+      </td>
+    `;
+    cfgBody.appendChild(tr);
+  });
+
+  // 제출 목록 렌더링
+  const subBody = document.getElementById("subTbody");
+  subBody.innerHTML = "";
+  data.submissions.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row[0]}</td>
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td><span class="status-active">${row[3]}</span></td>
+      <td>${row[4]}</td>
+      <td><div style="max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${row[5]}</div></td>
+    `;
+    subBody.appendChild(tr);
+  });
+}
+
+async function pushNewConfig() {
+  const updatedList = currentConfig.map((row, idx) => {
+    return {
+      className: row[0],
+      code: document.getElementById(`cfg-code-${idx}`).value,
+      setId: document.getElementById(`cfg-set-${idx}`).value,
+      status: document.getElementById(`cfg-status-${idx}`).value,
+      start: document.getElementById(`cfg-start-${idx}`).value,
+      end: document.getElementById(`cfg-end-${idx}`).value,
+      forced: document.getElementById(`cfg-forced-${idx}`).value
+    };
+  });
+
+  const res = await fetch(SYSTEM_GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "updateAdminConfig",
+      password: cachedPassword,
+      configList: updatedList
+    })
+  });
+  const result = await res.json();
+  if(result.success) {
+    alert("구글 시트 코어 동기화 및 타임라인 정책 배포가 완료되었습니다.");
+    loadDashboard();
+  }
+}
+</script>
+</body>
+</html>
