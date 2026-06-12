@@ -82,7 +82,7 @@
       </table>
       <div class="flex-actions">
         <button class="btn btn-secondary" onclick="loadDashboard()">🔄 새로고침</button>
-        <button class="btn btn-primary" onclick="pushNewConfig()">💾 수정한 타임라인 세팅 구글 시트 반영</button>
+        <button class="btn btn-primary" onclick="pushNewConfig()">💾 서버 적용</button>
       </div>
     </div>
 
@@ -91,7 +91,7 @@
       <table id="submissionTable">
         <thead>
           <tr>
-            <th>수신 시각</th><th>학번</th><th>성명</th><th>소속 반</th><th>접속 메타(UA)</th><th>제출 답안 데이터 내용 요약</th>
+            <th>수신 시각</th><th>학번</th><th>성명</th><th>소속 반</th><th>접속 메타(UA)</th><th>제출 PDF</th>
           </tr>
         </thead>
         <tbody id="subTbody"></tbody>
@@ -180,7 +180,7 @@ async function loadDashboard() {
       <td>${row[2]}</td>
       <td><span class="status-active">${row[3]}</span></td>
       <td>${row[4]}</td>
-      <td><div style="max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${row[5]}</div></td>
+      <td><div style="max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${(/^https?:\/\//.test(String(row[5])) ? `<a href="${row[5]}" target="_blank" style="color:#2563eb; font-weight:bold;">📄 PDF 열기</a>` : (row[5] || ""))}</div></td>
     `;
     subBody.appendChild(tr);
   });
