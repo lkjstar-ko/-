@@ -39,7 +39,13 @@
       <div class="creator-box">
         <div>
           <label style="font-size:12px; font-weight:bold; color:#475569;">대상 분반명</label>
-          <input type="text" id="newClassName" placeholder="예: 조리1반" style="width:100%;">
+          <select id="newClassName" style="width:100%;">
+            <option value="">-- 분반 선택 --</option>
+            <option>그린자원1반</option><option>그린자원2반</option>
+            <option>관광경영1반</option><option>관광경영2반</option>
+            <option>중국어반</option><option>일본어반</option>
+            <option>영어반</option><option>조리1반</option><option>조리2반</option>
+          </select>
         </div>
         <div>
           <label style="font-size:12px; font-weight:bold; color:#475569;">시작 코드</label>
@@ -69,7 +75,7 @@
       <table id="configTable">
         <thead>
           <tr>
-            <th>대상 분반</th><th>접속용 시작 코드</th><th>지정 문제세트ID</th><th>운영 상태</th><th>시험 시작 시각</th><th>시험 종료 시각</th><th>비상 강제종료</th><th>작업</th>
+            <th>대상 분반</th><th>접속용 시작 코드</th><th>지정 문제세트ID</th><th>운영 상태</th><th>시험 시작 시각</th><th>시험 종료 시각</th><th>비상 강제종료</th><th>입장 가능?</th><th>작업</th>
           </tr>
         </thead>
         <tbody id="configTbody"></tbody>
@@ -85,7 +91,7 @@
       <table id="submissionTable">
         <thead>
           <tr>
-            <th>수신 시각</th><th>학번</th><th>성명</th><th>소속 반</th><th>네트워크 IP</th><th>제출 답안 데이터 내용 요약</th>
+            <th>수신 시각</th><th>학번</th><th>성명</th><th>소속 반</th><th>접속 메타(UA)</th><th>제출 답안 데이터 내용 요약</th>
           </tr>
         </thead>
         <tbody id="subTbody"></tbody>
@@ -180,6 +186,24 @@ async function loadDashboard() {
   });
 }
 
+// 현재 학생이 입장 가능한 상태인지 실시간 계산하여 뱃지로 표시
+function joinableBadge(status, start, end, forced) {
+  const isForced = (forced === true || String(forced).trim().toUpperCase() === "TRUE");
+  const now = Date.now();
+  const sMs = Date.parse(String(start).trim().replace(" ", "T"));
+  const eMs = Date.parse(String(end).trim().replace(" ", "T"));
+
+  if (String(status).trim() !== "ACTIVE")
+    return `<span style="color:#dc2626; font-weight:bold;">⛔ 상태 ${status}</span>`;
+  if (isForced)
+    return `<span style="color:#dc2626; font-weight:bold;">⛔ 강제종료</span>`;
+  if (!isNaN(sMs) && now < sMs)
+    return `<span style="color:#d97706; font-weight:bold;">⏳ 시작 전</span>`;
+  if (!isNaN(eMs) && now > eMs)
+    return `<span style="color:#64748b; font-weight:bold;">🔒 종료됨</span>`;
+  return `<span style="color:#16a34a; font-weight:bold;">✅ 입장 가능</span>`;
+}
+
 // 테이블 UI를 동적으로 생성하는 로직을 분리하여 실시간 추가/삭제가 가능하도록 처리
 function renderConfigTable() {
   const cfgBody = document.getElementById("configTbody");
@@ -206,6 +230,7 @@ function renderConfigTable() {
           <option value="TRUE" ${row[6]===true||row[6]==='TRUE'?'selected':''}>🚨즉시종료</option>
         </select>
       </td>
+      <td style="text-align:center; font-size:12px;">${joinableBadge(row[3], row[4], row[5], row[6])}</td>
       <td><button class="btn btn-danger" style="padding:4px 8px; font-size:12px;" onclick="removeConfigRow(${idx})">삭제</button></td>
     `;
     cfgBody.appendChild(tr);
