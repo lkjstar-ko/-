@@ -11,11 +11,15 @@
   table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
   th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
   th { background: #f1f5f9; font-weight: bold; }
-  .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  input, select { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; }
+  .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; }
   .btn-primary { background: #2563eb; color: white; }
+  .btn-success { background: #16a34a; color: white; }
+  .btn-secondary { background: #64748b; color: white; }
   .btn-danger { background: #dc2626; color: white; }
   .status-active { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;}
-  .status-ready { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;}
+  .flex-actions { display: flex; gap: 8px; margin-top: 15px; justify-content: flex-end; }
+  .creator-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 15px; align-items: flex-end; }
 </style>
 </head>
 <body>
@@ -24,23 +28,55 @@
   
   <div id="authArea" class="card">
     <h3>🔐 시스템 인증 관리자 기기 등록</h3>
-    <input type="password" id="adminPassword" placeholder="관리자 보안 패스워드 입력" style="padding:10px; width:250px; border-radius:6px; border:1px solid #cbd5e1;">
+    <input type="password" id="adminPassword" placeholder="관리자 보안 패스워드 입력" style="padding:10px; width:250px;">
     <button class="btn btn-primary" onclick="loadDashboard()">대시보드 동기화</button>
   </div>
 
   <div id="mainDashboard" style="display:none;">
+    
+    <div class="card">
+      <h3>➕ 신규 시험 분반 등록 및 시작 코드 생성</h3>
+      <div class="creator-box">
+        <div>
+          <label style="font-size:12px; font-weight:bold; color:#475569;">대상 분반명</label>
+          <input type="text" id="newClassName" placeholder="예: 조리1반" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold; color:#475569;">시작 코드</label>
+          <div style="display:flex; gap:4px;">
+            <input type="text" id="newCode" placeholder="생성 버튼 클릭" style="width:100%;">
+            <button class="btn btn-secondary" onclick="generateRandomCode()" style="padding:6px 10px; font-size:12px; white-space:nowrap;">🎲 랜덤</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold; color:#475569;">문제세트ID</label>
+          <input type="text" id="newSetId" value="SET_A" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold; color:#475569;">시작 시간</label>
+          <input type="text" id="newStart" value="2026-06-12 09:00:00" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold; color:#475569;">종료 시간</label>
+          <input type="text" id="newEnd" value="2026-06-12 09:50:00" style="width:100%;">
+        </div>
+        <button class="btn btn-success" onclick="addNewRowToTable()" style="width:100%;">목록에 추가</button>
+      </div>
+    </div>
+
     <div class="card">
       <h3>⚡ 분반별 출제 세트 및 타이머 실시간 하이재킹 제어</h3>
       <table id="configTable">
         <thead>
           <tr>
-            <th>대상 분반</th><th>접속용 시작 코드</th><th>지정 문제세트ID</th><th>운영 상태</th><th>시험 시작 시각</th><th>시험 종료 시각</th><th>비상 강제종료</th>
+            <th>대상 분반</th><th>접속용 시작 코드</th><th>지정 문제세트ID</th><th>운영 상태</th><th>시험 시작 시각</th><th>시험 종료 시각</th><th>비상 강제종료</th><th>작업</th>
           </tr>
         </thead>
         <tbody id="configTbody"></tbody>
       </table>
-      <div style="margin-top:15px; text-align:right;">
-        <button class="btn btn-primary" onclick="pushNewConfig()">💾 수정한 타임라인 세팅 일괄 반영</button>
+      <div class="flex-actions">
+        <button class="btn btn-secondary" onclick="loadDashboard()">🔄 새로고침</button>
+        <button class="btn btn-primary" onclick="pushNewConfig()">💾 수정한 타임라인 세팅 구글 시트 반영</button>
       </div>
     </div>
 
@@ -59,10 +95,54 @@
 </div>
 
 <script>
-const SYSTEM_GAS_URL = "https://script.google.com/macros/s/AKfycbztcXdvPXVlajXdfS0ABhufrqn7LLtL82bWBh5bbZg3bX-qaqY80rmbxdEsJ9KVwOJK/exec"; // 학생용과 동일한 URL 할당
+const SYSTEM_GAS_URL = "https://script.google.com/macros/s/AKfycbztcXdvPXVlajXdfS0ABhufrqn7LLtL82bWBh5bbZg3bX-qaqY80rmbxdEsJ9KVwOJK/exec"; // 선생님의 구글 웹 앱 URL을 넣으세요.
 
 let cachedPassword = "";
 let currentConfig = [];
+
+// [기능 추가] 영문 대문자와 숫자가 조합된 5자리 임의 보안 코드 생성
+function generateRandomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 혼동하기 쉬운 O, I, 0, 1 제외
+  let result = "";
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  document.getElementById("newCode").value = result;
+}
+
+// [기능 추가] 상단 바에서 생성한 데이터를 아래 임시 편집 테이블에 UI로 주입
+function addNewRowToTable() {
+  const className = document.getElementById("newClassName").value.trim();
+  const code = document.getElementById("newCode").value.trim();
+  const setId = document.getElementById("newSetId").value.trim();
+  const start = document.getElementById("newStart").value.trim();
+  const end = document.getElementById("newEnd").value.trim();
+
+  if(!className || !code || !setId || !start || !end) {
+    alert("생성할 분반의 모든 필드를 입력해 주세요."); return;
+  }
+
+  // 중복 검사
+  if(currentConfig.some(row => row[0] === className)) {
+    alert("이미 목록에 존재하는 분반명입니다. 기존 목록에서 수정하세요."); return;
+  }
+
+  // 내부 배열 데이터 모델에 푸시 후 화면 리렌더링
+  currentConfig.push([className, code, setId, "READY", start, end, "FALSE"]);
+  renderConfigTable();
+
+  // 입력창 초기화 (시간은 유지)
+  document.getElementById("newClassName").value = "";
+  document.getElementById("newCode").value = "";
+}
+
+// [기능 추가] 목록에서 특정 반 삭제 기능
+function removeConfigRow(idx) {
+  if(confirm(`${currentConfig[idx][0]} 설정을 삭제하시겠습니까? (구글 시트 반영 버튼을 누르기 전까지는 원본이 유지됩니다.)`)) {
+    currentConfig.splice(idx, 1);
+    renderConfigTable();
+  }
+}
 
 async function loadDashboard() {
   cachedPassword = document.getElementById("adminPassword").value;
@@ -80,35 +160,8 @@ async function loadDashboard() {
   document.getElementById("mainDashboard").style.display = "block";
   document.getElementById("autosaveCounter").textContent = data.autosaveCount;
 
-  // 설정 렌더링
-  const cfgBody = document.getElementById("configTbody");
-  cfgBody.innerHTML = "";
   currentConfig = data.config;
-  
-  currentConfig.forEach((row, idx) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><strong>${row[0]}</strong></td>
-      <td><input type="text" value="${row[1]}" id="cfg-code-${idx}" style="width:80px;"></td>
-      <td><input type="text" value="${row[2]}" id="cfg-set-${idx}" style="width:80px;"></td>
-      <td>
-        <select id="cfg-status-${idx}">
-          <option ${row[3]==='READY'?'selected':''}>READY</option>
-          <option ${row[3]==='ACTIVE'?'selected':''}>ACTIVE</option>
-          <option ${row[3]==='DISABLED'?'selected':''}>DISABLED</option>
-        </select>
-      </td>
-      <td><input type="text" value="${row[4]}" id="cfg-start-${idx}" style="width:140px;"></td>
-      <td><input type="text" value="${row[5]}" id="cfg-end-${idx}" style="width:140px;"></td>
-      <td>
-        <select id="cfg-forced-${idx}">
-          <option value="FALSE" ${row[6]===false||row[6]==='FALSE'?'selected':''}>정상진행</option>
-          <option value="TRUE" ${row[6]===true||row[6]==='TRUE'?'selected':''}>🚨즉시종료</option>
-        </select>
-      </td>
-    `;
-    cfgBody.appendChild(tr);
-  });
+  renderConfigTable();
 
   // 제출 목록 렌더링
   const subBody = document.getElementById("subTbody");
@@ -124,6 +177,38 @@ async function loadDashboard() {
       <td><div style="max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${row[5]}</div></td>
     `;
     subBody.appendChild(tr);
+  });
+}
+
+// 테이블 UI를 동적으로 생성하는 로직을 분리하여 실시간 추가/삭제가 가능하도록 처리
+function renderConfigTable() {
+  const cfgBody = document.getElementById("configTbody");
+  cfgBody.innerHTML = "";
+  
+  currentConfig.forEach((row, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${row[0]}</strong></td>
+      <td><input type="text" value="${row[1]}" id="cfg-code-${idx}" style="width:75px;"></td>
+      <td><input type="text" value="${row[2]}" id="cfg-set-${idx}" style="width:75px;"></td>
+      <td>
+        <select id="cfg-status-${idx}">
+          <option ${row[3]==='READY'?'selected':''}>READY</option>
+          <option ${row[3]==='ACTIVE'?'selected':''}>ACTIVE</option>
+          <option ${row[3]==='DISABLED'?'selected':''}>DISABLED</option>
+        </select>
+      </td>
+      <td><input type="text" value="${row[4]}" id="cfg-start-${idx}" style="width:140px;"></td>
+      <td><input type="text" value="${row[5]}" id="cfg-end-${idx}" style="width:140px;"></td>
+      <td>
+        <select id="cfg-forced-${idx}">
+          <option value="FALSE" ${row[6]===false||row[6]==='FALSE'?'selected':''}>정상진행</option>
+          <option value="TRUE" ${row[6]===true||row[6]==='TRUE'?'selected':''}>🚨즉시종료</option>
+        </select>
+      </td>
+      <td><button class="btn btn-danger" style="padding:4px 8px; font-size:12px;" onclick="removeConfigRow(${idx})">삭제</button></td>
+    `;
+    cfgBody.appendChild(tr);
   });
 }
 
@@ -150,7 +235,7 @@ async function pushNewConfig() {
   });
   const result = await res.json();
   if(result.success) {
-    alert("구글 시트 코어 동기화 및 타임라인 정책 배포가 완료되었습니다.");
+    alert("구글 클라우드 시트에 새로운 코드가 발급 및 저장되었습니다.");
     loadDashboard();
   }
 }
