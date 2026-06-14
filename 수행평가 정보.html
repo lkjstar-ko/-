@@ -34,19 +34,19 @@ main{max-width:1100px; margin:20px auto; padding:0 16px 60px}
 .gate-title { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 20px; color: var(--primary); }
 
 .student-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-label{font-weight:700; font-size:13px; display:block; margin-bottom:5px; color:var(--muted)}
+label{font-weight:700; font-size:14px; display:block; margin-bottom:6px; color:#334155}
 input,textarea,select{
   width:100%; border:1.5px solid var(--line); border-radius:9px;
-  padding:9px 12px; font-size:14px; background:white; font-family:inherit;
+  padding:11px 13px; font-size:15px; background:#ffffff; color:#111827; font-family:inherit;
   transition:border-color .15s;
 }
 input:focus,textarea:focus,select:focus{border-color:var(--primary); outline:none}
 textarea{resize:vertical}
-.codebox{min-height:130px; font-family:"Consolas",monospace; font-size:13.5px; background:#0f172a; color:#f8fafc;}
+.codebox{min-height:150px; font-family:"Consolas",monospace; font-size:14.5px; line-height:1.6; background:#ffffff; color:#0f172a; border:1.5px solid #cbd5e1;}
 
 /* 타이머 바 */
 .timer-banner {
-  background: #fef2f2; border: 1.5px solid #fca5a5; color: #991b1b;
+  background: #eff6ff; border: 1.5px solid #93c5fd; color: #1e3a8a;
   padding: 12px; border-radius: 12px; font-weight: 800; text-align: center;
   font-size: 16px; margin-bottom: 15px; display: none;
 }
@@ -62,25 +62,35 @@ textarea{resize:vertical}
 .tab-btn.active{background:var(--primary); color:white; border-color:var(--primary)}
 .tab{display:none} .tab.active{display:block}
 
-.problem{ border:1.5px solid var(--line); border-radius:14px; padding:16px 18px; background:#fafcff; margin-bottom:14px; display:none; }
+.problem{ border:1.5px solid var(--line); border-radius:14px; padding:22px 24px; background:#fafcff; margin-bottom:14px; display:none; }
 .problem.showing{ display:block; }
 .problem.algo-p{border-color:#ddd6fe; background:#faf5ff}
 .problem.prog-p{border-color:#a7f3d0; background:#f0fdfc}
 
+.q-head{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.q-title{ margin:0; font-size:18px; font-weight:800; letter-spacing:-0.3px; line-height:1.5; }
+
+/* 교과서 쪽수 안내 배지 */
+.tb-page{
+  display:inline-block; font-size:13px; font-weight:800; color:#92400e;
+  background:#fef3c7; border:1px solid #fcd34d; border-radius:8px;
+  padding:5px 11px; margin:2px 0 12px;
+}
+
 .pnum{
   display:inline-flex; align-items:center; justify-content:center;
-  color:white; border-radius:6px; width:28px; height:28px; font-size:12px; font-weight:900;
+  color:white; border-radius:8px; min-width:34px; height:34px; padding:0 8px; font-size:15px; font-weight:900; flex-shrink:0;
 }
 .algo-p .pnum { background: var(--algo); }
 .prog-p .pnum { background: var(--prog); }
 
-.meta{ font-size:13px; padding:8px 12px; margin-bottom:10px; background:#f1f5f9; border-left:3px solid var(--accent); }
-.hint{ font-size:12px; color:var(--muted); margin-bottom:8px; font-style:italic }
+.meta{ font-size:15px; line-height:1.75; padding:12px 14px; margin-bottom:12px; background:#f1f5f9; border-left:4px solid var(--accent); border-radius:0 8px 8px 0; white-space:pre-line; }
+.hint{ font-size:13.5px; color:#475569; margin-bottom:12px; background:#fffbeb; border:1px dashed #fde68a; border-radius:8px; padding:8px 12px; }
 .run-output{ margin-top:8px; background:#0f172a; color:#a3e635; border-radius:10px; padding:11px 14px; font-family:monospace; font-size:13px; white-space:pre-wrap; min-height:32px; }
 
-/* 템플릿 하드코딩 전용 빈칸코드 스타일 */
-.blank-code{ background:#0f172a; color:#e2e8f0; border-radius:10px; padding:14px 16px; font-family:monospace; font-size:13px; line-height:2.2; margin:8px 0; }
-.blank-code input{ display:inline-block; width:110px; background:#1e293b; border:1.5px solid #475569; color:#fbbf24; padding:2px 6px; text-align:center; }
+/* 템플릿 하드코딩 전용 빈칸코드 스타일 (밝은 테마 + 흰 입력란) */
+.blank-code{ background:#f1f5f9; color:#0f172a; border:1.5px solid #cbd5e1; border-radius:10px; padding:16px 18px; font-family:"Consolas",monospace; font-size:14.5px; line-height:1.9; margin:8px 0; white-space:pre-wrap; }
+.blank-code input{ display:inline-block; width:110px; background:#ffffff; border:1.5px solid #94a3b8; border-radius:5px; color:#000000; font-weight:700; padding:3px 6px; text-align:center; }
 
 .q-dots{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px}
 .q-dot{ width:34px; height:34px; border-radius:9px; border:1.5px solid var(--line); background:white; display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer; }
@@ -163,7 +173,7 @@ textarea{resize:vertical}
       <div class="panel" style="text-align:center; padding:40px 20px;">
         <h3 style="color:var(--primary); margin-top:0;">🛑 시험 최종 종료 및 제출</h3>
         <p style="color:var(--muted); font-size:14px; line-height:1.8;">
-          제출 버튼을 누르면 인프라 정책에 따라 답안이 즉시 고정되며 **더 이상 수정할 수 없습니다.**<br>
+          제출 버튼을 누르면 정책에 따라 답안이 즉시 고정되며 <strong style="color:#dc2626;">더 이상 수정할 수 없습니다.</strong><br>
           미작성 내역이 없는지 좌측 인덱스를 다시 확인해 주세요.
         </p>
         <button id="finalSubmitBtn" onclick="executeFinalSubmit(false)" style="background:linear-gradient(135deg,#ef4444,#dc2626); color:white; padding:16px 40px; font-size:18px; font-weight:900; border:none; border-radius:12px; cursor:pointer; width:100%; max-width:400px; margin-top:20px;">
@@ -194,6 +204,28 @@ function randomShuffle(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+// 문항 내용(제목·설명·키)으로 관련 교과서 쪽수를 추정해 안내한다.
+// 시트의 meta에 직접 "쪽" 표기가 있으면 그 값을 우선 사용한다.
+function textbookPage(q) {
+  const metaTxt = String(q.meta || "");
+  const explicit = metaTxt.match(/(\d{2,3}\s*[~\-]\s*\d{2,3}\s*쪽|\d{2,3}\s*쪽)/);
+  if (explicit) return explicit[0].replace(/\s+/g, "");
+
+  const hay = ((q.title || "") + " " + metaTxt + " " + (q.key || "")).toLowerCase();
+  const map = [
+    [/(버블|선택\s*정렬|정렬)/, "97~101쪽 (정렬 알고리즘)"],
+    [/(순차\s*탐색|이진\s*탐색|탐색)/, "102~107쪽 (탐색 알고리즘)"],
+    [/(효율|설계|순서도|의사\s*코드|알고리즘)/, "92~96쪽 (알고리즘의 이해)"],
+    [/(변수|자료형|자료\s*형)/, "110~113쪽 (변수와 자료형)"],
+    [/(입출력|입력|출력|input|print|파일)/, "114~118쪽 (표준·파일 입출력)"],
+    [/(다차원|리스트|2차원|배열|이미지)/, "119~123쪽 (다차원 데이터 구조)"],
+    [/(조건|\bif\b|선택\s*구조)/, "125~128쪽 (조건문)"],
+    [/(반복|\bfor\b|while)/, "129~134쪽 (반복문)"]
+  ];
+  for (const [re, label] of map) { if (re.test(hay)) return label; }
+  return q.cat === "prog" ? "108~135쪽 (Ⅲ. 프로그래밍)" : "92~107쪽 (Ⅲ. 알고리즘)";
 }
 
 async function requestExamAuth() {
@@ -260,17 +292,22 @@ function buildDynamicEngine(savedAnswers) {
     card.id = `card-${idx}`;
     
     let innerStructure = `
-      <h3><span class="pnum">${q.key.toUpperCase()}</span> ${q.title}</h3>
+      <div class="q-head"><span class="pnum">문항 ${idx + 1}</span><h3 class="q-title">${q.title}</h3></div>
+      <div class="tb-page">📖 교과서 ${textbookPage(q)}</div>
       <div class="meta">${q.meta}</div>
-      <div class="hint">${q.hint}</div>
+      ${q.hint ? `<div class="hint">💡 ${q.hint}</div>` : ""}
     `;
 
     if(q.templateType === "TEXTAREA_DOUBLE") {
+      // 두 답안칸의 라벨을 시트 body("라벨1|라벨2")에서 지정. 비어있으면 기본 문구.
+      const parts = String(q.body || "").split("|");
+      const lab1 = esc((parts[0] || "").trim() || "(1) 답안 서술");
+      const lab2 = esc((parts[1] || "").trim() || "(2) 답안 서술");
       innerStructure += `
-        <label>문항 (1) 답안 서술</label>
-        <textarea id="ans-${q.key}-1" rows="3" oninput="trackProgress()"></textarea>
-        <label style="margin-top:10px;">문항 (2) 답안 서술</label>
-        <textarea id="ans-${q.key}-2" rows="3" oninput="trackProgress()"></textarea>
+        <label>${lab1}</label>
+        <textarea id="ans-${q.key}-1" rows="4" oninput="trackProgress()"></textarea>
+        <label style="margin-top:10px;">${lab2}</label>
+        <textarea id="ans-${q.key}-2" rows="4" oninput="trackProgress()"></textarea>
       `;
     } else if (q.templateType === "TEXTAREA_COMPARE") {
       innerStructure += `
@@ -288,19 +325,18 @@ function buildDynamicEngine(savedAnswers) {
         <div id="out-${q.key}" class="run-output" style="display:none;"></div>
       `;
     } else if (q.templateType === "B1_BLANK") {
-      innerStructure += `
-        <div class="blank-code"># 오늘의 급식 칼로리 검증 구조
-menu_date = "2026년 6월 11일"
-main_dish = <input type="text" id="ans-b1-1" style="width:120px;" oninput="trackProgress()">
-total_students = 320
-total_calorie = <input type="text" id="ans-b1-2" style="width:80px;" oninput="trackProgress()">
-today_menu = ["쌀밥", "미역국", "제육볶음"]
-calories = [310, 80, 295]
-
-sum_cal = 0
-for i in range(<input type="text" id="ans-b1-3" style="width:60px;" oninput="trackProgress()">):
-    sum_cal = sum_cal + <input type="text" id="ans-b1-4" style="width:140px;" oninput="trackProgress()"></div>
-      `;
+      // 빈칸코드 본문은 시트(QuestionSets I열 'body')에서 받아온다.
+      // 본문 안의 [[1]], [[2]] ... (또는 [[1:120]]) 마커가 입력칸으로 바뀐다.
+      const rawBody = (q.body && String(q.body).trim().length > 0)
+        ? String(q.body)
+        : "# (관리자 시트 I열에 이 문항의 빈칸코드 본문이 비어 있습니다)";
+      const escaped = rawBody
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const withInputs = escaped.replace(/\[\[(\d+)(?::(\d+))?\]\]/g, (m, n, w) => {
+        const width = w ? parseInt(w, 10) : 100;
+        return `<input type="text" id="ans-${q.key}-${n}" style="width:${width}px;" oninput="trackProgress()">`;
+      });
+      innerStructure += `<div class="blank-code">${withInputs}</div>`;
     }
 
     card.innerHTML = innerStructure;
@@ -340,6 +376,18 @@ function switchMainTab(tabId) {
   document.getElementById(`btn-tab-${tabId}`).classList.add('active');
 }
 
+// 라벨 등 텍스트를 HTML에 안전하게 삽입하기 위한 이스케이프
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// B1_BLANK 문항의 입력칸 id들을 번호순으로 수집 (문항 키 기준이라 다른 문항과 충돌하지 않음)
+function blankIds(key) {
+  return Array.from(document.querySelectorAll('[id^="ans-' + key + '-"]'))
+    .map(el => el.id)
+    .sort((a, b) => (parseInt(a.split("-").pop()) || 0) - (parseInt(b.split("-").pop()) || 0));
+}
+
 function trackProgress() {
   let totalInputs = 0;
   let filledInputs = 0;
@@ -352,7 +400,7 @@ function trackProgress() {
     if(q.templateType === "TEXTAREA_DOUBLE") localFields = [`ans-${q.key}-1`, `ans-${q.key}-2`];
     else if(q.templateType === "TEXTAREA_COMPARE") localFields = [`ans-${q.key}-seq`, `ans-${q.key}-bin`, `ans-${q.key}-comp`];
     else if(q.templateType === "PY_CODE") localFields = [`ans-${q.key}`];
-    else if(q.templateType === "B1_BLANK") localFields = ['ans-b1-1', 'ans-b1-2', 'ans-b1-3', 'ans-b1-4'];
+    else if(q.templateType === "B1_BLANK") localFields = blankIds(q.key);
 
     let anyLocalFilled = false;
     localFields.forEach(id => {
@@ -391,7 +439,7 @@ function grabCurrentAnswers() {
     if(q.templateType === "TEXTAREA_DOUBLE") ids = [`ans-${q.key}-1`, `ans-${q.key}-2`];
     else if(q.templateType === "TEXTAREA_COMPARE") ids = [`ans-${q.key}-seq`, `ans-${q.key}-bin`, `ans-${q.key}-comp`];
     else if(q.templateType === "PY_CODE") ids = [`ans-${q.key}`];
-    else if(q.templateType === "B1_BLANK") ids = ['ans-b1-1', 'ans-b1-2', 'ans-b1-3', 'ans-b1-4'];
+    else if(q.templateType === "B1_BLANK") ids = blankIds(q.key);
 
     ids.forEach(id => {
       const el = document.getElementById(id);
@@ -401,20 +449,29 @@ function grabCurrentAnswers() {
   return payload;
 }
 
+// 입장 시 표시할 안내용 시험 시간(분). 0이 되어도 자동 제출 등 어떤 동작도 하지 않는다.
+const DISPLAY_EXAM_MINUTES = 35;
+
 function initTimers() {
+  let displaySec = DISPLAY_EXAM_MINUTES * 60;
+  const tEl = document.getElementById("timerDisplay");
+  tEl.style.display = "block";
+
+  const renderTimer = () => {
+    const m = Math.floor(displaySec / 60);
+    const s = displaySec % 60;
+    tEl.textContent = `⏰ 남은 시험 시간(안내): ${m}분 ${String(s).padStart(2, "0")}초`;
+  };
+  renderTimer();
+
   countdownInterval = setInterval(() => {
-    serverRemainingMillis -= 1000;
-    if(serverRemainingMillis <= 0) {
+    displaySec -= 1;
+    if (displaySec <= 0) {
       clearInterval(countdownInterval);
-      clearInterval(autoSaveInterval);
-      alert("⏲️ 시험 제한시간이 만료되었습니다. 시스템에 의해 자동 최종 제출 처리됩니다.");
-      executeFinalSubmit(true);
-    } else {
-      let mins = Math.floor(serverRemainingMillis / 60000);
-      let secs = Math.floor((serverRemainingMillis % 60000) / 1000);
-      document.getElementById("timerDisplay").style.display = "block";
-      document.getElementById("timerDisplay").textContent = `⏰ 남은 시험 시간: ${mins}분 ${secs}초`;
+      tEl.textContent = "⏰ 안내 시간(35분)이 종료되었습니다 · 자동 제출되지 않으니 계속 작성/제출 가능합니다";
+      return; // 안내용 타이머이므로 자동 제출하지 않음
     }
+    renderTimer();
   }, 1000);
 
   // 30초 주기 클라우드 실시간 동기화 자동 저장
@@ -428,7 +485,7 @@ function initTimers() {
     fetch(DEPLOY_GAS_URL, { method: "POST", body: JSON.stringify(backupData) });
   }, 30000);
 
-  // 20초 주기 실시간 상태 점검 (교사 강제종료 / 서버 시간만료 즉시 반영)
+  // 20초 주기 상태 점검 — '교사 강제종료'에만 반응(시간 만료로는 자동 제출하지 않음)
   statusPollInterval = setInterval(async () => {
     try {
       const r = await fetch(DEPLOY_GAS_URL, {
@@ -440,18 +497,12 @@ function initTimers() {
         })
       });
       const s = await r.json();
-      if (s && s.success) {
-        // 서버 기준 남은시간으로 동기화하여 시계 조작/표류 방지
-        if (typeof s.remainingMillis === "number") serverRemainingMillis = s.remainingMillis;
-        if (!s.active) {
-          clearInterval(countdownInterval);
-          clearInterval(autoSaveInterval);
-          clearInterval(statusPollInterval);
-          alert(s.forcedStop
-            ? "🛑 감독 교사에 의해 시험이 종료되었습니다. 현재까지의 답안을 자동 제출합니다."
-            : "⏲️ 시험이 종료되었습니다. 현재까지의 답안을 자동 제출합니다.");
-          executeFinalSubmit(true);
-        }
+      if (s && s.success && s.forcedStop) {
+        clearInterval(countdownInterval);
+        clearInterval(autoSaveInterval);
+        clearInterval(statusPollInterval);
+        alert("🛑 감독 교사에 의해 시험이 종료되었습니다. 현재까지의 답안을 자동 제출합니다.");
+        executeFinalSubmit(true);
       }
     } catch (e) { /* 일시적 네트워크 오류는 무시하고 다음 주기에 재시도 */ }
   }, 20000);
