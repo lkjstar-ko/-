@@ -155,6 +155,7 @@ textarea{resize:vertical}
 
     <nav class="tabs">
       <button class="tab-btn active" id="btn-tab-solve" onclick="switchMainTab('solve')">✍️ 문항 풀이</button>
+      <button class="tab-btn" id="btn-tab-guide" onclick="switchMainTab('guide')">📋 채점 기준</button>
       <button class="tab-btn" id="btn-tab-submit" onclick="switchMainTab('submit')">📤 최종 제출</button>
     </nav>
 
@@ -166,6 +167,64 @@ textarea{resize:vertical}
           <button style="background:#e2e8f0; color:var(--muted);" onclick="navigateQuestion(-1)">← 이전 문항</button>
           <button style="background:linear-gradient(135deg,#1d4ed8,#0ea5e9); color:white;" onclick="navigateQuestion(1)">다음 문항 →</button>
         </div>
+      </div>
+    </section>
+
+    <section id="tab-guide" class="tab">
+      <div class="panel">
+        <h3 style="color:var(--primary); margin-top:0; display:flex; justify-content:space-between; align-items:center;">
+          수행평가 채점 기준
+          <span style="font-size:13px; font-weight:800; color:white; background:#64748b; border-radius:8px; padding:4px 10px;">총 100점</span>
+        </h3>
+        <p style="font-size:14px; margin:0 0 14px;"><strong>수행 과제:</strong> 주어진 조건(알고리즘, 자료형, 입출력, 데이터 구조, 제어구조)을 활용하여 프로그래밍 작성하기</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+          <div style="border:1.5px solid #ddd6fe; background:#faf5ff; border-radius:12px; padding:14px;">
+            <div style="font-size:15px; font-weight:800; color:var(--algo); margin-bottom:8px;">🟣 알고리즘 표현 (40점)</div>
+            <ul style="font-size:13px; line-height:1.8; margin:0 0 10px; padding-left:18px; color:#334155;">
+              <li>① 알고리즘이 무엇인지 설명할 수 있는가?</li>
+              <li>② 적절한 알고리즘 설계구조를 선택할 수 있는가?</li>
+              <li>③ 문제 해결 절차에 따라 문제를 해결할 수 있는가?</li>
+              <li>④ 문제를 해결 가능한 작은 문제로 분해할 수 있는가?</li>
+            </ul>
+            <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+              <tr style="background:#1e40af; color:white;"><th style="padding:6px 8px; text-align:left;">충족 수준</th><th style="padding:6px 8px; text-align:center;">배점</th></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 모두 충족</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">40점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 90% 이상</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">35점</td></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 75% 이상</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">30점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 50% 이상</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">25점</td></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 50% 미만</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">20점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">이름만 작성하여 제출</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">10점</td></tr>
+            </table>
+          </div>
+
+          <div style="border:1.5px solid #99f6e4; background:#f0fdfc; border-radius:12px; padding:14px;">
+            <div style="font-size:15px; font-weight:800; color:var(--prog); margin-bottom:8px;">🟢 프로그램 작성 (60점)</div>
+            <ul style="font-size:13px; line-height:1.8; margin:0 0 10px; padding-left:18px; color:#334155;">
+              <li>① 변수를 활용하여 프로그램을 작성할 수 있는가?</li>
+              <li>② 자료형을 활용하여 프로그램을 작성할 수 있는가?</li>
+              <li>③ 표준입출력을 활용하여 프로그램을 작성할 수 있는가?</li>
+              <li>④ 파일입출력을 활용하여 프로그램을 작성할 수 있는가?</li>
+            </ul>
+            <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+              <tr style="background:#1e40af; color:white;"><th style="padding:6px 8px; text-align:left;">충족 수준</th><th style="padding:6px 8px; text-align:center;">배점</th></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 모두 충족</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">60점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 90% 이상</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">54점</td></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 75% 이상</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">48점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 50% 이상</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">42점</td></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">4가지 요소 중 50% 미만</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">36점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">이름만 작성하여 제출</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">20점</td></tr>
+              <tr><td style="border:1px solid var(--line); padding:5px 8px;">활동 참여, 만족 항목 없음 (기본점수)</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">30점</td></tr>
+              <tr style="background:#f8fafc;"><td style="border:1px solid var(--line); padding:5px 8px;">미응시 (미인정결석 등)</td><td style="border:1px solid var(--line); padding:5px 8px; text-align:center; font-weight:700;">20점</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:16px 0;">
+        <p style="font-size:13px; color:var(--muted); margin:0; line-height:1.8;">
+          교과서 92~135쪽을 참고하여 작성합니다. 코드는 파이썬(Python) 구글 코랩 또는 IDLE에서 작성·실행 확인 후 입력하세요.<br>
+          학번 입력 형식: <strong>학년(1자리) + 반번호(2자리) + 번호(1자리)</strong> &nbsp;예) 1학년 1반 1번 → <strong>1101</strong>, 1학년 2반 14번 → <strong>1214</strong>
+        </p>
       </div>
     </section>
 
@@ -295,7 +354,7 @@ function buildDynamicEngine(savedAnswers) {
       <div class="q-head"><span class="pnum">문항 ${idx + 1}</span><h3 class="q-title">${q.title}</h3></div>
       <div class="tb-page">📖 교과서 ${textbookPage(q)}</div>
       <div class="meta">${q.meta}</div>
-      ${q.hint ? `<div class="hint">💡 ${q.hint}</div>` : ""}
+      ${q.hint ? `<div class="hint">💡 ${esc(String(q.hint)).replace(/^(?:\s|💡)+/, "")}</div>` : ""}
     `;
 
     if(q.templateType === "TEXTAREA_DOUBLE") {
