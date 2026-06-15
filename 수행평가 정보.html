@@ -86,7 +86,26 @@ textarea{resize:vertical}
 
 .meta{ font-size:15px; line-height:1.75; padding:12px 14px; margin-bottom:12px; background:#f1f5f9; border-left:4px solid var(--accent); border-radius:0 8px 8px 0; white-space:pre-line; }
 .hint{ font-size:13.5px; color:#475569; margin-bottom:12px; background:#fffbeb; border:1px dashed #fde68a; border-radius:8px; padding:8px 12px; }
-.run-output{ margin-top:8px; background:#0f172a; color:#a3e635; border-radius:10px; padding:11px 14px; font-family:monospace; font-size:13px; white-space:pre-wrap; min-height:32px; }
+.run-output{ margin-top:8px; background:#0f172a; color:#a3e635; border-radius:10px; padding:11px 14px; font-family:monospace; font-size:13px; white-space:pre-wrap; min-height:32px; line-height:1.7; }
+.run-output.error{ color:#f87171; }
+
+/* input() 모달 */
+.input-modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center; z-index:9999;
+}
+.input-modal{
+  background:white; border-radius:16px; padding:24px 28px;
+  min-width:320px; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.input-modal h4{ margin:0 0 8px; font-size:16px; color:#0f172a; }
+.input-modal .prompt-text{ font-size:14px; color:#64748b; margin-bottom:12px; background:#f1f5f9; padding:8px 10px; border-radius:8px; }
+.input-modal input{ border:1.5px solid #cbd5e1; border-radius:8px; padding:10px 12px; font-size:15px; width:100%; background:#fff; color:#0f172a; }
+.input-modal input:focus{ border-color:var(--prog); outline:none; }
+.input-modal-btns{ display:flex; gap:8px; margin-top:12px; justify-content:flex-end; }
+.input-modal-btns button{ padding:8px 18px; border-radius:8px; font-weight:700; font-size:14px; border:none; cursor:pointer; }
+.btn-modal-ok{ background:var(--prog); color:white; }
+.btn-modal-ok:hover{ opacity:.85; }
 
 /* 템플릿 하드코딩 전용 빈칸코드 스타일 (밝은 테마 + 흰 입력란) */
 .blank-code{ background:#f1f5f9; color:#0f172a; border:1.5px solid #cbd5e1; border-radius:10px; padding:16px 18px; font-family:"Consolas",monospace; font-size:14.5px; line-height:1.9; margin:8px 0; white-space:pre-wrap; }
@@ -614,19 +633,117 @@ async function getPyodide(){
   pyodideInstance = await pyodideReady; return pyodideInstance;
 }
 
+/* ── input() 모달 ── */
+function showInputModal(promptText){
+  return new Promise(resolve=>{
+    const overlay = document.createElement('div');
+    overlay.className = 'input-modal-overlay';
+    overlay.innerHTML = `
+      <div class="input-modal">
+        <h4>⌨️ 입력 대기 중</h4>
+        <div class="prompt-text">${esc(promptText || '값을 입력하세요:')}</div>
+        <input id="modalInput" type="text" autofocus placeholder="입력 후 확인을 누르세요">
+        <div class="input-modal-btns">
+          <button class="btn-modal-ok" id="modalOk">확인</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const inp = overlay.querySelector('#modalInput');
+    const ok  = overlay.querySelector('#modalOk');
+    inp.focus();
+    const done = ()=>{
+      const val = inp.value;
+      document.body.removeChild(overlay);
+      resolve(val);
+    };
+    ok.addEventListener('click', done);
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') done(); });
+  });
+}
+
+/* ── 에러 메시지 한글 번역 ── */
+function translateError(msg){
+  const lines = msg.split('\n').filter(l=>l.trim());
+  const errLine = lines[lines.length-1] || msg;
+  const map = [
+    [/NameError.*name '(.+?)' is not defined/, m=>`이름 오류: '${m[1]}' 변수가 정의되지 않았습니다.`],
+    [/SyntaxError/, ()=>`문법 오류: 코드 형식을 확인하세요 (들여쓰기, 괄호, 따옴표).`],
+    [/IndentationError/, ()=>`들여쓰기 오류: 코드 들여쓰기를 확인하세요.`],
+    [/TypeError.*unsupported operand/, ()=>`타입 오류: 자료형이 맞지 않습니다. int(), float() 변환을 확인하세요.`],
+    [/ZeroDivisionError/, ()=>`오류: 0으로 나눌 수 없습니다.`],
+    [/IndexError/, ()=>`인덱스 오류: 리스트 범위를 벗어났습니다.`],
+    [/FileNotFoundError/, ()=>`파일 오류: 파일을 찾을 수 없습니다. 파일 쓰기를 먼저 실행하세요.`],
+    [/ValueError/, ()=>`값 오류: 숫자가 아닌 값을 변환하려 했습니다.`],
+  ];
+  for(const [re, fn] of map){
+    const m = errLine.match(re);
+    if(m) return fn(m);
+  }
+  return errLine;
+}
+
 async function runPythonEngine(codeId, outputId) {
   const code = document.getElementById(codeId)?.value?.trim();
   const outEl = document.getElementById(outputId);
-  if(!code) return;
-  outEl.style.display = "block"; outEl.textContent = "Python 인터프리터 구동 중...";
+  if(!code){ outEl.style.display='block'; outEl.className='run-output'; outEl.textContent='코드를 먼저 작성하세요.'; return; }
+
+  const btn = outEl.previousElementSibling.querySelector('button');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 실행 중...'; }
+  outEl.style.display = "block";
+  outEl.className = "run-output";
+  outEl.textContent = "Python 엔진 준비 중... (최초 실행 시 10~20초 소요)";
+
   try {
     const py = await getPyodide();
-    py.runPython(`import sys, io\n_stdout = io.StringIO()\nsys.stdout = _stdout`);
-    py.runPython(code);
-    let output = py.runPython('_stdout.getvalue()');
-    outEl.textContent = output || "(정상 실행 완료 - 출력값 없음)";
-  } catch(err) {
-    outEl.textContent = "❌ 문법 및 실행 오류 발생\n" + err.message;
+
+    // input() 호출 수만큼 입력 모달을 순서대로 표시
+    const inputCount = (code.match(/\binput\s*\(/g) || []).length;
+    const inputValues = [];
+    if (inputCount > 0) {
+      outEl.textContent = `input() 함수가 ${inputCount}번 호출됩니다. 순서대로 값을 입력해 주세요.`;
+      const promptRe = /input\s*\(\s*(['"`])(.*?)\1\s*\)/g;
+      const prompts = [];
+      let m;
+      while ((m = promptRe.exec(code)) !== null) prompts.push(m[2]);
+      for (let i = 0; i < inputCount; i++) {
+        const val = await showInputModal(prompts[i] || `입력 ${i+1}:`);
+        inputValues.push(val);
+      }
+    }
+
+    // input()이 입력값을 순서대로 반환하도록 mock 처리
+    py.globals.set('_input_values', py.toPy(inputValues));
+    py.runPython(`
+import sys, io
+_input_idx = 0
+def _mock_input(prompt=''):
+    global _input_idx
+    val = _input_values[_input_idx] if _input_idx < len(_input_values) else ''
+    _input_idx += 1
+    return val
+import builtins
+builtins.input = _mock_input
+_stdout = io.StringIO()
+sys.stdout = _stdout
+`);
+
+    // 상대경로 파일을 Pyodide 가상 파일시스템(/tmp)으로 리다이렉트
+    const safeCode = code.replace(/open\s*\(\s*(['"`])(.*?)\1/g, (match, q, fname) => {
+      if (!fname.startsWith('/')) return `open(${q}/tmp/${fname}${q}`;
+      return match;
+    });
+
+    py.runPython(safeCode);
+    const output = py.runPython('_stdout.getvalue()');
+    py.runPython('import sys, io; sys.stdout = sys.__stdout__');
+
+    outEl.className = "run-output";
+    outEl.textContent = output || "(출력 없음)";
+  } catch (err) {
+    outEl.className = "run-output error";
+    outEl.textContent = "❌ 오류 발생\n" + translateError(err.message || String(err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "▶ 코드 실행 테스트"; }
   }
 }
 </script>
