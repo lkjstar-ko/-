@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 객체지향 프로그래밍 — 고등학교 정보</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<style>
+  :root{
+    --dark:#241046; --main:#5A2A9D; --mid:#7B3FB5; --accent:#9D4EDD;
+    --bright:#C49BF0; --pale:#EFE6FB; --pale2:#F6F1FC; --ink:#2A1B45;
+    --gray:#6B6280; --line:#E4D8F5; --ok:#1E9E6A; --no:#E0476B;
+    --cbg:#1A1030; --cfg:#EBE4F7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Pretendard","맑은 고딕","Malgun Gothic",sans-serif;background:#F3EEFA;color:var(--ink);line-height:1.6;padding:18px}
+  .wrap{max-width:980px;margin:0 auto}
+  /* 헤더 */
+  .hero{background:linear-gradient(135deg,var(--dark),var(--main));border-radius:20px;padding:26px 30px;color:#fff;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(157,78,221,.35)}
+  .hero::before{content:"";position:absolute;right:60px;bottom:-80px;width:150px;height:150px;border-radius:50%;background:rgba(196,155,240,.25)}
+  .hero .ch{font-size:13px;letter-spacing:3px;color:var(--bright);font-weight:700}
+  .hero h1{font-size:30px;margin:6px 0 2px}
+  .hero .en{font-style:italic;color:var(--bright);font-size:15px}
+  .hero .goals{margin-top:14px;font-size:14px;color:#EEE4FB;position:relative;z-index:1}
+  .hero .goals b{color:#fff}
+  /* 탭 */
+  .tabs{display:flex;gap:8px;margin:18px 0 16px;flex-wrap:wrap}
+  .tab{flex:1;min-width:160px;background:#fff;border:2px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;transition:.18s;text-align:left}
+  .tab:hover{border-color:var(--accent)}
+  .tab.on{background:var(--main);border-color:var(--main);color:#fff;box-shadow:0 8px 20px rgba(90,42,157,.28)}
+  .tab .n{font-size:11px;font-weight:700;opacity:.7}
+  .tab .t{font-size:15px;font-weight:700;margin-top:2px}
+  .panel{display:none;animation:fade .25s}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* 카드 */
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;box-shadow:0 3px 14px rgba(90,42,157,.06)}
+  .card h2{font-size:19px;color:var(--main);display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .card h2 .ico{width:30px;height:30px;background:var(--accent);color:#fff;border-radius:9px;display:grid;place-items:center;font-size:16px}
+  .card h3{font-size:15px;color:var(--mid);margin:14px 0 6px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .lead{color:var(--gray)}
+  code.inl{background:var(--pale);color:var(--main);padding:1.5px 7px;border-radius:6px;font-family:Consolas,monospace;font-size:13.5px;font-weight:600}
+  /* 3개념 그리드 */
+  .triad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0}
+  .triad .b{background:var(--pale2);border:1px solid var(--line);border-radius:13px;padding:16px;text-align:center}
+  .triad .b .e{font-size:30px}
+  .triad .b .h{font-weight:700;color:var(--main);margin:6px 0 4px}
+  .triad .b .d{font-size:12.5px;color:var(--gray)}
+  /* 코드 블록(설명용) */
+  pre.code{background:var(--cbg);color:var(--cfg);border-radius:12px;padding:16px 18px;font-family:Consolas,monospace;font-size:13.5px;line-height:1.7;overflow-x:auto;margin:10px 0}
+  pre.code .k{color:#FF8FB0}.code .s{color:#9EE6A0}.code .n{color:#9AC8FF}.code .c{color:#A99CC9}.code .f{color:#E0B36A}
+  .note{background:var(--pale);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin:10px 0;color:var(--ink)}
+  /* 퀴즈 */
+  .quiz-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bar{flex:1;height:10px;background:var(--pale);border-radius:6px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--mid));transition:width .35s}
+  .qcount{font-weight:700;color:var(--main);font-size:14px;min-width:46px;text-align:right}
+  .q{margin-bottom:18px;padding-bottom:6px}
+  .q .ask{font-weight:700;font-size:15px;margin-bottom:10px}
+  .q .ask span{color:var(--accent);margin-right:6px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:11px;padding:11px 15px;margin-bottom:8px;cursor:pointer;font-size:14px;transition:.15s;font-family:inherit}
+  .opt:hover:not(:disabled){border-color:var(--accent);background:var(--pale2)}
+  .opt:disabled{cursor:default}
+  .opt.correct{border-color:var(--ok);background:#E7F7F0;color:var(--ok);font-weight:700}
+  .opt.wrong{border-color:var(--no);background:#FBE9EE;color:var(--no);font-weight:700}
+  .fb{font-size:13px;margin-top:4px;padding:8px 12px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.y{background:#E7F7F0;color:var(--ok)}.fb.n{background:#FBE9EE;color:var(--no)}
+  .result{display:none;text-align:center;padding:24px;background:linear-gradient(135deg,var(--pale),var(--pale2));border-radius:14px;margin-top:8px}
+  .result.show{display:block}
+  .result .score{font-size:40px;font-weight:800;color:var(--main)}
+  .result .msg{font-size:15px;margin:6px 0 14px;color:var(--ink)}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:var(--main)}
+  .btn.ghost{background:#fff;color:var(--main);border:2px solid var(--accent)}
+  .btn.ghost:hover{background:var(--pale)}
+  /* 샌드박스 */
+  .sb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{background:var(--pale);border:1px solid var(--line);color:var(--main);border-radius:20px;padding:6px 13px;font-size:12.5px;cursor:pointer;font-weight:600;transition:.15s}
+  .chip:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .editor{position:relative;background:var(--cbg);border-radius:12px;padding:14px 16px 14px 50px}
+  .editor textarea{width:100%;background:transparent;color:var(--cfg);border:none;outline:none;resize:none;font-family:Consolas,monospace;font-size:14px;line-height:1.65;overflow:hidden}
+  .ln{position:absolute;left:0;top:14px;width:38px;text-align:right;padding-right:10px;color:#6A5A8C;font-family:Consolas,monospace;font-size:14px;line-height:1.65;user-select:none}
+  .run{background:#27C93F;color:#06270e;font-weight:800}
+  .run:hover{background:#34d850}
+  .run:disabled{background:#5a6b5d;color:#aaa;cursor:wait}
+  .out{background:#0d0820;color:#cfe8d4;border-radius:11px;padding:14px 16px;margin-top:10px;font-family:Consolas,monospace;font-size:13.5px;white-space:pre-wrap;min-height:46px}
+  .out.empty{color:#6A5A8C}
+  .out .err{color:#ff9aa8}
+  .status{font-size:12px;color:var(--gray)}
+  /* 활동 카드 */
+  .acts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .act{background:var(--pale2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .act .tag{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+  .act h4{font-size:14.5px;color:var(--main);margin-bottom:5px}
+  .act p{font-size:13px;color:var(--gray)}
+  .ref{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+  .ref .r{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px}
+  .ref .r b{color:var(--main);font-family:Consolas,monospace;font-size:13.5px}
+  .ref .r p{font-size:12.5px;color:var(--gray);margin-top:4px}
+  @media(max-width:680px){.triad,.acts,.ref{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="ch">CHAPTER 06</div>
+    <h1>객체지향 프로그래밍</h1>
+    <div class="en">Object-Oriented Programming</div>
+    <div class="goals">
+      <b>학습 목표</b> &nbsp;① 객체지향 프로그래밍의 필요성을 이해한다 &nbsp; ② 클래스를 정의하고 인스턴스를 생성한다<br>
+      <b>학습 요소</b> &nbsp;객체 · 클래스 · 인스턴스 · 객체지향 프로그래밍
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" data-p="p1"><div class="n">PART 1</div><div class="t">개념 &amp; 퀴즈</div></div>
+    <div class="tab" data-p="p2"><div class="n">PART 2</div><div class="t">클래스 정의 · 실행</div></div>
+    <div class="tab" data-p="p3"><div class="n">PART 3</div><div class="t">미니 프로젝트 &amp; 실습</div></div>
+  </div>
+
+  <!-- ════════════ PART 1 ════════════ -->
+  <div class="panel on" id="p1">
+    <div class="card">
+      <h2><span class="ico">🧩</span>객체지향이 왜 필요할까?</h2>
+      <p class="lead">게임 캐릭터 30개를 하나하나 변수로 만들면 너무 번거롭습니다. <b>설계도(클래스)</b>를 한 번 만들어 두면 같은 종류의 객체를 손쉽게 찍어낼 수 있어요. 코드를 <b>재사용</b>하고 <b>쉽게 변경</b>할 수 있는 것이 객체지향의 장점입니다.</p>
+      <div class="triad">
+        <div class="b"><div class="e">🎲</div><div class="h">객체 Object</div><div class="d">고유한 속성과 기능을 가진 데이터<br>(주사위·캐릭터·이미지)</div></div>
+        <div class="b"><div class="e">📐</div><div class="h">클래스 Class</div><div class="d">객체를 만드는 설계도<br>공통 속성·메소드를 정의</div></div>
+        <div class="b"><div class="e">🎯</div><div class="h">인스턴스 Instance</div><div class="d">클래스로 만들어진<br>각각의 실제 객체</div></div>
+      </div>
+      <div class="note">💡 <b>한 줄 요약</b> — 클래스는 <b>붕어빵 틀</b>, 인스턴스는 그 틀로 구운 <b>붕어빵 하나하나</b>! 속성은 붕어빵의 <b>재료(데이터)</b>, 메소드는 붕어빵이 <b>할 수 있는 일(기능)</b>이에요.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">📝</span>개념 확인 퀴즈</h2>
+      <div class="quiz-top">
+        <div class="bar"><i id="qbar"></i></div>
+        <div class="qcount"><span id="qdone">0</span> / 5</div>
+      </div>
+      <div id="quiz"></div>
+      <div class="result" id="qresult">
+        <div class="score"><span id="qscore">0</span> / 5</div>
+        <div class="msg" id="qmsg"></div>
+        <button class="btn ghost" onclick="resetQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ PART 2 ════════════ -->
+  <div class="panel" id="p2">
+    <div class="card">
+      <h2><span class="ico">📐</span>클래스 정의하기</h2>
+      <p class="lead">속성은 <b>변수</b>로, 메소드는 <b>함수</b> 형태로 정의합니다. 클래스 첫 글자는 보통 대문자로 써요.</p>
+      <pre class="code"><span class="k">class</span> <span class="f">Dice</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(<span class="k">self</span>):       <span class="c"># 생성자: 인스턴스 만들 때 자동 실행</span>
+        <span class="k">self</span>.value = <span class="n">0</span>     <span class="c"># 속성(데이터) 초기화</span>
+
+    <span class="k">def</span> <span class="f">roll</span>(<span class="k">self</span>):           <span class="c"># 메소드(기능)</span>
+        <span class="k">import</span> random
+        <span class="k">self</span>.value = random.randint(<span class="n">1</span>, <span class="n">6</span>)
+        <span class="k">return</span> <span class="k">self</span>.value</pre>
+      <div class="ref">
+        <div class="r"><b>class</b><p>클래스 정의 시작 (첫 글자 대문자)</p></div>
+        <div class="r"><b>__init__()</b><p>생성자 — 속성값을 초기화</p></div>
+        <div class="r"><b>self</b><p>인스턴스 자신을 가리킴 (항상 첫 매개변수)</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🎯</span>인스턴스 생성하고 사용하기</h2>
+      <pre class="code">dice1 = <span class="f">Dice</span>()        <span class="c"># 인스턴스 생성 ← 클래스명()</span>
+<span class="f">print</span>(dice1.value)    <span class="c"># 속성 사용 ← 인스턴스명.속성</span>
+<span class="f">print</span>(dice1.roll())   <span class="c"># 메소드 호출 ← 인스턴스명.메소드()</span></pre>
+      <div class="note">📌 클래스를 한 번 정의하면 <code class="inl">dice1</code>, <code class="inl">dice2</code>, <code class="inl">dice3</code> … 처럼 인스턴스를 여러 개 만들 수 있어요. 모두 같은 속성·메소드를 가집니다.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">▶️</span>직접 실행해 보기 <span class="status" id="pyStat2">— 파이썬 엔진 준비 중…</span></h2>
+      <div class="sb-head">
+        <div class="chips">
+          <span class="chip" onclick="loadSnip('dice')">🎲 주사위 Dice</span>
+          <span class="chip" onclick="loadSnip('knight')">⚔️ 기사 Knight</span>
+          <span class="chip" onclick="loadSnip('bank')">🏦 통장 Account</span>
+        </div>
+        <button class="btn run" id="runBtn" onclick="runCode()" disabled>실행 ▶</button>
+      </div>
+      <div class="editor"><div class="ln" id="ln">1</div><textarea id="code" spellcheck="false"></textarea></div>
+      <div class="out empty" id="out">실행 결과가 여기에 표시됩니다.  ( Ctrl + Enter 로도 실행 )</div>
+    </div>
+  </div>
+
+  <!-- ════════════ PART 3 ════════════ -->
+  <div class="panel" id="p3">
+    <div class="card">
+      <h2><span class="ico">🖼️</span>실습 · 이미지 처리 (PIL)</h2>
+      <p class="lead"><code class="inl">PIL</code>(Python Imaging Library)로 이미지를 <b>인스턴스</b>로 만들고, 속성·메소드로 처리합니다. (이미지 파일이 필요해 구글 코랩 등에서 실행해요.)</p>
+      <pre class="code"><span class="k">from</span> PIL <span class="k">import</span> Image
+img = <span class="f">Image</span>.open(<span class="s">'lighthouse.jpg'</span>)
+<span class="f">print</span>(img.size)   <span class="c"># (1200, 797) ← 크기 속성</span>
+<span class="f">print</span>(img.mode)   <span class="c"># RGB ← 색상 모드 속성</span>
+img.rotate(<span class="n">50</span>)                       <span class="c"># 회전 메소드</span>
+img.transpose(Image.FLIP_LEFT_RIGHT)  <span class="c"># 좌우 반전</span>
+img.filter(ImageFilter.BLUR)          <span class="c"># 흐림 필터</span></pre>
+      <div class="ref">
+        <div class="r"><b>속성 size / mode</b><p>이미지 크기와 색상 모드(데이터)</p></div>
+        <div class="r"><b>rotate() · transpose()</b><p>회전 · 좌우/상하 반전(기능)</p></div>
+        <div class="r"><b>filter()</b><p>BLUR 흐림 · SHARPEN 선명 · CONTOUR 윤곽</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🛠️</span>나만의 클래스 만들기 — 미니 프로젝트</h2>
+      <p class="lead">아래 <code class="inl">Student</code> 클래스를 실행해 보고, 빈칸을 채워 직접 확장해 보세요. <b>속성</b>과 <b>메소드</b>를 추가하는 연습입니다.</p>
+      <div class="sb-head">
+        <div class="chips">
+          <span class="chip" onclick="loadSnip('student')">🎓 학생 Student</span>
+          <span class="chip" onclick="loadSnip('counter')">🔢 카운터 Counter</span>
+          <span class="chip" onclick="loadSnip('compare')">🔍 픽셀비교 개념</span>
+        </div>
+        <button class="btn run" id="runBtn3" onclick="runCode3()" disabled>실행 ▶</button>
+      </div>
+      <div class="editor"><div class="ln" id="ln3">1</div><textarea id="code3" spellcheck="false"></textarea></div>
+      <div class="out empty" id="out3">실행 결과가 여기에 표시됩니다.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">👥</span>모둠 활동 아이디어</h2>
+      <div class="acts">
+        <div class="act"><span class="tag">활동 1</span><h4>🎮 게임 캐릭터 클래스</h4><p>체력·공격력·이름 속성과 attack() 메소드를 가진 캐릭터 클래스를 만들고 인스턴스 3개를 생성해 대결시켜 보기.</p></div>
+        <div class="act"><span class="tag">활동 2</span><h4>🏦 가상 통장 만들기</h4><p>잔액 속성과 입금·출금 메소드를 가진 Account 클래스 설계. 출금 시 잔액 부족을 막는 조건 추가하기.</p></div>
+        <div class="act"><span class="tag">활동 3</span><h4>🖼️ 이미지 효과 비교</h4><p>같은 사진에 rotate·transpose·filter를 각각 적용한 결과를 비교하고, 어떤 효과가 어떤 상황에 어울리는지 토의.</p></div>
+        <div class="act"><span class="tag">활동 4</span><h4>🔍 틀린 그림 찾기</h4><p>ImageComparator 클래스로 두 이미지의 다른 부분을 빨간색으로 표시. 픽셀 비교 원리를 설명해 보기.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center;color:var(--gray);font-size:12.5px;margin:8px 0 20px">고등학교 정보 · 06 객체지향 프로그래밍 · Ⅲ. 알고리즘과 프로그래밍</p>
+</div>
+
+<script>
+/* ───── 탭 전환 ───── */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.getElementById(t.dataset.p).classList.add('on');
+});
+
+/* ───── 퀴즈 ───── */
+const QUIZ=[
+  {q:"객체를 만들기 위한 <b>설계도</b> 역할을 하는 것은?",o:["객체","클래스","인스턴스","메소드"],a:1,
+   y:"맞아요! 클래스는 공통 속성·메소드를 정의한 설계도입니다.",n:"클래스가 설계도예요. 인스턴스는 그 설계도로 만든 실제 객체랍니다."},
+  {q:"클래스로 생성된 <b>각각의 실제 객체</b>를 무엇이라 하나요?",o:["속성","인스턴스","생성자","모듈"],a:1,
+   y:"정확해요! dice1, dice2 처럼 각각이 인스턴스입니다.",n:"인스턴스예요. 클래스(설계도)로 찍어낸 실제 객체를 뜻해요."},
+  {q:"인스턴스를 만들 때 속성값을 초기화하는 <b>생성자</b> 메소드 이름은?",o:["self()","start()","__init__()","create()"],a:2,
+   y:"맞아요! __init__() 이 생성자입니다.",n:"__init__() 이 정답이에요. 인스턴스 생성 시 자동으로 실행돼요."},
+  {q:"메소드의 첫 매개변수로, <b>인스턴스 자신</b>을 가리키는 것은?",o:["this","self","me","obj"],a:1,
+   y:"맞아요! 파이썬에서는 self 를 사용합니다.",n:"파이썬에서는 self 예요. (자바·C++의 this 와 비슷한 역할)"},
+  {q:"<code style='background:#EFE6FB;padding:1px 6px;border-radius:5px'>dice1 = Dice()</code> 에서 <b>Dice</b>는 무엇인가요?",o:["인스턴스","클래스","속성","변수"],a:1,
+   y:"맞아요! Dice는 클래스, dice1은 인스턴스입니다.",n:"Dice는 클래스예요. 왼쪽 dice1이 생성된 인스턴스랍니다."},
+];
+let done=0,score=0,answered=[];
+function buildQuiz(){
+  const box=document.getElementById('quiz');box.innerHTML='';
+  done=0;score=0;answered=Array(QUIZ.length).fill(false);
+  QUIZ.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML=`<div class="ask"><span>Q${i+1}.</span>${item.q}</div>`;
+    item.o.forEach((opt,j)=>{
+      const b=document.createElement('button');b.className='opt';b.innerHTML=opt;
+      b.onclick=()=>pick(i,j,b,d);d.appendChild(b);
+    });
+    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;d.appendChild(fb);
+    box.appendChild(d);
+  });
+  document.getElementById('qbar').style.width='0%';
+  document.getElementById('qdone').textContent='0';
+  document.getElementById('qresult').classList.remove('show');
+}
+function pick(i,j,btn,d){
+  if(answered[i])return;answered[i]=true;done++;
+  const item=QUIZ[i];const opts=d.querySelectorAll('.opt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===item.a)o.classList.add('correct');});
+  const fb=document.getElementById('fb'+i);fb.classList.add('show');
+  if(j===item.a){score++;fb.classList.add('y');fb.textContent='⭕ '+item.y;}
+  else{btn.classList.add('wrong');fb.classList.add('n');fb.textContent='❌ '+item.n;}
+  document.getElementById('qdone').textContent=done;
+  document.getElementById('qbar').style.width=(done/QUIZ.length*100)+'%';
+  if(done===QUIZ.length)finishQuiz();
+}
+function finishQuiz(){
+  const r=document.getElementById('qresult');r.classList.add('show');
+  document.getElementById('qscore').textContent=score;
+  const msg=['다시 한 번 복습해 볼까요? 개념 카드를 보고 도전!','조금만 더! 핵심 개념을 다시 확인해요.','좋아요! 절반 이상 맞혔어요 👍','훌륭해요! 객체지향 개념을 잘 이해했어요 🎉','완벽해요! 클래스·인스턴스 마스터 🏆'][score];
+  document.getElementById('qmsg').textContent=msg;
+  r.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function resetQuiz(){buildQuiz();}
+buildQuiz();
+
+/* ───── Pyodide 코드 실행 ───── */
+let pyodide=null,pyReady=false;
+const SNIPPETS={
+  dice:`class Dice:
+    def __init__(self):
+        self.value = 0
+
+    def roll(self):
+        import random
+        self.value = random.randint(1, 6)
+        return self.value
+
+# 인스턴스 2개 생성
+dice1 = Dice()
+dice2 = Dice()
+print("dice1 굴리기:", dice1.roll())
+print("dice2 굴리기:", dice2.roll())
+print("dice1.value =", dice1.value)`,
+  knight:`class Knight:
+    def __init__(self, name, hp, atk):
+        self.name = name      # 속성: 이름
+        self.hp = hp          # 속성: 체력
+        self.atk = atk        # 속성: 공격력
+
+    def info(self):
+        return f"{self.name}: HP {self.hp}, 공격력 {self.atk}"
+
+# 캐릭터를 손쉽게 여러 개 생성!
+k1 = Knight("아서", 100, 30)
+k2 = Knight("랜슬롯", 150, 55)
+print(k1.info())
+print(k2.info())`,
+  bank:`class Account:
+    def __init__(self, owner):
+        self.owner = owner
+        self.balance = 0          # 잔액 속성
+
+    def deposit(self, amount):    # 입금 메소드
+        self.balance += amount
+        return self.balance
+
+    def withdraw(self, amount):   # 출금 메소드
+        if amount > self.balance:
+            return "잔액 부족!"
+        self.balance -= amount
+        return self.balance
+
+a = Account("경진")
+a.deposit(10000)
+print("입금 후 잔액:", a.balance)
+print("출금 결과:", a.withdraw(3000))
+print("3만원 출금:", a.withdraw(30000))`,
+  student:`class Student:
+    def __init__(self, name, kor, eng):
+        self.name = name
+        self.kor = kor
+        self.eng = eng
+
+    def average(self):            # 평균 메소드
+        return (self.kor + self.eng) / 2
+
+    # 도전! math 점수 속성과 메소드를 추가해 보세요.
+
+s1 = Student("민서", 90, 85)
+print(s1.name, "평균:", s1.average())`,
+  counter:`class Counter:
+    def __init__(self):
+        self.count = 0
+
+    def up(self):
+        self.count += 1
+
+    def reset(self):
+        self.count = 0
+
+c = Counter()
+c.up(); c.up(); c.up()
+print("현재 카운트:", c.count)
+c.reset()
+print("리셋 후:", c.count)`,
+  compare:`# 틀린 그림 찾기의 핵심 원리 (숫자로 이해하기)
+# 두 이미지 = 픽셀(숫자)의 2차원 배열이라고 생각해요.
+img1 = [[1, 2, 3],
+        [4, 5, 6]]
+img2 = [[1, 9, 3],
+        [4, 5, 8]]   # 두 곳이 다름
+
+diff = []
+for x in range(2):
+    for y in range(3):
+        if img1[x][y] != img2[x][y]:
+            diff.append((x, y))   # 다른 좌표 기록 → 빨간색 표시
+
+print("다른 위치(좌표):", diff)`
+};
+function loadSnip(key,target){
+  const isP3=['student','counter','compare'].includes(key);
+  const ta=document.getElementById(isP3?'code3':'code');
+  ta.value=SNIPPETS[key];autoSize(ta);updateLN(ta,isP3?'ln3':'ln');
+}
+function autoSize(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';}
+function updateLN(ta,lnId){
+  const lines=ta.value.split('\n').length;
+  let s='';for(let i=1;i<=lines;i++)s+=i+'\n';
+  document.getElementById(lnId).textContent=s;
+}
+['code','code3'].forEach(id=>{
+  const ta=document.getElementById(id);
+  const lnId=id==='code'?'ln':'ln3';
+  ta.addEventListener('input',()=>{autoSize(ta);updateLN(ta,lnId);});
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart;ta.value=ta.value.slice(0,s)+'    '+ta.value.slice(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=s+4;autoSize(ta);updateLN(ta,lnId);}
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();id==='code'?runCode():runCode3();}
+  });
+});
+
+async function initPy(){
+  try{
+    pyodide=await loadPyodide();
+    pyReady=true;
+    document.getElementById('pyStat2').textContent='— 준비 완료 ✅';
+    document.getElementById('runBtn').disabled=false;
+    document.getElementById('runBtn3').disabled=false;
+  }catch(e){
+    document.getElementById('pyStat2').textContent='— 엔진 로드 실패 (인터넷 연결 확인)';
+  }
+}
+initPy();
+
+async function execTo(srcId,outId,btnId){
+  if(!pyReady)return;
+  const out=document.getElementById(outId);
+  const btn=document.getElementById(btnId);
+  const code=document.getElementById(srcId).value;
+  out.classList.remove('empty');out.innerHTML='⏳ 실행 중…';
+  btn.disabled=true;
+  let buf='';
+  pyodide.setStdout({batched:t=>buf+=t+'\n'});
+  pyodide.setStderr({batched:t=>buf+=t+'\n'});
+  try{
+    await pyodide.runPythonAsync(code);
+    out.textContent=buf.trimEnd()||'(출력 없음)';
+  }catch(err){
+    const msg=String(err).split('\n').filter(l=>l.trim()).slice(-3).join('\n');
+    out.innerHTML=(buf?buf:'')+'<span class="err">⚠ 오류\n'+msg.replace(/</g,'&lt;')+'</span>';
+  }finally{btn.disabled=false;}
+}
+function runCode(){execTo('code','out','runBtn');}
+function runCode3(){execTo('code3','out3','runBtn3');}
+
+/* 초기 스니펫 */
+loadSnip('dice');loadSnip('student');
+</script>
+</body>
+</html>
