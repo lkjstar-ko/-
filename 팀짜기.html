@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>볼링 팀 편성</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:"맑은 고딕",sans-serif;margin:0;padding:16px;background:#f4f5f7;color:#222}
+h1{font-size:20px;margin:0 0 12px}
+h2{font-size:15px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:baseline}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+button{padding:7px 14px;border:1px solid #c3c7cf;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
+button:hover{background:#eef1f6}
+button.primary{background:#2f6feb;color:#fff;border-color:#2f6feb}
+button.primary:hover{background:#2560cf}
+button.warn{background:#fff;color:#c0392b;border-color:#e3b4ad}
+label{font-size:13px;color:#444}
+select,input[type=text],input[type=number]{padding:5px 7px;border:1px solid #c3c7cf;border-radius:5px;font-size:13px;font-family:inherit}
+input[type=text]{width:110px}
+input[type=number]{width:80px}
+.teams{display:grid;gap:12px;margin-bottom:14px}
+.card{background:#fff;border:1px solid #dfe1e6;border-radius:10px;padding:10px}
+.stat{font-size:12px;color:#555;line-height:1.7;border-top:1px dashed #dfe1e6;padding-top:6px;margin-bottom:4px}
+.stat b{font-size:15px;color:#111}
+.hc{color:#c0392b;font-weight:bold}
+.drop{min-height:150px;padding:4px;border-radius:8px}
+.drop.over{background:#e8f0fe;outline:2px dashed #2f6feb}
+.pool .drop{min-height:80px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.blk{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;
+ border:1px solid #d6d9e0;border-left:5px solid #2f6feb;border-radius:7px;padding:7px 10px;
+ margin:5px 0;cursor:grab;font-size:13px}
+.pool .blk{margin:0;min-width:120px}
+.blk:active{cursor:grabbing}
+.blk.dragging{opacity:.4}
+.blk .w{font-weight:bold;color:#2f6feb}
+.blk.est{border-left-color:#999}.blk.est .w{color:#999}
+.blk.new{border-left-color:#27ae60}.blk.new .w{color:#27ae60}
+.roster{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;border:1px solid #d6d9e0;background:#fff;border-radius:16px;
+ padding:5px 12px;font-size:13px;cursor:pointer;user-select:none}
+.chip.on{background:#2f6feb;border-color:#2f6feb;color:#fff}
+.chip.new{border-color:#27ae60}
+.chip.new.on{background:#27ae60;border-color:#27ae60}
+.chip .cw{opacity:.65;font-size:12px;margin-left:5px}
+.chip .del{margin-left:7px;opacity:.55;font-size:14px;line-height:1}
+.chip .del:hover{opacity:1;color:#c0392b}
+.chip.on .del:hover{color:#ffd9d3}
+.note{font-size:12px;color:#777;margin-top:10px;line-height:1.6}
+.err{font-size:12px;color:#c0392b;margin-left:4px}
+</style>
+</head>
+<body>
+<h1>볼링 팀 편성</h1>
+
+<div class="bar">
+  <label>팀 수
+    <select id="teamCount" onchange="changeTeamCount()">
+      <option value="2">2팀</option>
+      <option value="3" selected>3팀</option>
+      <option value="4">4팀</option>
+    </select>
+  </label>
+  <button class="primary" onclick="assign('random')">랜덤 배치</button>
+  <button onclick="assign('snake')">실력 균등 배분</button>
+  <button class="warn" onclick="clearTeams()">팀 비우기</button>
+  <label>핸디캡 비율
+    <select id="hcRate" onchange="render()">
+      <option value="1">100%</option><option value="0.8">80%</option>
+      <option value="0.5">50%</option><option value="0">사용 안 함</option>
+    </select>
+  </label>
+  <label>기준
+    <select id="basis" onchange="render()">
+      <option value="sum">팀 합계</option>
+      <option value="avg">팀 평균(인원 보정)</option>
+    </select>
+  </label>
+</div>
+
+<div class="teams" id="teams"></div>
+
+<div class="card pool">
+  <h2>대기 (활성 멤버) <span id="cnt-pool"></span></h2>
+  <div class="drop" id="pool" ondragover="over(event)" ondragleave="leave(event)" ondrop="drop(event,'pool')"></div>
+</div>
+
+<div class="card" style="margin-top:12px">
+  <h2>멤버 추가 <span style="font-size:12px;color:#777">이름과 점수를 입력하면 블록으로 등록됩니다</span></h2>
+  <div class="bar" style="margin:4px 0 0">
+    <input type="text" id="newName" placeholder="이름" onkeydown="if(event.key==='Enter')addMember()">
+    <input type="number" id="newScore" placeholder="점수" step="0.1" min="0" max="300"
+           onkeydown="if(event.key==='Enter')addMember()">
+    <button class="primary" onclick="addMember()">추가</button>
+    <span class="err" id="addErr"></span>
+  </div>
+</div>
+
+<div class="card" style="margin-top:12px">
+  <h2>활성 멤버 선택 <span style="font-size:12px;color:#777">이름을 눌러 오늘 참석자를 켜고 끄세요</span></h2>
+  <div class="bar" style="margin:4px 0 0">
+    <button onclick="setAll(true)">전체 선택</button>
+    <button onclick="setAll(false)">전체 해제</button>
+  </div>
+  <div class="roster" id="roster"></div>
+</div>
+
+<p class="note">
+핸디캡 = (가장 강한 팀 점수 − 해당 팀 점수) × 핸디캡 비율.<br>
+회색 ※ 표시는 최근 3개월 기록이 없어 누적 점수로 대체한 값입니다. 초록색은 직접 추가한 멤버입니다.<br>
+블록은 팀 ↔ 대기 사이를 자유롭게 끌어 옮길 수 있습니다.
+</p>
+
+<script>
+// [이름, 최근3개월평균, 누적점수] — 누적점수 탭 기준
+const RAW=[
+["고충환",186.6,174.5],["임호범",161.4,172.8],["황병민",null,171.5],["김진아",150.7,164.6],
+["윤광섭",163.0,164.0],["이승관",167.8,162.2],["강성범",151.2,159.7],["문용범",159.0,159.0],
+["현지민",158.0,158.0],["김병찬",null,155.3],["강영화",148.3,155.0],["김용",164.2,154.5],
+["박균훈",162.6,153.9],["고재영",149.7,149.7],["유지근",148.0,148.0],["이경진",149.3,147.0],
+["강혁성",153.8,146.1],["한석창",143.3,144.8],["이준성",138.8,144.5],["김기환",142.9,140.2],
+["강영아",null,134.7],["김평주",134.0,134.0],["이진우",134.3,132.0],["이미경",131.0,131.0],
+["김은영",123.0,123.0],["국명호",117.5,117.5],["한은주",117.0,117.0],["최소영",111.0,111.0],
+["이윤정",108.7,106.6],["강창현",null,1.0],["현미희",null,0.0]
+];
+
+const players=RAW.map((r,i)=>({
+  id:"p"+i, name:r[0],
+  w:Math.round((r[1]!==null?r[1]:r[2])*10)/10,
+  est:r[1]===null, custom:false, active:false, zone:"pool"
+}));
+let seq=players.length;
+const P=id=>players.find(p=>p.id===id);
+const zones=()=>Array.from({length:+document.getElementById("teamCount").value},(_,i)=>"t"+(i+1));
+
+function setAll(v){ players.forEach(p=>{p.active=v; if(!v)p.zone="pool";}); render(); }
+function toggle(id){ const p=P(id); p.active=!p.active; if(!p.active)p.zone="pool"; render(); }
+function clearTeams(){ players.forEach(p=>p.zone="pool"); render(); }
+
+function addMember(){
+  const nEl=document.getElementById("newName"), sEl=document.getElementById("newScore");
+  const err=document.getElementById("addErr");
+  const name=nEl.value.trim(), score=parseFloat(sEl.value);
+  if(!name){ err.textContent="이름을 입력하세요."; nEl.focus(); return; }
+  if(isNaN(score)||score<0||score>300){ err.textContent="점수는 0~300 사이 숫자로 입력하세요."; sEl.focus(); return; }
+  if(players.some(p=>p.name===name)){ err.textContent="이미 같은 이름의 멤버가 있습니다."; nEl.focus(); return; }
+  players.push({id:"p"+(seq++), name, w:Math.round(score*10)/10,
+                est:false, custom:true, active:true, zone:"pool"});
+  err.textContent=""; nEl.value=""; sEl.value=""; nEl.focus();
+  render();
+}
+
+function removeMember(id,e){
+  e.stopPropagation();
+  const i=players.findIndex(p=>p.id===id);
+  if(i<0) return;
+  if(!confirm(players[i].name+" 님을 목록에서 삭제할까요?")) return;
+  players.splice(i,1); render();
+}
+
+function changeTeamCount(){
+  const zs=zones();
+  players.forEach(p=>{ if(p.zone!=="pool"&&!zs.includes(p.zone)) p.zone="pool"; });
+  render();
+}
+
+function assign(mode){
+  const list=players.filter(p=>p.active);
+  if(!list.length){ alert("먼저 활성 멤버를 선택하세요."); return; }
+  const zs=zones(), N=zs.length;
+  if(mode==="random"){
+    const sh=list.slice();
+    for(let i=sh.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [sh[i],sh[j]]=[sh[j],sh[i]]; }
+    sh.forEach((p,i)=>p.zone=zs[i%N]);
+  } else {
+    list.slice().sort((a,b)=>b.w-a.w).forEach((p,i)=>{
+      const round=Math.floor(i/N), pos=i%N;
+      p.zone=zs[round%2===0?pos:N-1-pos];
+    });
+  }
+  render();
+}
+
+function blockHTML(p){
+  return '<div class="blk'+(p.est?' est':'')+(p.custom?' new':'')+'" draggable="true" id="'+p.id+
+   '" ondragstart="start(event)" ondragend="end(event)">'+
+   '<span>'+p.name+(p.est?' <span style="color:#c0392b">※</span>':'')+'</span>'+
+   '<span class="w">'+p.w.toFixed(1)+'</span></div>';
+}
+
+function render(){
+  const zs=zones();
+
+  document.getElementById("teams").style.gridTemplateColumns="repeat("+zs.length+",1fr)";
+  document.getElementById("teams").innerHTML=zs.map((z,i)=>
+    '<div class="card"><h2>'+(i+1)+'팀 <span id="cnt-'+z+'"></span></h2>'+
+    '<div class="stat" id="st-'+z+'"></div>'+
+    '<div class="drop" id="'+z+'" ondragover="over(event)" ondragleave="leave(event)" '+
+    'ondrop="drop(event,\''+z+'\')"></div></div>').join("");
+
+  document.getElementById("roster").innerHTML=players.map(p=>
+    '<div class="chip'+(p.active?' on':'')+(p.custom?' new':'')+'" onclick="toggle(\''+p.id+'\')">'+
+    p.name+'<span class="cw">'+p.w.toFixed(0)+'</span>'+
+    (p.custom?'<span class="del" title="삭제" onclick="removeMember(\''+p.id+'\',event)">×</span>':'')+
+    '</div>').join("");
+
+  ["pool"].concat(zs).forEach(z=>{
+    const list=players.filter(p=>p.active&&p.zone===z);
+    document.getElementById(z).innerHTML=list.map(blockHTML).join("");
+    document.getElementById("cnt-"+z).textContent="("+list.length+"명)";
+  });
+
+  const basis=document.getElementById("basis").value;
+  const rate=parseFloat(document.getElementById("hcRate").value);
+  const teams=zs.map(z=>{
+    const list=players.filter(p=>p.active&&p.zone===z);
+    const sum=list.reduce((a,p)=>a+p.w,0);
+    const avg=list.length?sum/list.length:0;
+    return {z,n:list.length,sum,avg,score:basis==="sum"?sum:avg};
+  });
+  const active=teams.filter(t=>t.n);
+  const top=active.length?Math.max(...active.map(t=>t.score)):0;
+  teams.forEach(t=>{
+    const hc=t.n?Math.round((top-t.score)*rate):0;
+    document.getElementById("st-"+t.z).innerHTML=
+      "합계 <b>"+t.sum.toFixed(1)+"</b> / 평균 <b>"+(t.n?t.avg.toFixed(1):"-")+"</b><br>"+
+      "핸디캡 <span class='hc'>+"+hc+"</span> → 조정 후 <b>"+
+      (t.n?(t.score+hc).toFixed(1):"-")+"</b>";
+  });
+}
+
+let dragId=null;
+function start(e){ dragId=e.target.id; e.target.classList.add("dragging"); e.dataTransfer.effectAllowed="move"; }
+function end(e){ e.target.classList.remove("dragging"); }
+function over(e){ e.preventDefault(); e.currentTarget.classList.add("over"); }
+function leave(e){ e.currentTarget.classList.remove("over"); }
+function drop(e,zone){ e.preventDefault(); e.currentTarget.classList.remove("over");
+  if(dragId){ P(dragId).zone=zone; dragId=null; render(); } }
+
+render();
+</script>
+</body>
+</html>
