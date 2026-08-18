@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1차시 기계학습의 이해 — 고등학교 인공지능 기초</title>
+
+<style>
+  :root{
+    --dark:#0B2E2A; --main:#116B5C; --mid:#17897A; --accent:#1FAE7E;
+    --bright:#6FD8B4; --pale:#E3F5EE; --pale2:#F1FAF6; --ink:#12332C;
+    --gray:#5F7A72; --line:#CFE9DF; --ok:#1E9E6A; --no:#E0476B;
+    --cbg:#1A1030; --cfg:#EBE4F7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Pretendard","맑은 고딕","Malgun Gothic",sans-serif;background:#EFF7F3;color:var(--ink);line-height:1.6;padding:18px}
+  .wrap{max-width:980px;margin:0 auto}
+  .hero{background:linear-gradient(135deg,var(--dark),var(--main));border-radius:20px;padding:26px 30px;color:#fff;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(31,174,126,.35)}
+  .hero::before{content:"";position:absolute;right:60px;bottom:-80px;width:150px;height:150px;border-radius:50%;background:rgba(111,216,180,.22)}
+  .hero .ch{font-size:12.5px;letter-spacing:2px;color:var(--bright);font-weight:700}
+  .hero h1{font-size:29px;margin:6px 0 2px}
+  .hero .en{font-style:italic;color:var(--bright);font-size:15px}
+  .hero .goals{margin-top:14px;font-size:13.5px;color:#E6F6EF;position:relative;z-index:1}
+  .hero .goals b{color:#fff}
+  .tabs{display:flex;gap:8px;margin:18px 0 16px;flex-wrap:wrap}
+  .tab{flex:1;min-width:165px;background:#fff;border:2px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;transition:.18s}
+  .tab:hover{border-color:var(--accent)}
+  .tab.on{background:var(--main);border-color:var(--main);color:#fff;box-shadow:0 8px 20px rgba(17,107,92,.28)}
+  .tab .n{font-size:11px;font-weight:700;opacity:.7}
+  .tab .t{font-size:15px;font-weight:700;margin-top:2px}
+  .panel{display:none;animation:fade .25s}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;box-shadow:0 3px 14px rgba(17,107,92,.06)}
+  .card h2{font-size:19px;color:var(--main);display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .card h2 .ico{width:30px;height:30px;background:var(--accent);color:#fff;border-radius:9px;display:grid;place-items:center;font-size:16px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .lead{color:var(--gray)}
+  code.inl{background:var(--pale);color:var(--main);padding:1.5px 7px;border-radius:6px;font-family:Consolas,monospace;font-size:13.5px;font-weight:600}
+  pre.code{background:var(--cbg);color:var(--cfg);border-radius:12px;padding:16px 18px;font-family:Consolas,monospace;font-size:13.5px;line-height:1.7;overflow-x:auto;margin:10px 0}
+  .code .k{color:#FF8FB0}.code .s{color:#9EE6A0}.code .n{color:#9AC8FF}.code .c{color:#A99CC9}.code .f{color:#E0B36A}
+  .note{background:var(--pale);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin:10px 0}
+  table.dt{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+  table.dt th{background:var(--main);color:#fff;padding:7px 9px;text-align:left}
+  table.dt td{border-bottom:1px solid var(--line);padding:6px 9px}
+  table.dt tr:nth-child(even) td{background:var(--pale2)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--pale);color:var(--main);margin-left:4px}
+  /* 클릭 카드 */
+  .quad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0}
+  .triad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0}
+  .quad .b,.triad .b{background:var(--pale2);border:2px solid var(--line);border-radius:13px;padding:14px 12px;text-align:center;cursor:pointer;transition:.18s}
+  .quad .b:hover,.triad .b:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 16px rgba(17,107,92,.13)}
+  .quad .b.on,.triad .b.on{background:var(--main);border-color:var(--main)}
+  .quad .b .e,.triad .b .e{font-size:26px}
+  .quad .b .h,.triad .b .h{font-weight:700;color:var(--main);margin:5px 0 3px;font-size:14px}
+  .quad .b.on .h,.triad .b.on .h{color:#fff}
+  .quad .b .d,.triad .b .d{font-size:11.5px;color:var(--gray)}
+  .quad .b.on .d,.triad .b.on .d{color:var(--bright)}
+  .quad .b .more,.triad .b .more{display:block;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--accent)}
+  .quad .b.on .more,.triad .b.on .more{color:var(--bright)}
+  .detail{display:none;margin-top:14px;background:var(--pale2);border:2px solid var(--accent);border-radius:14px;padding:20px 22px;animation:fade .25s}
+  .detail.show{display:block}
+  .detail h3{font-size:17px;color:var(--main);margin-bottom:4px}
+  .detail .sub{font-size:13px;color:var(--gray);margin-bottom:14px}
+  .detail .key{background:#fff;border-radius:10px;padding:12px 15px;margin-bottom:12px;font-size:14px;border:1px solid var(--line)}
+  .detail .key b{color:var(--main)}
+  .exgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+  .exgrid .ex{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .exgrid .ex .t{font-weight:700;font-size:13.5px;margin-bottom:4px}
+  .exgrid .ex .l{font-size:12.5px;color:var(--gray);line-height:1.55}
+  .trap{background:#FFF4E5;border-left:4px solid #E8A33D;border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin-top:6px}
+  .trap b{color:#B87415}
+  .closebtn{float:right;background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:0 4px}
+  /* 퀴즈 */
+  .quiz-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bar{flex:1;height:10px;background:var(--pale);border-radius:6px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--mid));transition:width .35s}
+  .qcount{font-weight:700;color:var(--main);font-size:14px;min-width:46px;text-align:right}
+  .q{margin-bottom:18px}
+  .q .ask{font-weight:700;font-size:15px;margin-bottom:10px}
+  .q .ask span{color:var(--accent);margin-right:6px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:11px;padding:11px 15px;margin-bottom:8px;cursor:pointer;font-size:14px;transition:.15s;font-family:inherit}
+  .opt:hover:not(:disabled){border-color:var(--accent);background:var(--pale2)}
+  .opt.correct{border-color:var(--ok);background:#E7F7F0;color:var(--ok);font-weight:700}
+  .opt.wrong{border-color:var(--no);background:#FBE9EE;color:var(--no);font-weight:700}
+  .fb{font-size:13px;margin-top:4px;padding:8px 12px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.y{background:#E7F7F0;color:var(--ok)}.fb.n{background:#FBE9EE;color:var(--no)}
+  .result{display:none;text-align:center;padding:24px;background:linear-gradient(135deg,var(--pale),var(--pale2));border-radius:14px;margin-top:8px}
+  .result.show{display:block}
+  .result .score{font-size:40px;font-weight:800;color:var(--main)}
+  .result .msg{font-size:15px;margin:6px 0 14px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--main)}
+  .btn.ghost{background:#fff;color:var(--main);border:2px solid var(--accent)}
+  .run{background:#27C93F;color:#06270e;font-weight:800}
+  .run:disabled{background:#8fa596;color:#e8f0ea;cursor:wait}
+  /* 드릴 */
+  .drill{background:var(--dark);border-radius:14px;padding:20px 22px;color:#fff}
+  .drill .top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .drill .top .bar{flex:1;height:9px;background:rgba(255,255,255,.18)}
+  .drill .top .bar>i{background:var(--bright)}
+  .drill .top .cnt{font-size:13px;font-weight:700;color:var(--bright);min-width:52px;text-align:right}
+  .drill .item{background:rgba(255,255,255,.1);border-radius:11px;padding:16px;text-align:center;font-size:17px;font-weight:700;margin-bottom:14px}
+  .drill .item .hint{display:block;font-size:12px;font-weight:400;color:var(--bright);margin-top:5px}
+  .dopts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .dopt{background:rgba(255,255,255,.13);border:2px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:11px 6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+  .dopt:hover:not(:disabled){background:var(--accent);border-color:var(--accent)}
+  .dopt.correct{background:var(--ok);border-color:var(--ok)}
+  .dopt.wrong{background:var(--no);border-color:var(--no)}
+  .dfb{margin-top:12px;padding:11px 15px;border-radius:9px;font-size:13.5px;display:none;background:rgba(255,255,255,.12);color:#fff}
+  .dfb.show{display:block}
+  .dfb b{color:var(--bright)}
+  /* 체험 도구 */
+  .tool{background:var(--dark);border-radius:14px;padding:20px 22px;color:#fff;margin-top:6px}
+  .tool .lbl{font-size:13px;color:var(--bright);font-weight:700;margin-bottom:6px}
+  .tool .row{margin-bottom:16px}
+  .tool input[type=range]{width:100%;accent-color:var(--accent);height:6px;cursor:pointer}
+  .tool .val{font-family:Consolas,monospace;font-size:15px;font-weight:700;color:#fff}
+  .formula{background:rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;font-family:Consolas,monospace;font-size:13.5px;margin-top:8px;line-height:1.8;overflow-x:auto;white-space:nowrap}
+  .formula .hi{color:var(--bright);font-weight:700}
+  .formula .res{color:#FFD772;font-weight:700}
+  .gauge{height:26px;background:rgba(255,255,255,.13);border-radius:13px;position:relative;margin-top:8px;overflow:hidden}
+  .gauge>i{display:block;height:100%;background:linear-gradient(90deg,var(--mid),var(--accent));border-radius:13px;transition:width .12s}
+  .gauge .tick{position:absolute;top:0;height:100%;display:flex;align-items:center;font-size:11px;color:rgba(255,255,255,.75);padding:0 8px}
+  .gauge .tick.l{left:0}.gauge .tick.r{right:0}
+  .scatterwrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .scatterwrap svg{background:rgba(255,255,255,.07);border-radius:11px;flex-shrink:0}
+  .rread{flex:1;min-width:190px;font-size:13.5px;line-height:1.7}
+  .rread .big{font-size:30px;font-weight:800;color:var(--bright);font-family:Consolas,monospace}
+  .rpick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .rpick button{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:18px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600}
+  .rpick button:hover{background:var(--accent);border-color:var(--accent)}
+  /* 샌드박스 */
+  .sb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{background:var(--pale);border:1px solid var(--line);color:var(--main);border-radius:20px;padding:6px 13px;font-size:12.5px;cursor:pointer;font-weight:600}
+  .chip:hover{background:var(--accent);color:#fff}
+  .editor{position:relative;background:var(--cbg);border-radius:12px;padding:14px 16px 14px 50px}
+  .editor textarea{width:100%;background:transparent;color:var(--cfg);border:none;outline:none;resize:none;font-family:Consolas,monospace;font-size:14px;line-height:1.65;overflow:hidden}
+  .ln{position:absolute;left:0;top:14px;width:38px;text-align:right;padding-right:10px;color:#6A5A8C;font-family:Consolas,monospace;font-size:14px;line-height:1.65;user-select:none}
+  .out{background:#0d0820;color:#cfe8d4;border-radius:11px;padding:14px 16px;margin-top:10px;font-family:Consolas,monospace;font-size:13px;white-space:pre;overflow-x:auto;min-height:46px}
+  .out.empty{color:#6A5A8C;white-space:pre-wrap}
+  .out .err{color:#ff9aa8}
+  .status{font-size:12px;color:var(--gray);font-weight:400}
+  /* 활동 */
+  .acts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .act{background:var(--pale2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .act .tag{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+  .act h4{font-size:14.5px;color:var(--main);margin-bottom:5px}
+  .act p{font-size:13px;color:var(--gray)}
+  @media(max-width:680px){.quad,.acts,.exgrid,.triad{grid-template-columns:1fr}.dopts{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="ch">01 기계학습과 데이터 &nbsp;·&nbsp; 1차시</div>
+    <h1>기계학습의 이해</h1>
+    <div class="en">Understanding Machine Learning</div>
+    <div class="goals"><b>이 차시에 배우는 것</b>&nbsp; ① 기계학습이 필요한 이유를 설명한다 &nbsp; ② 문제 유형 네 가지를 구분한다<br><b>학습 요소</b>&nbsp; 기계학습 · 문제 정의 · 분류 · 예측 · 군집 · 인식</div>
+  </div>
+  <div class="tabs"><div class="tab on" data-p="p1"><div class="n">PART 1</div><div class="t">개념 &amp; 퀴즈</div></div><div class="tab" data-p="p2"><div class="n">PART 2</div><div class="t">유형 분류 연습</div></div><div class="tab" data-p="p3"><div class="n">PART 3</div><div class="t">문제 정의 활동</div></div></div>
+  <div class="panel on" id="p1">
+    <div class="card">
+      <h2><span class="ico">🤖</span>왜 기계학습이 필요할까?</h2>
+      <p class="lead">국어·수학 성적의 평균을 구하는 프로그램은 규칙이 <b>명확</b>해서 그대로 코드로 옮기면 됩니다. 하지만 <b>개와 고양이를 구분</b>하는 규칙을 적어 보라고 하면? "귀가 뾰족하면 고양이"라고 쓰는 순간 귀가 접힌 스코티시폴드가 떠오르죠. 예외가 끝없이 나옵니다.</p>
+      <pre class="code"><span class="c"># 규칙을 쓸 수 있는 문제 → 전통적 프로그래밍</span>
+평균 = (국어 + 수학) / <span class="n">2</span>
+
+<span class="c"># 규칙을 쓸 수 없는 문제 → 기계학습</span>
+<span class="k">if</span> 귀가 뾰족하면: 고양이     <span class="c"># 스코티시폴드는?</span>
+<span class="k">elif</span> 코가 길면: 개          <span class="c"># 페르시안 고양이는?</span></pre>
+      <div class="note">💡 <b>한 줄 요약</b> — 사람이 <b>규칙</b>을 주면 전통적 프로그래밍, 사람이 <b>데이터</b>를 주고 컴퓨터가 규칙을 찾으면 기계학습!</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🔄</span>기계학습은 이렇게 배운다</h2>
+      <p class="lead">사람이 한글을 배울 때 수많은 글자를 보며 익히듯, 기계학습도 <b>많은 예시</b>를 보며 스스로 규칙을 찾습니다.</p>
+      <div class="triad" style="cursor:default">
+        <div class="b" style="cursor:default"><div class="e">1️⃣</div><div class="h">데이터 주기</div><div class="d">개·고양이 사진과<br>정답을 잔뜩 보여 준다</div></div>
+        <div class="b" style="cursor:default"><div class="e">2️⃣</div><div class="h">패턴 학습</div><div class="d">무엇이 다른지<br>스스로 규칙을 찾는다</div></div>
+        <div class="b" style="cursor:default"><div class="e">3️⃣</div><div class="h">모델 완성</div><div class="d">처음 보는 사진도<br>판단할 수 있게 된다</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🗂️</span>기계학습으로 해결하는 문제 유형</h2>
+      <p class="lead">기계학습으로 풀 수 있는 문제는 크게 네 가지로 나뉩니다. 어떤 유형인지 정해야 알맞은 방법을 고를 수 있어요.</p>
+      <p class="lead" style="margin-top:12px">👇 카드를 <b>눌러 보세요.</b> 쉬운 설명과 예시가 펼쳐집니다.</p>
+<div class="quad" id="mCards"><div class="b" data-d="m1"><div class="e">🗂️</div><div class="h">분류</div><div class="d">그룹 중 하나로</div><span class="more">자세히 ▾</span></div><div class="b" data-d="m2"><div class="e">📈</div><div class="h">예측</div><div class="d">숫자를 추정</div><span class="more">자세히 ▾</span></div><div class="b" data-d="m3"><div class="e">🔗</div><div class="h">군집</div><div class="d">비슷한 것끼리</div><span class="more">자세히 ▾</span></div><div class="b" data-d="m4"><div class="e">👁️</div><div class="h">인식</div><div class="d">보고 듣고 이해</div><span class="more">자세히 ▾</span></div></div>
+<div class="detail" id="mBox"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">📝</span>개념 확인 퀴즈</h2>
+      <div class="quiz-top">
+        <div class="bar"><i id="qbar"></i></div>
+        <div class="qcount"><span id="qdone">0</span> / <span id="qtot">5</span></div>
+      </div>
+      <div id="quiz"></div>
+      <div class="result" id="qresult">
+        <div class="score"><span id="qscore">0</span> / <span id="qtot2">5</span></div>
+        <div class="msg" id="qmsg"></div>
+        <button class="btn ghost" onclick="resetQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div></div><div class="panel" id="p2">
+    <div class="card">
+      <h2><span class="ico">🎯</span>문제 유형 분류 연습</h2>
+      <p class="lead">상황을 읽고 어떤 유형인지 골라 보세요. 헷갈리는 것이 섞여 있으니 <b>답이 이름으로 나오는지, 숫자로 나오는지</b> 생각해 보세요.</p>
+      <div class="drill">
+        <div class="top">
+          <div class="bar"><i id="dbar"></i></div>
+          <div class="cnt"><span id="ddone">0</span> / <span id="dtot">10</span></div>
+        </div>
+        <div class="item" id="ditem">준비 중…</div>
+        <div class="dopts" id="dopts"></div>
+        <div class="dfb" id="dfb"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn ghost" onclick="resetDrill()">🔄 처음부터</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="ico">🧭</span>헷갈릴 때 이렇게 판단하세요</h2>
+      <div class="exgrid">
+        <div class="ex"><div class="t">🗂️ vs 📈 &nbsp;분류 vs 예측</div><div class="l"><b>답의 형태</b>를 보세요.<br>이름으로 나오면 분류 (합격/불합격)<br>숫자로 나오면 예측 (점수 87점)</div></div>
+        <div class="ex"><div class="t">🗂️ vs 🔗 &nbsp;분류 vs 군집</div><div class="l"><b>정답을 알려 줬는지</b> 보세요.<br>정답 이름표가 있으면 분류<br>정답 없이 스스로 묶으면 군집</div></div>
+        <div class="ex"><div class="t">👁️ &nbsp;인식은 언제?</div><div class="l">다루는 데이터가 <b>사진·소리·글</b>이면 인식.<br>넓게 보면 분류의 한 종류예요.</div></div>
+        <div class="ex"><div class="t">🌧️ &nbsp;같은 주제도 유형이 갈린다</div><div class="l">"비가 올까?" → 분류<br>"비가 몇 mm 올까?" → 예측<br>주제가 아니라 <b>답의 형태</b>가 기준!</div></div>
+      </div>
+    </div></div><div class="panel" id="p3">
+    <div class="card">
+      <h2><span class="ico">🎯</span>기계학습으로 풀 문제 정의하기</h2>
+      <p class="lead">기계학습의 첫 단계는 코딩이 아니라 <b>무엇을 해결할지 정하는 것</b>입니다. 세 가지를 순서대로 정해 보세요.</p>
+      <div class="triad" style="cursor:default">
+        <div class="b" style="cursor:default"><div class="e">1️⃣</div><div class="h">문제 찾기</div><div class="d">무엇이 불편한가?<br>해결하고 싶은 상황</div></div>
+        <div class="b" style="cursor:default"><div class="e">2️⃣</div><div class="h">유형 정하기</div><div class="d">분류? 예측?<br>군집? 인식?</div></div>
+        <div class="b" style="cursor:default"><div class="e">3️⃣</div><div class="h">데이터 정하기</div><div class="d">무엇을 모아야<br>답을 찾을 수 있나</div></div>
+      </div>
+      <div class="note">📌 <b>예시</b> — "급식 잔반을 줄이고 싶다"<br>
+      → <b>유형</b>: 예측 (잔반량이라는 숫자를 맞힌다)<br>
+      → <b>데이터</b>: 날짜 · 요일 · 메뉴 · 날씨 · 급식 인원 · 잔반량<br>
+      → <b>목표</b>: 내일 잔반량을 예측해 배식량을 미리 조절한다</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">📋</span>우리 학교 문제 정의 워크시트</h2>
+      <p class="lead">아래 표를 참고해 모둠에서 직접 채워 보세요. 종이에 적어도 좋고, 노트에 옮겨 적어도 됩니다.</p>
+      <table class="dt">
+        <tr><th style="width:22%">항목</th><th>예시</th><th>우리 모둠</th></tr>
+        <tr><td><b>해결할 문제</b></td><td>급식 잔반이 너무 많다</td><td>&nbsp;</td></tr>
+        <tr><td><b>기계학습 유형</b></td><td>예측 (숫자를 맞힘)</td><td>&nbsp;</td></tr>
+        <tr><td><b>필요한 데이터</b></td><td>요일·메뉴·날씨·급식 인원·잔반량</td><td>&nbsp;</td></tr>
+        <tr><td><b>데이터 구하는 곳</b></td><td>학교 급식실 기록, 기상자료개방포털</td><td>&nbsp;</td></tr>
+        <tr><td><b>기대하는 결과</b></td><td>배식량을 조절해 잔반 20% 감소</td><td>&nbsp;</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">👥</span>모둠 활동 아이디어</h2>
+      <div class="acts"><div class="act"><span class="tag">활동 1</span><h4>🏫 우리 학교 문제 찾기</h4><p>학교생활에서 불편한 점을 3가지 찾고, 그중 기계학습으로 풀 수 있는 것을 골라 유형과 데이터를 정해 발표하기.</p></div><div class="act"><span class="tag">활동 2</span><h4>🔍 AI 서비스 분해하기</h4><p>자주 쓰는 앱(유튜브·지도·번역)을 하나 골라 어떤 기계학습 유형이 쓰였는지, 어떤 데이터로 학습했을지 추측해 보기.</p></div><div class="act"><span class="tag">활동 3</span><h4>🎭 분류 vs 군집 역할극</h4><p>한 모둠은 정답을 알려 주고(분류), 다른 모둠은 정답 없이 특징만 보고 묶어(군집) 결과를 비교해 보기.</p></div><div class="act"><span class="tag">활동 4</span><h4>📰 AI 뉴스 스크랩</h4><p>최근 인공지능 관련 뉴스를 찾아 어떤 문제를 어떤 유형으로 해결했는지 정리하고, 필요했을 데이터를 추측하기.</p></div></div>
+    </div></div>
+  <p style="text-align:center;color:var(--gray);font-size:12.5px;margin:8px 0 20px">고등학교 인공지능 기초 · 01 기계학습과 데이터 · 1차시 기계학습의 이해</p>
+</div>
+<script>
+
+/* 탭 */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.getElementById(t.dataset.p).classList.add('on');
+});
+
+/* 클릭 카드 공용 */
+function bindDetail(cardSel, box, data){
+  const cards=document.querySelectorAll(cardSel);
+  cards.forEach(b=>{
+    b.onclick=()=>{
+      const wasOn=b.classList.contains('on');
+      cards.forEach(x=>x.classList.remove('on'));
+      if(wasOn){box.classList.remove('show');return;}
+      b.classList.add('on');
+      const D=data[b.dataset.d];
+      box.innerHTML='<button class="closebtn" data-close="1">&times;</button>'+
+        '<h3>'+D.t+'</h3><div class="sub">'+D.sub+'</div>'+
+        '<div class="key">\u{1F4A1} '+D.key+'</div>'+
+        '<div class="exgrid">'+D.ex.map(e=>
+          '<div class="ex"><div class="t">'+e.em+' '+e.t+'</div><div class="l">'+e.l+'</div></div>').join('')+
+        '</div><div class="trap">\u26A0\uFE0F '+D.trap+'</div>';
+      box.querySelector('[data-close]').onclick=()=>{
+        cards.forEach(x=>x.classList.remove('on'));box.classList.remove('show');};
+      box.classList.add('show');
+    };
+  });
+}
+
+/* 퀴즈 */
+let done=0,score=0,answered=[];
+function buildQuiz(){
+  const box=document.getElementById('quiz');box.innerHTML='';
+  done=0;score=0;answered=Array(QUIZ.length).fill(false);
+  QUIZ.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML='<div class="ask"><span>Q'+(i+1)+'.</span>'+item.q+'</div>';
+    item.o.forEach((opt,j)=>{
+      const b=document.createElement('button');b.className='opt';b.innerHTML=opt;
+      b.onclick=()=>pick(i,j,b,d);d.appendChild(b);});
+    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;d.appendChild(fb);
+    box.appendChild(d);});
+  document.getElementById('qbar').style.width='0%';
+  document.getElementById('qdone').textContent='0';
+  document.getElementById('qtot').textContent=QUIZ.length;
+  document.getElementById('qtot2').textContent=QUIZ.length;
+  document.getElementById('qresult').classList.remove('show');
+}
+function pick(i,j,btn,d){
+  if(answered[i])return;answered[i]=true;done++;
+  const item=QUIZ[i],opts=d.querySelectorAll('.opt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===item.a)o.classList.add('correct');});
+  const fb=document.getElementById('fb'+i);fb.classList.add('show');
+  if(j===item.a){score++;fb.classList.add('y');fb.textContent='\u2B55 '+item.y;}
+  else{btn.classList.add('wrong');fb.classList.add('n');fb.textContent='\u274C '+item.n;}
+  document.getElementById('qdone').textContent=done;
+  document.getElementById('qbar').style.width=(done/QUIZ.length*100)+'%';
+  if(done===QUIZ.length){
+    const r=document.getElementById('qresult');r.classList.add('show');
+    document.getElementById('qscore').textContent=score;
+    const ratio=score/QUIZ.length;
+    document.getElementById('qmsg').textContent = ratio===1?'완벽해요! 🏆'
+      : ratio>=0.8?'훌륭해요! 잘 이해했어요 🎉'
+      : ratio>=0.6?'좋아요! 절반 이상 맞혔어요 👍'
+      : '위 카드를 눌러 설명을 다시 읽고 도전해 보세요.';
+    r.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+function resetQuiz(){buildQuiz();}
+
+/* 드릴 */
+let di=0,dscore=0;
+function renderDrill(){
+  if(di>=DRILL.length){
+    document.getElementById('ditem').innerHTML='\u{1F389} 연습 끝!<span class="hint">'+DRILL.length+'문제 중 '+dscore+'개 정답</span>';
+    document.getElementById('dopts').innerHTML='';
+    const fb=document.getElementById('dfb');fb.classList.add('show');
+    fb.innerHTML = dscore>=DRILL.length-1?'<b>완벽해요!</b> 확실히 이해했어요 🏆'
+      : dscore>=DRILL.length*0.7?'<b>잘했어요!</b> 헷갈린 문제만 다시 보면 완벽해집니다 👍'
+      : '<b>다시 한 번!</b> 위 카드를 눌러 설명을 읽고 도전해 보세요.';
+    return;}
+  const it=DRILL[di];
+  document.getElementById('ditem').innerHTML=it.q+'<span class="hint">'+it.h+'</span>';
+  const box=document.getElementById('dopts');box.innerHTML='';
+  DOPTS.forEach((o,j)=>{
+    const b=document.createElement('button');b.className='dopt';b.textContent=o;
+    b.onclick=()=>dpick(j,b);box.appendChild(b);});
+  document.getElementById('dfb').classList.remove('show');
+  document.getElementById('ddone').textContent=di;
+  document.getElementById('dtot').textContent=DRILL.length;
+  document.getElementById('dbar').style.width=(di/DRILL.length*100)+'%';
+}
+function dpick(j,btn){
+  const it=DRILL[di],opts=document.querySelectorAll('.dopt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===it.a)o.classList.add('correct');});
+  const fb=document.getElementById('dfb');fb.classList.add('show');
+  if(j===it.a){dscore++;fb.innerHTML='\u2B55 정답! '+it.why;}
+  else{btn.classList.add('wrong');fb.innerHTML='\u274C '+(it.trap?'많이 틀리는 문제예요. ':'')+it.why;}
+  di++;
+  document.getElementById('ddone').textContent=di;
+  document.getElementById('dbar').style.width=(di/DRILL.length*100)+'%';
+  setTimeout(()=>{
+    const nx=document.createElement('button');nx.className='btn';nx.style.marginTop='12px';
+    nx.textContent = di>=DRILL.length?'결과 보기 \u2192':'다음 문제 \u2192';
+    nx.onclick=()=>renderDrill();
+    fb.appendChild(document.createElement('br'));fb.appendChild(nx);},250);
+}
+function resetDrill(){di=0;dscore=0;renderDrill();}
+
+const DETAIL={"m1": {"t": "🗂️ 분류 (Classification)", "sub": "미리 정해진 그룹 중 하나로 나누기", "key": "정답 <b>이름표가 있는 데이터</b>로 배웁니다. 스팸/정상처럼 <b>답이 몇 가지로 정해져</b> 있을 때 써요.", "ex": [{"em": "📧", "t": "스팸 메일 분류", "l": "메일 내용을 보고<br>스팸인지 아닌지 판단"}, {"em": "🐧", "t": "펭귄 종 분류", "l": "부리 길이·날개 길이로<br>Adelie / Gentoo / Chinstrap"}, {"em": "🏥", "t": "질병 진단", "l": "X-ray 영상을 보고<br>정상인지 이상인지"}, {"em": "🔑", "t": "핵심", "l": "결과가 <b>이름표(범주)</b>로 나옴<br>정답을 알려 주고 배움"}], "trap": "<b>구분 포인트</b> — 결과가 '개/고양이', '합격/불합격'처럼 <b>이름</b>으로 나오면 분류입니다."}, "m2": {"t": "📈 예측 (Regression)", "sub": "수치를 추정하기", "key": "결과가 <b>숫자</b>로 나옵니다. '얼마일까?', '몇 도일까?'처럼 <b>연속된 값</b>을 맞히는 문제예요.", "ex": [{"em": "🏠", "t": "집값 예측", "l": "면적·위치·층수로<br>가격이 얼마일지"}, {"em": "🌡️", "t": "기온 예측", "l": "과거 기록으로<br>내일 최고 기온"}, {"em": "🍚", "t": "급식 잔반 예측", "l": "메뉴·요일·날씨로<br>잔반량이 얼마일지"}, {"em": "🔑", "t": "핵심", "l": "결과가 <b>숫자</b>로 나옴<br>분류와 가장 헷갈림"}], "trap": "<b>분류 vs 예측</b> — '비가 올까? 안 올까?'는 분류, '비가 몇 mm 올까?'는 예측입니다. 같은 주제라도 <b>답의 형태</b>가 다르면 유형이 달라져요."}, "m3": {"t": "🔗 군집 (Clustering)", "sub": "정답 없이 비슷한 것끼리 묶기", "key": "<b>정답을 알려 주지 않습니다.</b> 컴퓨터가 스스로 비슷한 특징을 찾아 그룹으로 묶어요. 묶고 나서 사람이 '이 그룹은 무엇이구나' 해석합니다.", "ex": [{"em": "🛒", "t": "고객 성향 그룹", "l": "구매 기록으로 비슷한<br>고객끼리 묶어 마케팅"}, {"em": "📰", "t": "뉴스 주제 묶기", "l": "비슷한 내용의 기사끼리<br>자동으로 그룹화"}, {"em": "🎵", "t": "음악 추천", "l": "취향이 비슷한 사람끼리<br>묶어서 추천"}, {"em": "🔑", "t": "핵심", "l": "<b>정답이 없다</b><br>그룹 이름도 사람이 붙임"}], "trap": "<b>분류 vs 군집</b> — 가장 많이 헷갈리는 부분! <b>정답을 알려 주고</b> 배우면 분류, <b>정답 없이</b> 스스로 묶으면 군집입니다."}, "m4": {"t": "👁️ 인식 (Recognition)", "sub": "이미지·음성·문장을 알아보고 이해하기", "key": "사람의 <b>눈과 귀 역할</b>을 하는 문제입니다. 비정형 데이터(사진·소리·글)를 다루기 때문에 딥러닝이 주로 쓰여요.", "ex": [{"em": "📷", "t": "이미지 인식", "l": "사진 속 물체·얼굴<br>표정에서 감정 읽기"}, {"em": "🗣️", "t": "음성 인식", "l": "목소리를 글자로<br>음성 비서의 기본 기능"}, {"em": "💬", "t": "자연어 처리", "l": "문장의 뜻을 이해<br>번역·요약·챗봇"}, {"em": "🔑", "t": "핵심", "l": "<b>비정형 데이터</b>를 다룸<br>많은 데이터가 필요"}], "trap": "<b>알아두기</b> — 인식도 넓게 보면 분류의 한 종류입니다. 다만 다루는 데이터가 사진·소리처럼 복잡해서 따로 구분해 부르는 거예요."}};
+bindDetail('#mCards .b', document.getElementById('mBox'), DETAIL);
+const QUIZ=[{"q": "기계학습이 필요한 이유로 가장 알맞은 것은?", "o": ["계산 속도가 빨라서", "규칙을 일일이 쓸 수 없는 문제가 있어서", "코드가 짧아져서", "컴퓨터 값이 싸져서"], "a": 1, "y": "맞아요! 개·고양이 구분처럼 규칙으로 쓸 수 없는 문제를 데이터로 해결합니다.", "n": "규칙을 일일이 쓸 수 없는 문제 때문이에요. 예외가 끝없이 나오는 문제가 그렇습니다."}, {"q": "전통적 프로그래밍과 기계학습의 가장 큰 차이는?", "o": ["사용하는 언어가 다르다", "사람이 규칙을 주는가, 데이터를 주는가", "실행 속도가 다르다", "컴퓨터 종류가 다르다"], "a": 1, "y": "정확해요! 사람이 규칙을 주면 전통적 프로그래밍, 데이터를 주면 기계학습입니다.", "n": "핵심은 '무엇을 주느냐'예요. 규칙을 주면 전통적 프로그래밍, 데이터를 주면 기계학습입니다."}, {"q": "내일의 최고 기온이 <b>몇 도일지</b> 알아내는 문제의 유형은?", "o": ["분류", "예측", "군집", "인식"], "a": 1, "y": "맞아요! 결과가 숫자로 나오므로 예측입니다.", "n": "예측이에요. 결과가 '몇 도'라는 숫자로 나오죠. '비가 올까/안 올까'였다면 분류입니다."}, {"q": "정답을 알려 주지 않고 <b>비슷한 것끼리 스스로 묶는</b> 문제 유형은?", "o": ["분류", "예측", "군집", "인식"], "a": 2, "y": "정확해요! 정답 없이 묶는 것이 군집입니다.", "n": "군집이에요. 분류는 정답(그룹 이름)을 알려 주고 배우지만, 군집은 정답 없이 스스로 묶습니다."}, {"q": "기계학습으로 풀 문제를 정의할 때 <b>가장 먼저</b> 해야 할 일은?", "o": ["프로그램 코드를 작성한다", "무엇을 해결할지 문제를 찾는다", "컴퓨터 성능을 올린다", "결과를 발표한다"], "a": 1, "y": "맞아요! 무엇을 해결하고 싶은지 정하는 것이 첫 단계입니다.", "n": "문제를 찾는 것이 먼저예요. 문제가 정해져야 어떤 유형인지, 어떤 데이터가 필요한지 정할 수 있습니다."}];
+const DOPTS=["분류", "예측", "군집", "인식"];
+const DRILL=[{"q": "메일이 스팸인지 아닌지 판단하기", "h": "답이 두 가지 중 하나예요", "a": 0, "why": "'스팸/정상'이라는 정해진 이름표 중 하나를 고르므로 <b>분류</b>입니다."}, {"q": "아파트 면적과 위치로 집값이 얼마일지 알아내기", "h": "답이 숫자로 나오나요?", "a": 1, "why": "가격이라는 숫자를 맞히므로 <b>예측</b>입니다."}, {"q": "구매 기록이 비슷한 고객끼리 그룹으로 묶기", "h": "정답을 알려 줬나요?", "a": 2, "why": "정답 없이 비슷한 것끼리 스스로 묶으므로 <b>군집</b>입니다."}, {"q": "사진 속 사람의 표정에서 감정 읽어내기", "h": "이미지를 다루네요", "a": 3, "why": "이미지를 알아보고 이해하는 문제이므로 <b>인식</b>입니다."}, {"q": "내일 미세먼지 농도가 몇 ㎍/㎥ 일지 알아내기", "h": "단위가 붙은 숫자예요", "a": 1, "why": "농도라는 숫자를 맞히므로 <b>예측</b>입니다."}, {"q": "펭귄의 부리 길이·날개 길이로 어떤 종인지 알아내기", "h": "종 이름은 몇 가지로 정해져 있죠", "a": 0, "why": "Adelie/Gentoo/Chinstrap 중 하나를 고르므로 <b>분류</b>입니다."}, {"q": "내일 비가 올지 안 올지 알아내기", "h": "바로 앞 미세먼지 문제와 무엇이 다를까요?", "a": 0, "trap": true, "why": "'올까/안 올까'는 두 가지 중 하나이므로 <b>분류</b>입니다! '몇 mm 올까'였다면 예측이에요. 같은 날씨 주제라도 답의 형태로 유형이 갈립니다."}, {"q": "음성 비서가 내 목소리를 알아듣기", "h": "소리를 다루는 문제", "a": 3, "why": "음성을 알아듣고 이해하므로 <b>인식</b>입니다."}, {"q": "어떤 그룹인지 모르는 뉴스 기사를 주제별로 묶기", "h": "주제 이름을 미리 정해 줬나요?", "a": 2, "why": "주제를 미리 정해 주지 않고 비슷한 기사끼리 묶으므로 <b>군집</b>입니다."}, {"q": "학생의 공부 시간으로 시험 점수가 몇 점일지 알아내기", "h": "점수는 숫자죠", "a": 1, "why": "점수라는 숫자를 맞히므로 <b>예측</b>입니다."}];
+buildQuiz(); renderDrill();
+
+</script>
+</body>
+</html>
