@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2차시 데이터의 이해 — 고등학교 인공지능 기초</title>
+
+<style>
+  :root{--dark:#0A2B33;--main:#115C6B;--mid:#177A89;--accent:#1F9BAE;--bright:#6FCBD8;--pale:#E3F2F5;--pale2:#F1F8FA;--ink:#123033;--gray:#5F7681;--line:#CFE5EA;--ok:#1E9E6A;--no:#E0476B;--cbg:#1A1030;--cfg:#EBE4F7;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Pretendard","맑은 고딕","Malgun Gothic",sans-serif;background:#EFF5F7;color:var(--ink);line-height:1.6;padding:18px}
+  .wrap{max-width:980px;margin:0 auto}
+  .hero{background:linear-gradient(135deg,var(--dark),var(--main));border-radius:20px;padding:26px 30px;color:#fff;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(17,92,107,.35)}
+  .hero::before{content:"";position:absolute;right:60px;bottom:-80px;width:150px;height:150px;border-radius:50%;background:rgba(17,92,107,.22)}
+  .hero .ch{font-size:12.5px;letter-spacing:2px;color:var(--bright);font-weight:700}
+  .hero h1{font-size:29px;margin:6px 0 2px}
+  .hero .en{font-style:italic;color:var(--bright);font-size:15px}
+  .hero .goals{margin-top:14px;font-size:13.5px;color:#E6F6EF;position:relative;z-index:1}
+  .hero .goals b{color:#fff}
+  .tabs{display:flex;gap:8px;margin:18px 0 16px;flex-wrap:wrap}
+  .tab{flex:1;min-width:165px;background:#fff;border:2px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;transition:.18s}
+  .tab:hover{border-color:var(--accent)}
+  .tab.on{background:var(--main);border-color:var(--main);color:#fff;box-shadow:0 8px 20px rgba(17,92,107,.28)}
+  .tab .n{font-size:11px;font-weight:700;opacity:.7}
+  .tab .t{font-size:15px;font-weight:700;margin-top:2px}
+  .panel{display:none;animation:fade .25s}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;box-shadow:0 3px 14px rgba(17,92,107,.06)}
+  .card h2{font-size:19px;color:var(--main);display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .card h2 .ico{width:30px;height:30px;background:var(--accent);color:#fff;border-radius:9px;display:grid;place-items:center;font-size:16px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .lead{color:var(--gray)}
+  code.inl{background:var(--pale);color:var(--main);padding:1.5px 7px;border-radius:6px;font-family:Consolas,monospace;font-size:13.5px;font-weight:600}
+  pre.code{background:var(--cbg);color:var(--cfg);border-radius:12px;padding:16px 18px;font-family:Consolas,monospace;font-size:13.5px;line-height:1.7;overflow-x:auto;margin:10px 0}
+  .code .k{color:#FF8FB0}.code .s{color:#9EE6A0}.code .n{color:#9AC8FF}.code .c{color:#A99CC9}.code .f{color:#E0B36A}
+  .note{background:var(--pale);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin:10px 0}
+  table.dt{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+  table.dt th{background:var(--main);color:#fff;padding:7px 9px;text-align:left}
+  table.dt td{border-bottom:1px solid var(--line);padding:6px 9px}
+  table.dt tr:nth-child(even) td{background:var(--pale2)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--pale);color:var(--main);margin-left:4px}
+  /* 클릭 카드 */
+  .quad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0}
+  .triad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0}
+  .quad .b,.triad .b{background:var(--pale2);border:2px solid var(--line);border-radius:13px;padding:14px 12px;text-align:center;cursor:pointer;transition:.18s}
+  .quad .b:hover,.triad .b:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 16px rgba(17,92,107,.13)}
+  .quad .b.on,.triad .b.on{background:var(--main);border-color:var(--main)}
+  .quad .b .e,.triad .b .e{font-size:26px}
+  .quad .b .h,.triad .b .h{font-weight:700;color:var(--main);margin:5px 0 3px;font-size:14px}
+  .quad .b.on .h,.triad .b.on .h{color:#fff}
+  .quad .b .d,.triad .b .d{font-size:11.5px;color:var(--gray)}
+  .quad .b.on .d,.triad .b.on .d{color:var(--bright)}
+  .quad .b .more,.triad .b .more{display:block;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--accent)}
+  .quad .b.on .more,.triad .b.on .more{color:var(--bright)}
+  .detail{display:none;margin-top:14px;background:var(--pale2);border:2px solid var(--accent);border-radius:14px;padding:20px 22px;animation:fade .25s}
+  .detail.show{display:block}
+  .detail h3{font-size:17px;color:var(--main);margin-bottom:4px}
+  .detail .sub{font-size:13px;color:var(--gray);margin-bottom:14px}
+  .detail .key{background:#fff;border-radius:10px;padding:12px 15px;margin-bottom:12px;font-size:14px;border:1px solid var(--line)}
+  .detail .key b{color:var(--main)}
+  .exgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+  .exgrid .ex{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .exgrid .ex .t{font-weight:700;font-size:13.5px;margin-bottom:4px}
+  .exgrid .ex .l{font-size:12.5px;color:var(--gray);line-height:1.55}
+  .trap{background:#FFF4E5;border-left:4px solid #E8A33D;border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin-top:6px}
+  .trap b{color:#B87415}
+  .closebtn{float:right;background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:0 4px}
+  /* 퀴즈 */
+  .quiz-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bar{flex:1;height:10px;background:var(--pale);border-radius:6px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--mid));transition:width .35s}
+  .qcount{font-weight:700;color:var(--main);font-size:14px;min-width:46px;text-align:right}
+  .q{margin-bottom:18px}
+  .q .ask{font-weight:700;font-size:15px;margin-bottom:10px}
+  .q .ask span{color:var(--accent);margin-right:6px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:11px;padding:11px 15px;margin-bottom:8px;cursor:pointer;font-size:14px;transition:.15s;font-family:inherit}
+  .opt:hover:not(:disabled){border-color:var(--accent);background:var(--pale2)}
+  .opt.correct{border-color:var(--ok);background:#E7F7F0;color:var(--ok);font-weight:700}
+  .opt.wrong{border-color:var(--no);background:#FBE9EE;color:var(--no);font-weight:700}
+  .fb{font-size:13px;margin-top:4px;padding:8px 12px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.y{background:#E7F7F0;color:var(--ok)}.fb.n{background:#FBE9EE;color:var(--no)}
+  .result{display:none;text-align:center;padding:24px;background:linear-gradient(135deg,var(--pale),var(--pale2));border-radius:14px;margin-top:8px}
+  .result.show{display:block}
+  .result .score{font-size:40px;font-weight:800;color:var(--main)}
+  .result .msg{font-size:15px;margin:6px 0 14px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--main)}
+  .btn.ghost{background:#fff;color:var(--main);border:2px solid var(--accent)}
+  .run{background:#27C93F;color:#06270e;font-weight:800}
+  .run:disabled{background:#8fa596;color:#e8f0ea;cursor:wait}
+  /* 드릴 */
+  .drill{background:var(--dark);border-radius:14px;padding:20px 22px;color:#fff}
+  .drill .top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .drill .top .bar{flex:1;height:9px;background:rgba(255,255,255,.18)}
+  .drill .top .bar>i{background:var(--bright)}
+  .drill .top .cnt{font-size:13px;font-weight:700;color:var(--bright);min-width:52px;text-align:right}
+  .drill .item{background:rgba(255,255,255,.1);border-radius:11px;padding:16px;text-align:center;font-size:17px;font-weight:700;margin-bottom:14px}
+  .drill .item .hint{display:block;font-size:12px;font-weight:400;color:var(--bright);margin-top:5px}
+  .dopts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .dopt{background:rgba(255,255,255,.13);border:2px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:11px 6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+  .dopt:hover:not(:disabled){background:var(--accent);border-color:var(--accent)}
+  .dopt.correct{background:var(--ok);border-color:var(--ok)}
+  .dopt.wrong{background:var(--no);border-color:var(--no)}
+  .dfb{margin-top:12px;padding:11px 15px;border-radius:9px;font-size:13.5px;display:none;background:rgba(255,255,255,.12);color:#fff}
+  .dfb.show{display:block}
+  .dfb b{color:var(--bright)}
+  /* 체험 도구 */
+  .tool{background:var(--dark);border-radius:14px;padding:20px 22px;color:#fff;margin-top:6px}
+  .tool .lbl{font-size:13px;color:var(--bright);font-weight:700;margin-bottom:6px}
+  .tool .row{margin-bottom:16px}
+  .tool input[type=range]{width:100%;accent-color:var(--accent);height:6px;cursor:pointer}
+  .tool .val{font-family:Consolas,monospace;font-size:15px;font-weight:700;color:#fff}
+  .formula{background:rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;font-family:Consolas,monospace;font-size:13.5px;margin-top:8px;line-height:1.8;overflow-x:auto;white-space:nowrap}
+  .formula .hi{color:var(--bright);font-weight:700}
+  .formula .res{color:#FFD772;font-weight:700}
+  .gauge{height:26px;background:rgba(255,255,255,.13);border-radius:13px;position:relative;margin-top:8px;overflow:hidden}
+  .gauge>i{display:block;height:100%;background:linear-gradient(90deg,var(--mid),var(--accent));border-radius:13px;transition:width .12s}
+  .gauge .tick{position:absolute;top:0;height:100%;display:flex;align-items:center;font-size:11px;color:rgba(255,255,255,.75);padding:0 8px}
+  .gauge .tick.l{left:0}.gauge .tick.r{right:0}
+  .scatterwrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .scatterwrap svg{background:rgba(255,255,255,.07);border-radius:11px;flex-shrink:0}
+  .rread{flex:1;min-width:190px;font-size:13.5px;line-height:1.7}
+  .rread .big{font-size:30px;font-weight:800;color:var(--bright);font-family:Consolas,monospace}
+  .rpick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .rpick button{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:18px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600}
+  .rpick button:hover{background:var(--accent);border-color:var(--accent)}
+  /* 샌드박스 */
+  .sb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{background:var(--pale);border:1px solid var(--line);color:var(--main);border-radius:20px;padding:6px 13px;font-size:12.5px;cursor:pointer;font-weight:600}
+  .chip:hover{background:var(--accent);color:#fff}
+  .editor{position:relative;background:var(--cbg);border-radius:12px;padding:14px 16px 14px 50px}
+  .editor textarea{width:100%;background:transparent;color:var(--cfg);border:none;outline:none;resize:none;font-family:Consolas,monospace;font-size:14px;line-height:1.65;overflow:hidden}
+  .ln{position:absolute;left:0;top:14px;width:38px;text-align:right;padding-right:10px;color:#6A5A8C;font-family:Consolas,monospace;font-size:14px;line-height:1.65;user-select:none}
+  .out{background:#0d0820;color:#cfe8d4;border-radius:11px;padding:14px 16px;margin-top:10px;font-family:Consolas,monospace;font-size:13px;white-space:pre;overflow-x:auto;min-height:46px}
+  .out.empty{color:#6A5A8C;white-space:pre-wrap}
+  .out .err{color:#ff9aa8}
+  .status{font-size:12px;color:var(--gray);font-weight:400}
+  /* 활동 */
+  .acts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .act{background:var(--pale2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .act .tag{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+  .act h4{font-size:14.5px;color:var(--main);margin-bottom:5px}
+  .act p{font-size:13px;color:var(--gray)}
+  @media(max-width:680px){.quad,.acts,.exgrid,.triad{grid-template-columns:1fr}.dopts{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="ch">01 기계학습과 데이터 &nbsp;·&nbsp; 2차시</div>
+    <h1>데이터의 이해</h1>
+    <div class="en">Understanding Data</div>
+    <div class="goals"><b>이 차시에 배우는 것</b>&nbsp; ① 데이터의 유형을 구분한다 &nbsp; ② 필요한 데이터를 선정하고 수집한다<br><b>학습 요소</b>&nbsp; 수치형 · 범주형 · 정형 · 비정형 · 데이터 수집 · 편향성</div>
+  </div>
+  <div class="tabs"><div class="tab on" data-p="p1"><div class="n">PART 1</div><div class="t">개념 &amp; 퀴즈</div></div><div class="tab" data-p="p2"><div class="n">PART 2</div><div class="t">유형 분류 연습</div></div><div class="tab" data-p="p3"><div class="n">PART 3</div><div class="t">데이터 선정·수집</div></div></div>
+  <div class="panel on" id="p1">
+    <div class="card">
+      <h2><span class="ico">⚠️</span>데이터가 왜 중요할까?</h2>
+      <p class="lead">기계학습은 사람이 준 데이터에서 규칙을 찾습니다. 그래서 <b>데이터가 잘못되면 아무리 좋은 방법을 써도 결과가 잘못됩니다.</b></p>
+      <div class="note" style="background:var(--dark);color:#fff;border-left-color:var(--bright)">
+        <b style="color:var(--bright)">Garbage In, Garbage Out</b> — 쓰레기를 넣으면 쓰레기가 나온다
+      </div>
+      <div class="exgrid">
+        <div class="ex"><div class="t">👟 운동화만 배웠다면</div><div class="l">구두·슬리퍼를 신발로 인식하지 못합니다. 학습한 것만 알아볼 수 있어요.</div></div>
+        <div class="ex"><div class="t">🚗 성인 남성 기준이면</div><div class="l">차량 충돌 실험 인체 모형이 성인 남성 기준이면 여성·어린이 안전은 제대로 보호되지 못합니다.</div></div>
+        <div class="ex"><div class="t">🐧 특정 종만 많다면</div><div class="l">Adelie 168 · Gentoo 124 · <b>Chinstrap 68</b>. 데이터가 적은 턱끈펭귄은 잘 예측하지 못합니다.</div></div>
+        <div class="ex"><div class="t">⚖️ 그래서 공정성 문제</div><div class="l">데이터의 불균형은 곧 <b>특정 집단이 불이익을 받는</b> 공정성 문제로 이어집니다.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🗂️</span>데이터의 유형</h2>
+      <p class="lead">이 단원에서 계속 사용할 <b>남극 펭귄 데이터</b>입니다. 속성마다 유형이 다르다는 점을 확인해 보세요.</p>
+      <table class="dt">
+        <tr><th>species<span class="badge">범주형</span></th><th>island<span class="badge">범주형</span></th><th>부리 길이<span class="badge">수치형</span></th><th>체질량<span class="badge">수치형</span></th><th>sex<span class="badge">범주형</span></th></tr>
+        <tr><td>Adelie</td><td>Torgersen</td><td>39.1</td><td>3750</td><td>MALE</td></tr>
+        <tr><td>Chinstrap</td><td>Dream</td><td>46.5</td><td>3500</td><td>FEMALE</td></tr>
+        <tr><td>Gentoo</td><td>Biscoe</td><td>47.8</td><td>5650</td><td>MALE</td></tr>
+      </table>
+      <p class="lead" style="margin-top:12px">👇 카드를 <b>눌러 보세요.</b> 쉬운 설명과 예시가 펼쳐집니다.</p>
+<div class="quad" id="dCards"><div class="b" data-d="d1"><div class="e">🔢</div><div class="h">수치형</div><div class="d">재거나 세는 값</div><span class="more">자세히 ▾</span></div><div class="b" data-d="d2"><div class="e">🏷️</div><div class="h">범주형</div><div class="d">이름표를 붙이는 값</div><span class="more">자세히 ▾</span></div><div class="b" data-d="d3"><div class="e">📋</div><div class="h">정형</div><div class="d">표에 들어가는 것</div><span class="more">자세히 ▾</span></div><div class="b" data-d="d4"><div class="e">🖼️</div><div class="h">비정형</div><div class="d">표에 못 넣는 것</div><span class="more">자세히 ▾</span></div></div>
+<div class="detail" id="dBox"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">📝</span>개념 확인 퀴즈</h2>
+      <div class="quiz-top">
+        <div class="bar"><i id="qbar"></i></div>
+        <div class="qcount"><span id="qdone">0</span> / <span id="qtot">5</span></div>
+      </div>
+      <div id="quiz"></div>
+      <div class="result" id="qresult">
+        <div class="score"><span id="qscore">0</span> / <span id="qtot2">5</span></div>
+        <div class="msg" id="qmsg"></div>
+        <button class="btn ghost" onclick="resetQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div></div><div class="panel" id="p2">
+    <div class="card">
+      <h2><span class="ico">🎯</span>데이터 유형 분류 연습</h2>
+      <p class="lead">위에서 배운 내용으로 직접 분류해 보세요. <b>“평균을 내면 말이 되나?”</b>, <b>“엑셀 칸에 넣을 수 있나?”</b> 두 질문을 기억하세요.</p>
+      <div class="drill">
+        <div class="top">
+          <div class="bar"><i id="dbar"></i></div>
+          <div class="cnt"><span id="ddone">0</span> / <span id="dtot">10</span></div>
+        </div>
+        <div class="item" id="ditem">준비 중…</div>
+        <div class="dopts" id="dopts"></div>
+        <div class="dfb" id="dfb"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn ghost" onclick="resetDrill()">🔄 처음부터</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="ico">🧭</span>두 가지 판별 질문</h2>
+      <div class="exgrid">
+        <div class="ex"><div class="t">① 평균을 내면 말이 되나?</div><div class="l">된다 → <b>수치형</b> (키, 체질량, 기온)<br>안 된다 → <b>범주형</b> (혈액형, 학번, 성별)</div></div>
+        <div class="ex"><div class="t">② 엑셀 칸에 넣을 수 있나?</div><div class="l">된다 → <b>정형</b> (CSV, 성적표)<br>안 된다 → <b>비정형</b> (사진, 음성, 영상)</div></div>
+        <div class="ex"><div class="t">③ 재는 값? 세는 값?</div><div class="l">수치형이라면 한 번 더 나눠요.<br>재면 <b>연속형</b>, 세면 <b>이산형</b></div></div>
+        <div class="ex"><div class="t">⚠️ 가장 많이 틀리는 것</div><div class="l"><b>숫자로 된 범주형</b><br>학번·전화번호·우편번호·좌석 번호</div></div>
+      </div>
+    </div></div><div class="panel" id="p3">
+    <div class="card">
+      <h2><span class="ico">🔎</span>문제에 맞는 데이터 선정하기</h2>
+      <p class="lead">데이터를 아무거나 모으면 안 됩니다. <b>어떤 문제인지 → 어떤 데이터가 필요한지 → 어디서 구할지</b> 순서로 정해요.</p>
+      <div class="triad" style="cursor:default">
+        <div class="b" style="cursor:default"><div class="e">1️⃣</div><div class="h">문제 유형 분석</div><div class="d">분류? 예측? 군집?<br>학습 유형 결정</div></div>
+        <div class="b" style="cursor:default"><div class="e">2️⃣</div><div class="h">데이터 유형 탐색</div><div class="d">정형? 비정형?<br>필요한 데이터 결정</div></div>
+        <div class="b" style="cursor:default"><div class="e">3️⃣</div><div class="h">수집 방법 선택</div><div class="d">공공? 민간?<br>직접 수집?</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🌐</span>데이터는 어디서 구할까?</h2>
+      <table class="dt">
+        <tr><th style="width:30%">사이트</th><th>어떤 데이터가 있나</th></tr>
+        <tr><td><b>공공데이터포털</b></td><td>정부·지자체의 다양한 공공 데이터 (교통·환경·복지)</td></tr>
+        <tr><td><b>국가통계포털 KOSIS</b></td><td>인구·경제·사회 통계 자료</td></tr>
+        <tr><td><b>기상자료개방포털</b></td><td>기온·강수량·지진 등 기상 관측 데이터</td></tr>
+        <tr><td><b>AI Hub</b></td><td>인공지능 학습용으로 가공된 데이터셋</td></tr>
+        <tr><td><b>캐글 Kaggle</b></td><td>전 세계 사용자가 공유하는 데이터셋 (펭귄·붓꽃 등)</td></tr>
+      </table>
+      <div class="note">📌 <b>직접 수집도 가능해요</b> — 설문조사, 센서 측정, 학교 기록처럼 직접 모은 데이터가 우리 문제에 가장 잘 맞을 때가 많습니다.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">⚖️</span>데이터 수집의 윤리 — 반드시 확인할 네 가지</h2>
+      <div class="exgrid">
+        <div class="ex"><div class="t">⚖️ 편향성과 공정성</div><div class="l">특정 집단에 불이익이 가지 않는가? 데이터가 한쪽으로 치우쳐 있지 않은가?</div></div>
+        <div class="ex"><div class="t">🔒 개인 정보 보호</div><div class="l">이름·주민번호·연락처 등이 포함돼 있지 않은가? 있다면 반드시 지우거나 익명화한다.</div></div>
+        <div class="ex"><div class="t">©️ 저작권</div><div class="l">그림·사진·글에는 저작권이 있다. 이용 조건(라이선스)을 확인하고 출처를 밝힌다.</div></div>
+        <div class="ex"><div class="t">🔍 출처의 신뢰성</div><div class="l">누가 언제 어떻게 모은 데이터인가? 출처가 불분명하면 결과도 믿을 수 없다.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">👥</span>모둠 활동 아이디어</h2>
+      <div class="acts"><div class="act"><span class="tag">활동 1</span><h4>🌏 공공 데이터 수집해 보기</h4><p>공공데이터포털이나 기상자료개방포털에서 관심 주제의 CSV를 내려받아, 어떤 속성이 있고 각각 어떤 유형인지 표로 정리하기.</p></div><div class="act"><span class="tag">활동 2</span><h4>⚖️ 데이터 편향 사례 조사</h4><p>차량 충돌 실험의 인체 모형, 얼굴 인식의 인종 편향 등 실제 사례를 조사하고 어떻게 해결할 수 있을지 토의하기.</p></div><div class="act"><span class="tag">활동 3</span><h4>📋 우리 반 데이터 만들기</h4><p>직접 설문을 만들어 반 친구들의 데이터를 모으고, 수치형·범주형 속성을 나눠 표로 정리하기. 개인정보는 익명 처리!</p></div><div class="act"><span class="tag">활동 4</span><h4>🔍 데이터셋 비판적으로 읽기</h4><p>캐글에서 데이터셋 하나를 골라 누가 왜 모았는지, 빠진 집단은 없는지, 이 데이터로 학습하면 어떤 편향이 생길지 분석하기.</p></div></div>
+    </div></div>
+  <p style="text-align:center;color:var(--gray);font-size:12.5px;margin:8px 0 20px">고등학교 인공지능 기초 · 01 기계학습과 데이터 · 2차시 데이터의 이해</p>
+</div>
+<script>
+
+/* 탭 */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.getElementById(t.dataset.p).classList.add('on');
+});
+
+/* 클릭 카드 공용 */
+function bindDetail(cardSel, box, data){
+  const cards=document.querySelectorAll(cardSel);
+  cards.forEach(b=>{
+    b.onclick=()=>{
+      const wasOn=b.classList.contains('on');
+      cards.forEach(x=>x.classList.remove('on'));
+      if(wasOn){box.classList.remove('show');return;}
+      b.classList.add('on');
+      const D=data[b.dataset.d];
+      box.innerHTML='<button class="closebtn" data-close="1">&times;</button>'+
+        '<h3>'+D.t+'</h3><div class="sub">'+D.sub+'</div>'+
+        '<div class="key">\u{1F4A1} '+D.key+'</div>'+
+        '<div class="exgrid">'+D.ex.map(e=>
+          '<div class="ex"><div class="t">'+e.em+' '+e.t+'</div><div class="l">'+e.l+'</div></div>').join('')+
+        '</div><div class="trap">\u26A0\uFE0F '+D.trap+'</div>';
+      box.querySelector('[data-close]').onclick=()=>{
+        cards.forEach(x=>x.classList.remove('on'));box.classList.remove('show');};
+      box.classList.add('show');
+    };
+  });
+}
+
+/* 퀴즈 */
+let done=0,score=0,answered=[];
+function buildQuiz(){
+  const box=document.getElementById('quiz');box.innerHTML='';
+  done=0;score=0;answered=Array(QUIZ.length).fill(false);
+  QUIZ.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML='<div class="ask"><span>Q'+(i+1)+'.</span>'+item.q+'</div>';
+    item.o.forEach((opt,j)=>{
+      const b=document.createElement('button');b.className='opt';b.innerHTML=opt;
+      b.onclick=()=>pick(i,j,b,d);d.appendChild(b);});
+    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;d.appendChild(fb);
+    box.appendChild(d);});
+  document.getElementById('qbar').style.width='0%';
+  document.getElementById('qdone').textContent='0';
+  document.getElementById('qtot').textContent=QUIZ.length;
+  document.getElementById('qtot2').textContent=QUIZ.length;
+  document.getElementById('qresult').classList.remove('show');
+}
+function pick(i,j,btn,d){
+  if(answered[i])return;answered[i]=true;done++;
+  const item=QUIZ[i],opts=d.querySelectorAll('.opt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===item.a)o.classList.add('correct');});
+  const fb=document.getElementById('fb'+i);fb.classList.add('show');
+  if(j===item.a){score++;fb.classList.add('y');fb.textContent='\u2B55 '+item.y;}
+  else{btn.classList.add('wrong');fb.classList.add('n');fb.textContent='\u274C '+item.n;}
+  document.getElementById('qdone').textContent=done;
+  document.getElementById('qbar').style.width=(done/QUIZ.length*100)+'%';
+  if(done===QUIZ.length){
+    const r=document.getElementById('qresult');r.classList.add('show');
+    document.getElementById('qscore').textContent=score;
+    const ratio=score/QUIZ.length;
+    document.getElementById('qmsg').textContent = ratio===1?'완벽해요! 🏆'
+      : ratio>=0.8?'훌륭해요! 잘 이해했어요 🎉'
+      : ratio>=0.6?'좋아요! 절반 이상 맞혔어요 👍'
+      : '위 카드를 눌러 설명을 다시 읽고 도전해 보세요.';
+    r.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+function resetQuiz(){buildQuiz();}
+
+/* 드릴 */
+let di=0,dscore=0;
+function renderDrill(){
+  if(di>=DRILL.length){
+    document.getElementById('ditem').innerHTML='\u{1F389} 연습 끝!<span class="hint">'+DRILL.length+'문제 중 '+dscore+'개 정답</span>';
+    document.getElementById('dopts').innerHTML='';
+    const fb=document.getElementById('dfb');fb.classList.add('show');
+    fb.innerHTML = dscore>=DRILL.length-1?'<b>완벽해요!</b> 확실히 이해했어요 🏆'
+      : dscore>=DRILL.length*0.7?'<b>잘했어요!</b> 헷갈린 문제만 다시 보면 완벽해집니다 👍'
+      : '<b>다시 한 번!</b> 위 카드를 눌러 설명을 읽고 도전해 보세요.';
+    return;}
+  const it=DRILL[di];
+  document.getElementById('ditem').innerHTML=it.q+'<span class="hint">'+it.h+'</span>';
+  const box=document.getElementById('dopts');box.innerHTML='';
+  DOPTS.forEach((o,j)=>{
+    const b=document.createElement('button');b.className='dopt';b.textContent=o;
+    b.onclick=()=>dpick(j,b);box.appendChild(b);});
+  document.getElementById('dfb').classList.remove('show');
+  document.getElementById('ddone').textContent=di;
+  document.getElementById('dtot').textContent=DRILL.length;
+  document.getElementById('dbar').style.width=(di/DRILL.length*100)+'%';
+}
+function dpick(j,btn){
+  const it=DRILL[di],opts=document.querySelectorAll('.dopt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===it.a)o.classList.add('correct');});
+  const fb=document.getElementById('dfb');fb.classList.add('show');
+  if(j===it.a){dscore++;fb.innerHTML='\u2B55 정답! '+it.why;}
+  else{btn.classList.add('wrong');fb.innerHTML='\u274C '+(it.trap?'많이 틀리는 문제예요. ':'')+it.why;}
+  di++;
+  document.getElementById('ddone').textContent=di;
+  document.getElementById('dbar').style.width=(di/DRILL.length*100)+'%';
+  setTimeout(()=>{
+    const nx=document.createElement('button');nx.className='btn';nx.style.marginTop='12px';
+    nx.textContent = di>=DRILL.length?'결과 보기 \u2192':'다음 문제 \u2192';
+    nx.onclick=()=>renderDrill();
+    fb.appendChild(document.createElement('br'));fb.appendChild(nx);},250);
+}
+function resetDrill(){di=0;dscore=0;renderDrill();}
+
+const DETAIL={"d1": {"t": "🔢 수치형 데이터", "sub": "재거나 세는 값 — 평균을 낼 수 있다", "key": "가장 쉬운 판별법 — <b>“평균을 내면 말이 되나?”</b> 키의 평균은 의미가 있죠. 그럼 수치형입니다.", "ex": [{"em": "📏", "t": "연속형 — 재는 값", "l": "더 정밀하게 재면 소수점이 계속<br>키 172.4cm · 부리 39.1mm · 기온 23.7℃"}, {"em": "🔟", "t": "이산형 — 세는 값", "l": "사이에 값이 있을 수 없음<br>학생 28명 · 팔굽혀펴기 13회"}, {"em": "➕", "t": "계산이 된다", "l": "더하기·평균·최댓값이 모두 의미 있음<br>그래서 통계·그래프를 그릴 수 있음"}, {"em": "🐧", "t": "펭귄 데이터에서는", "l": "부리 길이·부리 깊이<br>날개 길이·체질량"}], "trap": "<b>함정!</b> 숫자라고 다 수치형이 아닙니다. <b>학번 2101, 전화번호, 우편번호</b>는 숫자지만 범주형이에요. 학번의 평균은 아무 의미가 없죠?"}, "d2": {"t": "🏷️ 범주형 데이터", "sub": "이름표를 붙이는 값 — 정해진 것 중 하나", "key": "몇 가지 <b>정해진 값 중 하나</b>를 고르는 데이터입니다. 순서가 없기도 하고(혈액형), 있기도 해요(상/중/하).", "ex": [{"em": "🚻", "t": "순서가 없는 것", "l": "성별 남/여 · 혈액형 A/B/O/AB<br>펭귄 종 · 서식지 이름"}, {"em": "📊", "t": "순서가 있는 것", "l": "만족도 상/중/하<br>학점 A/B/C/D"}, {"em": "🔢", "t": "숫자로 된 범주형", "l": "학번·전화번호·우편번호<br>이름표 대신 숫자를 쓴 것"}, {"em": "🐧", "t": "펭귄 데이터에서는", "l": "species(종) · island(서식지)<br>sex(성별)"}], "trap": "<b>판별 질문</b> — 이 값들을 <b>더하거나 평균을 낼 수 있나요?</b> 안 된다면 범주형입니다. 혈액형 A + B = ? 말이 안 되죠."}, "d3": {"t": "📋 정형 데이터", "sub": "엑셀 표에 그대로 넣을 수 있는 데이터", "key": "판별법 — <b>“엑셀 칸에 바로 넣을 수 있나?”</b> 넣을 수 있으면 정형입니다. 속성(열)이 미리 정해져 있고 데이터 하나가 한 줄(행)이 돼요.", "ex": [{"em": "📊", "t": "행 = 데이터 하나", "l": "펭귄 한 마리가 한 줄<br>344마리면 344줄"}, {"em": "🗂️", "t": "열 = 속성", "l": "종·서식지·부리 길이·체질량<br>무엇을 기록할지 미리 정함"}, {"em": "📁", "t": "이런 파일들", "l": "CSV · 엑셀(xlsx)<br>데이터베이스 표"}, {"em": "⚡", "t": "왜 다루기 쉬울까", "l": "칸마다 의미가 정해져 있어<br>평균·정렬·그래프를 바로 계산"}], "trap": "<b>기억할 점</b> — 다음 차시에 배울 <code>df.head()</code>, <code>df.describe()</code> 같은 pandas 명령은 모두 <b>정형 데이터</b>를 다루는 도구입니다."}, "d4": {"t": "🖼️ 비정형 데이터", "sub": "표 칸에 넣을 수 없는 데이터", "key": "판별법 — <b>“이걸 엑셀 한 칸에 어떻게 넣지?”</b> 라는 생각이 들면 비정형입니다. 사진 한 장을 어느 칸에 넣어야 할까요?", "ex": [{"em": "📷", "t": "이미지", "l": "사진·그림·의료 영상<br>X-ray, MRI"}, {"em": "🎵", "t": "오디오", "l": "목소리 녹음·음악<br>기침 소리"}, {"em": "📝", "t": "텍스트", "l": "뉴스 기사·댓글·책·채팅<br>길이도 형식도 제각각"}, {"em": "🎬", "t": "비디오", "l": "이미지 + 오디오가 합쳐진 것<br>가장 다루기 복잡"}], "trap": "<b>알아두면 좋아요</b> — 세상 데이터의 대부분은 비정형입니다. 예전엔 컴퓨터가 다루기 매우 어려웠지만, <b>딥러닝</b> 덕분에 얼굴 인식·번역·음성 비서가 가능해졌어요."}};
+bindDetail('#dCards .b', document.getElementById('dBox'), DETAIL);
+const QUIZ=[{"q": "성별(남/여), 혈액형(A/B/O/AB)처럼 <b>한정된 값 중 하나</b>를 가지는 데이터는?", "o": ["연속형", "이산형", "범주형", "비정형"], "a": 2, "y": "맞아요! 정해진 범주 중 하나를 고르는 데이터가 범주형입니다.", "n": "범주형이에요. 수치형(연속형·이산형)은 숫자로 계산이 되는 데이터입니다."}, {"q": "이미지·음성·텍스트처럼 <b>형식을 미리 정하기 어려운</b> 데이터는?", "o": ["정형 데이터", "비정형 데이터", "범주형 데이터", "연속형 데이터"], "a": 1, "y": "정확해요! 표로 정리하기 어려운 데이터가 비정형입니다.", "n": "비정형 데이터예요. 정형은 속성이 미리 정해진 행·열의 표 형태입니다."}, {"q": "<b>학번 2101</b>은 어떤 데이터 유형일까요?", "o": ["연속형", "이산형", "범주형", "정형이자 수치형"], "a": 2, "y": "맞아요! 숫자지만 평균이 의미 없으므로 범주형입니다.", "n": "범주형이에요! 숫자로 되어 있어도 학번의 평균은 아무 의미가 없죠. 이름표 대신 숫자를 쓴 것뿐입니다."}, {"q": "기계학습에서 데이터가 중요한 이유를 가장 잘 나타낸 말은?", "o": ["데이터가 많으면 저장 공간이 필요해서", "Garbage In, Garbage Out", "컴퓨터가 빨라져서", "코드가 짧아져서"], "a": 1, "y": "맞아요! 잘못된 데이터를 넣으면 잘못된 결과가 나옵니다.", "n": "'Garbage In, Garbage Out' — 쓰레기를 넣으면 쓰레기가 나온다는 뜻이에요. 데이터 품질이 곧 성능입니다."}, {"q": "데이터를 수집할 때 <b>반드시 함께 확인</b>해야 하는 것이 아닌 것은?", "o": ["편향성과 공정성", "개인 정보 보호", "저작권", "파일 이름의 길이"], "a": 3, "y": "맞아요! 파일 이름 길이는 데이터 윤리와 관계가 없습니다.", "n": "파일 이름 길이는 관계없어요. 편향성·개인정보·저작권·출처 신뢰성을 확인해야 합니다."}];
+const DOPTS=["연속형", "이산형", "범주형", "비정형"];
+const DRILL=[{"q": "학생의 키 (172.4 cm)", "h": "자로 재는 값이에요", "a": 0, "why": "자로 재는 값이라 소수점이 계속 나올 수 있어요. 수치형 중 <b>연속형</b>입니다."}, {"q": "우리 반 학생 수 (28명)", "h": "하나씩 셀 수 있나요?", "a": 1, "why": "28명과 29명 사이에 28.5명은 없죠. 세는 값이라 <b>이산형</b>입니다."}, {"q": "혈액형 (A / B / O / AB)", "h": "평균을 낼 수 있을까요?", "a": 2, "why": "정해진 네 가지 중 하나를 고르는 이름표예요. <b>범주형</b>입니다."}, {"q": "친구가 보낸 셀카 사진", "h": "엑셀 한 칸에 넣을 수 있나요?", "a": 3, "why": "사진은 표의 칸에 넣을 수 없어요. <b>비정형</b> 데이터입니다."}, {"q": "펭귄의 부리 길이 (39.1 mm)", "h": "측정 도구로 재는 값", "a": 0, "why": "밀리미터로 재는 값이라 <b>연속형</b>입니다."}, {"q": "팔 굽혀 펴기 횟수 (13회)", "h": "13.5회가 가능한가요?", "a": 1, "why": "횟수는 하나씩 세는 값이라 <b>이산형</b>입니다."}, {"q": "학번 (2101)", "h": "숫자지만… 평균이 의미가 있나요?", "a": 2, "trap": true, "why": "숫자로 되어 있지만 <b>범주형</b>입니다! 학번의 평균은 아무 의미가 없죠. 이름표 대신 숫자를 쓴 것뿐이에요."}, {"q": "펭귄이 사는 섬 이름 (Biscoe / Dream / Torgersen)", "h": "정해진 몇 가지 중 하나", "a": 2, "why": "세 섬 중 하나를 고르는 이름표라 <b>범주형</b>입니다."}, {"q": "음성 비서에게 말한 목소리 녹음 파일", "h": "소리를 표로 정리할 수 있을까요?", "a": 3, "why": "오디오는 형식을 미리 정하기 어려워 <b>비정형</b>입니다."}, {"q": "오늘의 최고 기온 (23.7 ℃)", "h": "온도계로 재는 값", "a": 0, "why": "온도는 재는 값이고 소수점이 나오므로 <b>연속형</b>입니다."}];
+buildQuiz(); renderDrill();
+
+</script>
+</body>
+</html>

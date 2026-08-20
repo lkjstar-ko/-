@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3차시 데이터 탐색과 전처리 — 고등학교 인공지능 기초</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<style>
+  :root{--dark:#122E1E;--main:#1E6B3C;--mid:#2A8950;--accent:#35AE62;--bright:#84D8A2;--pale:#E7F5EC;--pale2:#F3FAF5;--ink:#16331F;--gray:#5F7A68;--line:#D2E9DA;--ok:#1E9E6A;--no:#E0476B;--cbg:#1A1030;--cfg:#EBE4F7;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Pretendard","맑은 고딕","Malgun Gothic",sans-serif;background:#F0F7F2;color:var(--ink);line-height:1.6;padding:18px}
+  .wrap{max-width:980px;margin:0 auto}
+  .hero{background:linear-gradient(135deg,var(--dark),var(--main));border-radius:20px;padding:26px 30px;color:#fff;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(30,107,60,.35)}
+  .hero::before{content:"";position:absolute;right:60px;bottom:-80px;width:150px;height:150px;border-radius:50%;background:rgba(30,107,60,.22)}
+  .hero .ch{font-size:12.5px;letter-spacing:2px;color:var(--bright);font-weight:700}
+  .hero h1{font-size:29px;margin:6px 0 2px}
+  .hero .en{font-style:italic;color:var(--bright);font-size:15px}
+  .hero .goals{margin-top:14px;font-size:13.5px;color:#E6F6EF;position:relative;z-index:1}
+  .hero .goals b{color:#fff}
+  .tabs{display:flex;gap:8px;margin:18px 0 16px;flex-wrap:wrap}
+  .tab{flex:1;min-width:165px;background:#fff;border:2px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;transition:.18s}
+  .tab:hover{border-color:var(--accent)}
+  .tab.on{background:var(--main);border-color:var(--main);color:#fff;box-shadow:0 8px 20px rgba(30,107,60,.28)}
+  .tab .n{font-size:11px;font-weight:700;opacity:.7}
+  .tab .t{font-size:15px;font-weight:700;margin-top:2px}
+  .panel{display:none;animation:fade .25s}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;box-shadow:0 3px 14px rgba(30,107,60,.06)}
+  .card h2{font-size:19px;color:var(--main);display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .card h2 .ico{width:30px;height:30px;background:var(--accent);color:#fff;border-radius:9px;display:grid;place-items:center;font-size:16px}
+  .card p{font-size:14.5px;margin-bottom:8px}
+  .lead{color:var(--gray)}
+  code.inl{background:var(--pale);color:var(--main);padding:1.5px 7px;border-radius:6px;font-family:Consolas,monospace;font-size:13.5px;font-weight:600}
+  pre.code{background:var(--cbg);color:var(--cfg);border-radius:12px;padding:16px 18px;font-family:Consolas,monospace;font-size:13.5px;line-height:1.7;overflow-x:auto;margin:10px 0}
+  .code .k{color:#FF8FB0}.code .s{color:#9EE6A0}.code .n{color:#9AC8FF}.code .c{color:#A99CC9}.code .f{color:#E0B36A}
+  .note{background:var(--pale);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin:10px 0}
+  table.dt{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+  table.dt th{background:var(--main);color:#fff;padding:7px 9px;text-align:left}
+  table.dt td{border-bottom:1px solid var(--line);padding:6px 9px}
+  table.dt tr:nth-child(even) td{background:var(--pale2)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--pale);color:var(--main);margin-left:4px}
+  /* 클릭 카드 */
+  .quad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0}
+  .triad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0}
+  .quad .b,.triad .b{background:var(--pale2);border:2px solid var(--line);border-radius:13px;padding:14px 12px;text-align:center;cursor:pointer;transition:.18s}
+  .quad .b:hover,.triad .b:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,107,60,.13)}
+  .quad .b.on,.triad .b.on{background:var(--main);border-color:var(--main)}
+  .quad .b .e,.triad .b .e{font-size:26px}
+  .quad .b .h,.triad .b .h{font-weight:700;color:var(--main);margin:5px 0 3px;font-size:14px}
+  .quad .b.on .h,.triad .b.on .h{color:#fff}
+  .quad .b .d,.triad .b .d{font-size:11.5px;color:var(--gray)}
+  .quad .b.on .d,.triad .b.on .d{color:var(--bright)}
+  .quad .b .more,.triad .b .more{display:block;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--accent)}
+  .quad .b.on .more,.triad .b.on .more{color:var(--bright)}
+  .detail{display:none;margin-top:14px;background:var(--pale2);border:2px solid var(--accent);border-radius:14px;padding:20px 22px;animation:fade .25s}
+  .detail.show{display:block}
+  .detail h3{font-size:17px;color:var(--main);margin-bottom:4px}
+  .detail .sub{font-size:13px;color:var(--gray);margin-bottom:14px}
+  .detail .key{background:#fff;border-radius:10px;padding:12px 15px;margin-bottom:12px;font-size:14px;border:1px solid var(--line)}
+  .detail .key b{color:var(--main)}
+  .exgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+  .exgrid .ex{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .exgrid .ex .t{font-weight:700;font-size:13.5px;margin-bottom:4px}
+  .exgrid .ex .l{font-size:12.5px;color:var(--gray);line-height:1.55}
+  .trap{background:#FFF4E5;border-left:4px solid #E8A33D;border-radius:0 10px 10px 0;padding:11px 15px;font-size:13.5px;margin-top:6px}
+  .trap b{color:#B87415}
+  .closebtn{float:right;background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:0 4px}
+  /* 퀴즈 */
+  .quiz-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bar{flex:1;height:10px;background:var(--pale);border-radius:6px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--mid));transition:width .35s}
+  .qcount{font-weight:700;color:var(--main);font-size:14px;min-width:46px;text-align:right}
+  .q{margin-bottom:18px}
+  .q .ask{font-weight:700;font-size:15px;margin-bottom:10px}
+  .q .ask span{color:var(--accent);margin-right:6px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:11px;padding:11px 15px;margin-bottom:8px;cursor:pointer;font-size:14px;transition:.15s;font-family:inherit}
+  .opt:hover:not(:disabled){border-color:var(--accent);background:var(--pale2)}
+  .opt.correct{border-color:var(--ok);background:#E7F7F0;color:var(--ok);font-weight:700}
+  .opt.wrong{border-color:var(--no);background:#FBE9EE;color:var(--no);font-weight:700}
+  .fb{font-size:13px;margin-top:4px;padding:8px 12px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.y{background:#E7F7F0;color:var(--ok)}.fb.n{background:#FBE9EE;color:var(--no)}
+  .result{display:none;text-align:center;padding:24px;background:linear-gradient(135deg,var(--pale),var(--pale2));border-radius:14px;margin-top:8px}
+  .result.show{display:block}
+  .result .score{font-size:40px;font-weight:800;color:var(--main)}
+  .result .msg{font-size:15px;margin:6px 0 14px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--main)}
+  .btn.ghost{background:#fff;color:var(--main);border:2px solid var(--accent)}
+  .run{background:#27C93F;color:#06270e;font-weight:800}
+  .run:disabled{background:#8fa596;color:#e8f0ea;cursor:wait}
+  /* 드릴 */
+  .drill{background:var(--dark);border-radius:14px;padding:20px 22px;color:#fff}
+  .drill .top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .drill .top .bar{flex:1;height:9px;background:rgba(255,255,255,.18)}
+  .drill .top .bar>i{background:var(--bright)}
+  .drill .top .cnt{font-size:13px;font-weight:700;color:var(--bright);min-width:52px;text-align:right}
+  .drill .item{background:rgba(255,255,255,.1);border-radius:11px;padding:16px;text-align:center;font-size:17px;font-weight:700;margin-bottom:14px}
+  .drill .item .hint{display:block;font-size:12px;font-weight:400;color:var(--bright);margin-top:5px}
+  .dopts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .dopt{background:rgba(255,255,255,.13);border:2px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:11px 6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+  .dopt:hover:not(:disabled){background:var(--accent);border-color:var(--accent)}
+  .dopt.correct{background:var(--ok);border-color:var(--ok)}
+  .dopt.wrong{background:var(--no);border-color:var(--no)}
+  .dfb{margin-top:12px;padding:11px 15px;border-radius:9px;font-size:13.5px;display:none;background:rgba(255,255,255,.12);color:#fff}
+  .dfb.show{display:block}
+  .dfb b{color:var(--bright)}
+  /* 체험 도구 */
+  .tool{background:var(--dark);border-radius:14px;padding:20px 22px;color:#fff;margin-top:6px}
+  .tool .lbl{font-size:13px;color:var(--bright);font-weight:700;margin-bottom:6px}
+  .tool .row{margin-bottom:16px}
+  .tool input[type=range]{width:100%;accent-color:var(--accent);height:6px;cursor:pointer}
+  .tool .val{font-family:Consolas,monospace;font-size:15px;font-weight:700;color:#fff}
+  .formula{background:rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;font-family:Consolas,monospace;font-size:13.5px;margin-top:8px;line-height:1.8;overflow-x:auto;white-space:nowrap}
+  .formula .hi{color:var(--bright);font-weight:700}
+  .formula .res{color:#FFD772;font-weight:700}
+  .gauge{height:26px;background:rgba(255,255,255,.13);border-radius:13px;position:relative;margin-top:8px;overflow:hidden}
+  .gauge>i{display:block;height:100%;background:linear-gradient(90deg,var(--mid),var(--accent));border-radius:13px;transition:width .12s}
+  .gauge .tick{position:absolute;top:0;height:100%;display:flex;align-items:center;font-size:11px;color:rgba(255,255,255,.75);padding:0 8px}
+  .gauge .tick.l{left:0}.gauge .tick.r{right:0}
+  .scatterwrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .scatterwrap svg{background:rgba(255,255,255,.07);border-radius:11px;flex-shrink:0}
+  .rread{flex:1;min-width:190px;font-size:13.5px;line-height:1.7}
+  .rread .big{font-size:30px;font-weight:800;color:var(--bright);font-family:Consolas,monospace}
+  .rpick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .rpick button{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:18px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600}
+  .rpick button:hover{background:var(--accent);border-color:var(--accent)}
+  /* 샌드박스 */
+  .sb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{background:var(--pale);border:1px solid var(--line);color:var(--main);border-radius:20px;padding:6px 13px;font-size:12.5px;cursor:pointer;font-weight:600}
+  .chip:hover{background:var(--accent);color:#fff}
+  .editor{position:relative;background:var(--cbg);border-radius:12px;padding:14px 16px 14px 50px}
+  .editor textarea{width:100%;background:transparent;color:var(--cfg);border:none;outline:none;resize:none;font-family:Consolas,monospace;font-size:14px;line-height:1.65;overflow:hidden}
+  .ln{position:absolute;left:0;top:14px;width:38px;text-align:right;padding-right:10px;color:#6A5A8C;font-family:Consolas,monospace;font-size:14px;line-height:1.65;user-select:none}
+  .out{background:#0d0820;color:#cfe8d4;border-radius:11px;padding:14px 16px;margin-top:10px;font-family:Consolas,monospace;font-size:13px;white-space:pre;overflow-x:auto;min-height:46px}
+  .out.empty{color:#6A5A8C;white-space:pre-wrap}
+  .out .err{color:#ff9aa8}
+  .status{font-size:12px;color:var(--gray);font-weight:400}
+  /* 활동 */
+  .acts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .act{background:var(--pale2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .act .tag{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+  .act h4{font-size:14.5px;color:var(--main);margin-bottom:5px}
+  .act p{font-size:13px;color:var(--gray)}
+  @media(max-width:680px){.quad,.acts,.exgrid,.triad{grid-template-columns:1fr}.dopts{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="ch">01 기계학습과 데이터 &nbsp;·&nbsp; 3차시</div>
+    <h1>데이터 탐색과 전처리</h1>
+    <div class="en">Data Exploration & Preprocessing</div>
+    <div class="goals"><b>이 차시에 배우는 것</b>&nbsp; ① 데이터를 탐색하여 특징과 문제점을 파악한다 &nbsp; ② 데이터를 가공하여 핵심 속성을 추출한다<br><b>학습 요소</b>&nbsp; EDA · 결측치 · 이상치 · 정규화 · 상관관계 · 핵심 속성</div>
+  </div>
+  <div class="tabs"><div class="tab on" data-p="p1"><div class="n">PART 1</div><div class="t">개념 &amp; 퀴즈</div></div><div class="tab" data-p="p2"><div class="n">PART 2</div><div class="t">정규화·상관계수 체험</div></div><div class="tab" data-p="p3"><div class="n">PART 3</div><div class="t">직접 실습하기</div></div></div>
+  <div class="panel on" id="p1">
+    <div class="card">
+      <h2><span class="ico">🔍</span>데이터를 바로 학습시키면 안 될까?</h2>
+      <p class="lead">모은 데이터에는 <b>빈칸·잘못된 값·서로 다른 단위</b>가 섞여 있습니다. 그대로 학습시키면 엉뚱한 결과가 나와요. 먼저 살펴보고 다듬어야 합니다.</p>
+      <div class="exgrid">
+        <div class="ex"><div class="t">① 🔍 탐색 (EDA)</div><div class="l">어떤 데이터인지 통계·그래프로 충분히 살펴보기</div></div>
+        <div class="ex"><div class="t">② 🧹 정리</div><div class="l">결측치·이상치를 찾아서 지우거나 채워 넣기</div></div>
+        <div class="ex"><div class="t">③ 📐 정규화</div><div class="l">단위가 다른 속성을 0~1 사이로 똑같이 맞추기</div></div>
+        <div class="ex"><div class="t">④ ⭐ 핵심 속성 추출</div><div class="l">상관관계를 보고 예측에 중요한 속성만 고르기</div></div>
+      </div>
+      <div class="note">💡 <b>알아두기</b> — 전처리는 데이터 분석 전체 시간의 <b>절반 이상</b>을 차지합니다. 화려하지 않지만 성능을 좌우하는 단계예요.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🧹</span>전처리 개념 이해하기</h2>
+      <p class="lead" style="margin-top:12px">👇 각 개념을 <b>눌러 보세요.</b> 왜 필요한지, 안 하면 어떻게 되는지 알 수 있어요.</p>
+<div class="quad" id="ppCards"><div class="b" data-d="e1"><div class="e">🕳️</div><div class="h">결측치</div><div class="d">비어 있는 값</div><span class="more">자세히 ▾</span></div><div class="b" data-d="e2"><div class="e">🎯</div><div class="h">이상치</div><div class="d">동떨어진 값</div><span class="more">자세히 ▾</span></div><div class="b" data-d="e3"><div class="e">📐</div><div class="h">정규화</div><div class="d">0~1로 맞추기</div><span class="more">자세히 ▾</span></div><div class="b" data-d="e4"><div class="e">📦</div><div class="h">상자그림</div><div class="d">이상치 찾는 도구</div><span class="more">자세히 ▾</span></div></div>
+<div class="detail" id="ppBox"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">📝</span>개념 확인 퀴즈</h2>
+      <div class="quiz-top">
+        <div class="bar"><i id="qbar"></i></div>
+        <div class="qcount"><span id="qdone">0</span> / <span id="qtot">5</span></div>
+      </div>
+      <div id="quiz"></div>
+      <div class="result" id="qresult">
+        <div class="score"><span id="qscore">0</span> / <span id="qtot2">5</span></div>
+        <div class="msg" id="qmsg"></div>
+        <button class="btn ghost" onclick="resetQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div></div><div class="panel" id="p2">
+    <div class="card">
+      <h2><span class="ico">📐</span>정규화 체험하기</h2>
+      <p class="lead">슬라이더를 움직여 보세요. <b>범위가 전혀 다른 두 속성</b>이 어떻게 똑같은 0~1로 바뀌는지 직접 확인할 수 있습니다.</p>
+      <div class="tool">
+        <div class="row">
+          <div class="lbl">🪶 날개 길이 &nbsp;<span class="val" id="v1">200</span> mm &nbsp;<span style="color:#9FBFB4;font-weight:400">(범위 170 ~ 230)</span></div>
+          <input type="range" id="s1" min="170" max="230" value="200" step="1">
+          <div class="formula" id="f1"></div>
+          <div class="gauge"><i id="g1"></i><span class="tick l">0</span><span class="tick r">1</span></div>
+        </div>
+        <div class="row" style="margin-bottom:6px">
+          <div class="lbl">⚖️ 체질량 &nbsp;<span class="val" id="v2">4500</span> g &nbsp;<span style="color:#9FBFB4;font-weight:400">(범위 2500 ~ 6500)</span></div>
+          <input type="range" id="s2" min="2500" max="6500" value="4500" step="50">
+          <div class="formula" id="f2"></div>
+          <div class="gauge"><i id="g2"></i><span class="tick l">0</span><span class="tick r">1</span></div>
+        </div>
+        <div class="dfb show" style="margin-top:14px" id="nmsg"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ico">🔗</span>상관계수 체험하기</h2>
+      <p class="lead">상관계수는 숫자만 보면 감이 안 옵니다. 슬라이더를 움직여 <b>r 값이 바뀔 때 점들이 어떻게 흩어지는지</b> 눈으로 확인해 보세요.</p>
+      <div class="tool">
+        <div class="lbl">상관계수 r 을 움직여 보세요</div>
+        <input type="range" id="rs" min="-100" max="100" value="87" step="1">
+        <div class="scatterwrap" style="margin-top:14px">
+          <svg id="sc" width="330" height="230" viewBox="0 0 330 230"></svg>
+          <div class="rread">
+            <div>r = <span class="big" id="rv">0.87</span></div>
+            <div id="rdesc" style="margin-top:6px"></div>
+            <div class="rpick">
+              <button onclick="setR(87)">날개 길이–체질량 0.87</button>
+              <button onclick="setR(-47)">부리 깊이–체질량 −0.47</button>
+              <button onclick="setR(0)">상관 없음 0</button>
+            </div>
+          </div>
+        </div>
+        <div class="dfb show" style="margin-top:14px" id="rmsg"></div>
+      </div>
+    </div></div><div class="panel" id="p3">
+    <div class="card">
+      <h2><span class="ico">▶️</span>데이터 탐색하기 <span class="status" id="pyStat">— 파이썬 준비 중…</span></h2>
+      <p class="lead">교과서와 같은 펭귄 데이터(24행 축소판)가 <code class='inl'>df</code>에 이미 들어 있습니다. 버튼을 눌러 코드를 바꿔 가며 실행해 보세요.</p>
+      <div class="sb-head">
+        <div class="chips"><span class="chip" onclick="loadSnip('explore','code')">🐧 데이터 살펴보기</span><span class="chip" onclick="loadSnip('stats','code')">📊 통계 요약</span><span class="chip" onclick="loadSnip('types','code')">🏷️ 속성 유형 확인</span></div>
+        <button class="btn run" id="runBtn" onclick="execTo('code','out','runBtn')" disabled>실행 ▶</button>
+      </div>
+      <div class="editor"><div class="ln" id="ln">1</div><textarea id="code" spellcheck="false"></textarea></div>
+      <div class="out empty" id="out">실행 결과가 여기에 표시됩니다.  ( Ctrl + Enter 로도 실행 )</div>
+    </div>
+    <div class="card">
+      <h2><span class="ico">▶️</span>전처리 직접 해보기</h2>
+      <p class="lead">결측치를 지우고, 정규화하고, 상관계수를 구해 보세요.</p>
+      <div class="sb-head">
+        <div class="chips"><span class="chip" onclick="loadSnip('missing','code3')">🕳️ 결측치·이상치</span><span class="chip" onclick="loadSnip('normalize','code3')">📐 정규화</span><span class="chip" onclick="loadSnip('corr','code3')">🔗 상관계수</span></div>
+        <button class="btn run" id="runBtn3" onclick="execTo('code3','out3','runBtn3')" disabled>실행 ▶</button>
+      </div>
+      <div class="editor"><div class="ln" id="ln3">1</div><textarea id="code3" spellcheck="false"></textarea></div>
+      <div class="out empty" id="out3">실행 결과가 여기에 표시됩니다.  ( Ctrl + Enter 로도 실행 )</div>
+    </div>
+    <div class="card">
+      <h2><span class="ico">👥</span>모둠 활동 아이디어</h2>
+      <div class="acts"><div class="act"><span class="tag">활동 1</span><h4>🌋 지진 데이터 분석하기</h4><p>기상자료개방포털에서 지진 데이터를 내려받아 결측치를 제거하고, 연도별 규모와 지역별 발생 횟수를 분석하기.</p></div><div class="act"><span class="tag">활동 2</span><h4>📊 우리 반 데이터 전처리</h4><p>직접 모은 설문 데이터에서 빠진 응답(결측치)과 잘못 입력된 값(이상치)을 찾아 정리하고, 정규화까지 해보기.</p></div><div class="act"><span class="tag">활동 3</span><h4>🔗 상관관계 찾기 대결</h4><p>모둠별로 데이터셋에서 상관계수가 가장 높은 속성 쌍을 찾아 발표하고, 왜 그런 관계가 나타나는지 설명하기.</p></div><div class="act"><span class="tag">활동 4</span><h4>🤔 상관관계 ≠ 인과관계</h4><p>'아이스크림 판매량과 익사 사고가 함께 늘어난다'처럼 상관은 있지만 원인은 아닌 사례를 찾아 토의하기.</p></div></div>
+    </div></div>
+  <p style="text-align:center;color:var(--gray);font-size:12.5px;margin:8px 0 20px">고등학교 인공지능 기초 · 01 기계학습과 데이터 · 3차시 데이터 탐색과 전처리</p>
+</div>
+<script>
+
+/* 탭 */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.getElementById(t.dataset.p).classList.add('on');
+});
+
+/* 클릭 카드 공용 */
+function bindDetail(cardSel, box, data){
+  const cards=document.querySelectorAll(cardSel);
+  cards.forEach(b=>{
+    b.onclick=()=>{
+      const wasOn=b.classList.contains('on');
+      cards.forEach(x=>x.classList.remove('on'));
+      if(wasOn){box.classList.remove('show');return;}
+      b.classList.add('on');
+      const D=data[b.dataset.d];
+      box.innerHTML='<button class="closebtn" data-close="1">&times;</button>'+
+        '<h3>'+D.t+'</h3><div class="sub">'+D.sub+'</div>'+
+        '<div class="key">\u{1F4A1} '+D.key+'</div>'+
+        '<div class="exgrid">'+D.ex.map(e=>
+          '<div class="ex"><div class="t">'+e.em+' '+e.t+'</div><div class="l">'+e.l+'</div></div>').join('')+
+        '</div><div class="trap">\u26A0\uFE0F '+D.trap+'</div>';
+      box.querySelector('[data-close]').onclick=()=>{
+        cards.forEach(x=>x.classList.remove('on'));box.classList.remove('show');};
+      box.classList.add('show');
+    };
+  });
+}
+
+/* 퀴즈 */
+let done=0,score=0,answered=[];
+function buildQuiz(){
+  const box=document.getElementById('quiz');box.innerHTML='';
+  done=0;score=0;answered=Array(QUIZ.length).fill(false);
+  QUIZ.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML='<div class="ask"><span>Q'+(i+1)+'.</span>'+item.q+'</div>';
+    item.o.forEach((opt,j)=>{
+      const b=document.createElement('button');b.className='opt';b.innerHTML=opt;
+      b.onclick=()=>pick(i,j,b,d);d.appendChild(b);});
+    const fb=document.createElement('div');fb.className='fb';fb.id='fb'+i;d.appendChild(fb);
+    box.appendChild(d);});
+  document.getElementById('qbar').style.width='0%';
+  document.getElementById('qdone').textContent='0';
+  document.getElementById('qtot').textContent=QUIZ.length;
+  document.getElementById('qtot2').textContent=QUIZ.length;
+  document.getElementById('qresult').classList.remove('show');
+}
+function pick(i,j,btn,d){
+  if(answered[i])return;answered[i]=true;done++;
+  const item=QUIZ[i],opts=d.querySelectorAll('.opt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===item.a)o.classList.add('correct');});
+  const fb=document.getElementById('fb'+i);fb.classList.add('show');
+  if(j===item.a){score++;fb.classList.add('y');fb.textContent='\u2B55 '+item.y;}
+  else{btn.classList.add('wrong');fb.classList.add('n');fb.textContent='\u274C '+item.n;}
+  document.getElementById('qdone').textContent=done;
+  document.getElementById('qbar').style.width=(done/QUIZ.length*100)+'%';
+  if(done===QUIZ.length){
+    const r=document.getElementById('qresult');r.classList.add('show');
+    document.getElementById('qscore').textContent=score;
+    const ratio=score/QUIZ.length;
+    document.getElementById('qmsg').textContent = ratio===1?'완벽해요! 🏆'
+      : ratio>=0.8?'훌륭해요! 잘 이해했어요 🎉'
+      : ratio>=0.6?'좋아요! 절반 이상 맞혔어요 👍'
+      : '위 카드를 눌러 설명을 다시 읽고 도전해 보세요.';
+    r.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+function resetQuiz(){buildQuiz();}
+
+/* 드릴 */
+let di=0,dscore=0;
+function renderDrill(){
+  if(di>=DRILL.length){
+    document.getElementById('ditem').innerHTML='\u{1F389} 연습 끝!<span class="hint">'+DRILL.length+'문제 중 '+dscore+'개 정답</span>';
+    document.getElementById('dopts').innerHTML='';
+    const fb=document.getElementById('dfb');fb.classList.add('show');
+    fb.innerHTML = dscore>=DRILL.length-1?'<b>완벽해요!</b> 확실히 이해했어요 🏆'
+      : dscore>=DRILL.length*0.7?'<b>잘했어요!</b> 헷갈린 문제만 다시 보면 완벽해집니다 👍'
+      : '<b>다시 한 번!</b> 위 카드를 눌러 설명을 읽고 도전해 보세요.';
+    return;}
+  const it=DRILL[di];
+  document.getElementById('ditem').innerHTML=it.q+'<span class="hint">'+it.h+'</span>';
+  const box=document.getElementById('dopts');box.innerHTML='';
+  DOPTS.forEach((o,j)=>{
+    const b=document.createElement('button');b.className='dopt';b.textContent=o;
+    b.onclick=()=>dpick(j,b);box.appendChild(b);});
+  document.getElementById('dfb').classList.remove('show');
+  document.getElementById('ddone').textContent=di;
+  document.getElementById('dtot').textContent=DRILL.length;
+  document.getElementById('dbar').style.width=(di/DRILL.length*100)+'%';
+}
+function dpick(j,btn){
+  const it=DRILL[di],opts=document.querySelectorAll('.dopt');
+  opts.forEach((o,k)=>{o.disabled=true;if(k===it.a)o.classList.add('correct');});
+  const fb=document.getElementById('dfb');fb.classList.add('show');
+  if(j===it.a){dscore++;fb.innerHTML='\u2B55 정답! '+it.why;}
+  else{btn.classList.add('wrong');fb.innerHTML='\u274C '+(it.trap?'많이 틀리는 문제예요. ':'')+it.why;}
+  di++;
+  document.getElementById('ddone').textContent=di;
+  document.getElementById('dbar').style.width=(di/DRILL.length*100)+'%';
+  setTimeout(()=>{
+    const nx=document.createElement('button');nx.className='btn';nx.style.marginTop='12px';
+    nx.textContent = di>=DRILL.length?'결과 보기 \u2192':'다음 문제 \u2192';
+    nx.onclick=()=>renderDrill();
+    fb.appendChild(document.createElement('br'));fb.appendChild(nx);},250);
+}
+function resetDrill(){di=0;dscore=0;renderDrill();}
+
+/* Pyodide 실행 */
+let pyodide=null,pyReady=false;
+async function initPy(){
+  const st=document.getElementById('pyStat');
+  try{
+    pyodide=await loadPyodide();
+    if(typeof NEED_PANDAS!=='undefined'&&NEED_PANDAS){
+      st.textContent='— pandas 불러오는 중… (10초쯤 걸려요)';
+      await pyodide.loadPackage('pandas');
+    }
+    if(typeof SETUP!=='undefined'&&SETUP) await pyodide.runPythonAsync(SETUP);
+    pyReady=true;st.textContent='— 준비 완료 ✅';
+    document.querySelectorAll('.run').forEach(b=>b.disabled=false);
+  }catch(e){st.textContent='— 엔진 로드 실패 (인터넷 연결 확인)';}
+}
+function autoSize(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';}
+function updateLN(ta,lnId){
+  const n=ta.value.split('\n').length;let s='';
+  for(let i=1;i<=n;i++)s+=i+'\n';
+  document.getElementById(lnId).textContent=s;
+}
+function bindEditor(id,lnId,runFn){
+  const ta=document.getElementById(id);
+  ta.addEventListener('input',()=>{autoSize(ta);updateLN(ta,lnId);});
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart;
+      ta.value=ta.value.slice(0,s)+'    '+ta.value.slice(ta.selectionEnd);
+      ta.selectionStart=ta.selectionEnd=s+4;autoSize(ta);updateLN(ta,lnId);}
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();runFn();}});
+}
+async function execTo(srcId,outId,btnId){
+  if(!pyReady)return;
+  const out=document.getElementById(outId),btn=document.getElementById(btnId);
+  out.classList.remove('empty');out.textContent='\u23F3 실행 중…';btn.disabled=true;
+  let buf='';
+  pyodide.setStdout({batched:t=>buf+=t+'\n'});
+  pyodide.setStderr({batched:t=>buf+=t+'\n'});
+  try{
+    await pyodide.runPythonAsync(document.getElementById(srcId).value);
+    out.textContent=buf.replace(/\n+$/,'')||'(출력 없음)';
+  }catch(err){
+    const m=String(err).split('\n').filter(l=>l.trim()).slice(-3).join('\n');
+    out.innerHTML=(buf?buf.replace(/</g,'&lt;'):'')+'<span class="err">\u26A0 오류\n'+m.replace(/</g,'&lt;')+'</span>';
+  }finally{btn.disabled=false;}
+}
+function loadSnip(key,target){
+  const ta=document.getElementById(target||'code');
+  ta.value=SNIPPETS[key];autoSize(ta);
+  updateLN(ta,(target||'code')==='code'?'ln':'ln3');
+}
+
+const NEED_PANDAS=true;
+const SETUP=`
+import pandas as pd
+pd.set_option('display.width', 150)
+pd.set_option('display.max_columns', 20)
+df = pd.DataFrame({
+ 'species':['Adelie']*8+['Chinstrap']*8+['Gentoo']*8,
+ 'island':['Torgersen','Torgersen','Biscoe','Dream','Biscoe','Torgersen','Dream','Biscoe',
+           'Dream','Dream','Dream','Dream','Dream','Dream','Dream','Dream',
+           'Biscoe','Biscoe','Biscoe','Biscoe','Biscoe','Biscoe','Biscoe','Biscoe'],
+ 'culmen_length_mm':[39.1,39.5,40.3,36.7,38.9,41.1,38.6,34.6,
+                     46.5,50.0,51.3,45.4,52.7,45.2,46.1,51.3,
+                     46.1,50.0,48.7,50.0,47.6,46.5,45.4,None],
+ 'culmen_depth_mm':[18.7,17.4,18.0,19.3,17.8,17.6,21.2,21.1,
+                    17.9,19.5,19.2,18.7,19.8,17.8,18.2,19.9,
+                    13.2,16.3,14.1,15.2,14.5,13.5,14.6,15.0],
+ 'flipper_length_mm':[181,186,195,193,181,182,191,198,
+                      192,196,193,188,197,198,178,198,
+                      211,230,210,218,215,210,211,214],
+ 'body_mass_g':[3750,3800,3250,3450,3625,3200,3800,4400,
+                3500,3900,3650,3525,3725,3950,3250,3700,
+                4500,5700,4450,5700,5400,4550,5000,4650],
+ 'sex':['MALE','FEMALE','FEMALE','FEMALE','FEMALE','MALE','MALE','MALE',
+        'FEMALE','MALE','MALE','FEMALE','MALE','FEMALE','FEMALE','MALE',
+        'FEMALE','MALE','FEMALE','MALE','MALE','FEMALE','FEMALE','.']
+})
+`;
+const SNIPPETS={"explore": "# df 에 펭귄 데이터(24행 축소판)가 들어 있어요.\nprint(\"데이터 크기:\", df.shape)\nprint()\nprint(df.head())\nprint()\nprint(\"속성 목록:\", list(df.columns))", "stats": "# 수치형 속성의 통계 요약\nprint(df.describe().round(2))\nprint()\nprint(\"부리 길이 평균:\", round(df['culmen_length_mm'].mean(), 2))\nprint(\"체질량 평균  :\", round(df['body_mass_g'].mean(), 2))\nprint()\nprint(\"→ 숫자 크기 차이가 크죠? 정규화가 필요한 이유입니다.\")", "types": "# 속성별 자료형 확인\nprint(df.dtypes)\nprint()\nprint(\"펭귄 종  :\", list(df['species'].unique()))\nprint(\"서식지   :\", list(df['island'].unique()))\nprint(\"성별     :\", list(df['sex'].unique()))   # '.' 이 보이나요?\nprint()\nprint(\"종별 데이터 수\")\nprint(df['species'].value_counts())", "missing": "# ① 결측치 확인\nprint(\"속성별 결측치 수\")\nprint(df.isnull().sum())\nprint()\n\n# ② 결측치가 있는 행 삭제\nclean = df.dropna(axis=0)\nprint(\"결측치 삭제:\", len(df), \"→\", len(clean), \"행\")\nprint()\n\n# ③ 이상치 확인 후 삭제 (sex 가 '.' 인 행)\nprint(\"이상치 행:\")\nprint(clean[clean['sex'] == '.'])\nclean = clean[clean['sex'] != '.']\nprint()\nprint(\"최종 데이터:\", len(clean), \"행\")", "normalize": "# 최소-최대 정규화: (값 - 최솟값) / (최댓값 - 최솟값)\nclean = df.dropna(axis=0)\ncols = ['culmen_length_mm', 'flipper_length_mm', 'body_mass_g']\n\nprint(\"정규화 전 (범위가 제각각)\")\nprint(clean[cols].agg(['min', 'max']))\nprint()\n\nnorm = clean.copy()\nfor c in cols:\n    norm[c] = (clean[c] - clean[c].min()) / (clean[c].max() - clean[c].min())\n\nprint(\"정규화 후 (모두 0 ~ 1)\")\nprint(norm[cols].round(3).head(8))", "corr": "# 속성 간 상관계수 (-1 ~ +1)\nclean = df.dropna(axis=0)\ncorr = clean.corr(numeric_only=True).round(2)\nprint(corr)\nprint()\n\nmass = corr['body_mass_g'].drop('body_mass_g')\nprint(\"체질량과의 상관계수\")\nfor name, r in mass.items():\n    kind = \"양의 상관\" if r > 0 else \"음의 상관\"\n    print(f\"  {name:20s} {r:>6.2f}  {kind}\")\nprint()\nprint(\"→ 상관이 가장 강한 핵심 속성:\", mass.abs().idxmax())\nprint(\"   (교과서 결론: 부리 길이와 날개 길이가 핵심 속성)\")"};
+const DETAIL={"e1": {"t": "🕳️ 결측치 (Missing Value)", "sub": "값이 아예 비어 있는 칸", "key": "설문지에서 <b>한 문항을 빈칸으로 낸 것</b>과 같아요. 측정을 못 했거나 기록이 빠진 경우입니다. 파이썬에서는 <code>NaN</code>으로 표시돼요.", "ex": [{"em": "🔍", "t": "찾는 법", "l": "<code>df.isnull().sum()</code><br>속성별로 빈칸이 몇 개인지"}, {"em": "🗑️", "t": "행 삭제", "l": "<code>df.dropna(axis=0)</code><br>빈칸이 있는 <b>행</b>을 통째로"}, {"em": "📵", "t": "열 삭제", "l": "<code>df.dropna(axis=1)</code><br>빈칸이 많은 <b>속성</b> 자체를"}, {"em": "🐧", "t": "펭귄 데이터에서는", "l": "344행 → 결측치 제거 후 <b>334행</b><br>10개 행이 사라짐"}], "trap": "<b>안 하면 어떻게 될까?</b> 평균 계산이 틀어지거나 학습이 오류로 멈춥니다. 다만 <b>무조건 삭제가 정답은 아니에요</b> — 데이터가 적을 때는 평균값으로 채우기도 합니다."}, "e2": {"t": "🎯 이상치 (Outlier)", "sub": "혼자 멀리 떨어져 있는 값", "key": "잘못 입력됐거나 정상 범위를 크게 벗어난 값입니다. 키를 적는 칸에 <b>1700cm</b>가 있다면? 단위를 잘못 썼거나 오타겠죠.", "ex": [{"em": "🔤", "t": "범주형에서 찾기", "l": "<code>df['sex'].unique()</code><br>'MALE','FEMALE' 사이에 <b>'.'</b> 발견!"}, {"em": "📦", "t": "수치형에서 찾기", "l": "상자그림을 그리면 점으로 튀어나옴<br>산점도에서도 혼자 동떨어져 보임"}, {"em": "🗑️", "t": "제거하기", "l": "<code>df.drop(336, axis=0)</code><br>336번 행을 삭제"}, {"em": "🩹", "t": "제거 말고 대치", "l": "평균값·중앙값으로 바꾸기도 함<br>데이터가 아까울 때"}], "trap": "<b>왜 위험할까?</b> 이상치 하나가 <b>전체 흐름을 끌어당깁니다.</b> 평균이 왜곡되고 예측선이 기울어져요. 단, 사기 거래 탐지처럼 <b>이상치가 핵심 신호</b>인 경우도 있으니 지우기 전에 왜 생겼는지 살펴야 합니다."}, "e3": {"t": "📐 정규화 (Normalization)", "sub": "서로 다른 단위를 같은 잣대로", "key": "키를 <b>cm</b>로, 몸무게를 <b>g</b>으로 적으면 몸무게 숫자가 훨씬 크죠? 컴퓨터는 <b>숫자가 크면 더 중요하다고 착각</b>합니다. 그래서 모두 0~1로 맞춰요.", "ex": [{"em": "🧮", "t": "최소-최대 정규화", "l": "(값 − 최솟값) ÷ (최댓값 − 최솟값)<br>결과는 항상 0 ~ 1 사이"}, {"em": "📏", "t": "최솟값이면", "l": "(170−170)÷(230−170) = <b>0</b>"}, {"em": "📐", "t": "최댓값이면", "l": "(230−170)÷(230−170) = <b>1</b>"}, {"em": "🐧", "t": "펭귄 데이터에서는", "l": "날개 길이 170~230<br>체질량 2500~6500 → 둘 다 0~1로"}], "trap": "<b>아래에서 직접 해보세요!</b> 슬라이더를 움직이면 계산 과정이 실시간으로 보입니다. 범위가 완전히 다른 두 속성이 똑같은 0~1로 바뀌는 걸 확인해 보세요."}, "e4": {"t": "📦 상자그림 (Box Plot)", "sub": "이상치를 찾아내는 대표 도구", "key": "데이터를 크기순으로 줄 세운 뒤 <b>가운데 50%를 상자로</b> 그린 그림입니다. 상자에서 멀리 떨어진 점이 이상치예요.", "ex": [{"em": "📊", "t": "상자의 의미", "l": "Q1(25%) ~ Q3(75%)가 상자<br>상자 안이 '보통 범위'"}, {"em": "➖", "t": "가운데 선", "l": "중앙값(Q2, 50%)<br>평균과 다를 수 있음"}, {"em": "📏", "t": "IQR", "l": "Q3 − Q1 (상자의 길이)<br>이상치 판단의 기준자"}, {"em": "⚫", "t": "이상치 기준", "l": "Q1 − IQR×1.5 보다 작거나<br>Q3 + IQR×1.5 보다 크면"}], "trap": "<b>교과서 사례</b> — 펭귄 종별 체질량 상자그림을 그렸더니 <b>턱끈펭귄의 체질량에 이상치</b>가 나타났습니다. 눈으로 이상치를 찾는 가장 빠른 방법이에요."}};
+bindDetail('#ppCards .b', document.getElementById('ppBox'), DETAIL);
+const QUIZ=[{"q": "데이터를 바로 학습에 쓰지 않고 먼저 <b>충분히 살펴보는</b> 과정을 무엇이라 할까요?", "o": ["정규화", "탐색적 데이터 분석(EDA)", "군집화", "모델 평가"], "a": 1, "y": "맞아요! 통계와 그래프로 데이터를 파악하는 과정이 EDA입니다.", "n": "탐색적 데이터 분석(EDA)이에요. 개수·평균·분포를 확인하고 문제점을 찾는 단계입니다."}, {"q": "속성별 <b>결측치 개수</b>를 확인하는 명령은?", "o": ["df.head()", "df.isnull().sum()", "df.corr()", "df.drop()"], "a": 1, "y": "정확해요! isnull()로 빈칸을 찾고 sum()으로 개수를 셉니다.", "n": "df.isnull().sum() 이에요. head()는 앞부분 보기, corr()는 상관계수입니다."}, {"q": "펭귄 데이터의 sex 속성에서 'MALE','FEMALE' 외에 <b>'.'</b>이 발견되었습니다. 이것은?", "o": ["결측치", "이상치", "정규화 대상", "핵심 속성"], "a": 1, "y": "맞아요! 정상 범위를 벗어난 잘못된 값이므로 이상치입니다.", "n": "이상치예요. 결측치는 값이 아예 비어 있는(NaN) 경우를 말합니다."}, {"q": "날개 길이 범위가 170~230일 때, <b>200</b>을 최소-최대 정규화하면?", "o": ["0.2", "0.5", "2.0", "200"], "a": 1, "y": "맞아요! (200−170)÷(230−170) = 30÷60 = 0.5 입니다.", "n": "(200−170)÷(230−170) = 30÷60 = <b>0.5</b> 예요. 딱 가운데 값이므로 0.5가 됩니다."}, {"q": "두 속성의 <b>상관계수가 −0.9</b>라면 어떤 관계인가요?", "o": ["상관관계가 거의 없다", "한쪽이 커지면 다른 쪽도 커진다", "한쪽이 커지면 다른 쪽은 작아진다", "두 속성이 완전히 같다"], "a": 2, "y": "맞아요! 음수는 반대 방향, −1에 가까울수록 강한 관계입니다.", "n": "음(−)의 상관관계예요. −1에 가까울수록 한쪽이 커질 때 다른 쪽은 작아집니다. 이것도 예측에 유용해요!"}];
+buildQuiz();
+
+/* 정규화 체험 */
+function normRow(sid,vid,fid,gid,min,max){
+  const s=document.getElementById(sid);
+  const upd=()=>{
+    const v=+s.value,n=(v-min)/(max-min);
+    document.getElementById(vid).textContent=v;
+    document.getElementById(fid).innerHTML='( <span class="hi">'+v+'</span> − '+min+' ) ÷ ( '+max+' − '+min+' ) = <span class="res">'+n.toFixed(3)+'</span>';
+    document.getElementById(gid).style.width=(n*100)+'%';
+    updateNormMsg();
+  };
+  s.addEventListener('input',upd);return upd;
+}
+function updateNormMsg(){
+  const n1=(+document.getElementById('s1').value-170)/60;
+  const n2=(+document.getElementById('s2').value-2500)/4000;
+  const box=document.getElementById('nmsg');
+  const v1=document.getElementById('v1').textContent,v2=document.getElementById('v2').textContent;
+  if(Math.abs(n1-n2)<0.03) box.innerHTML='🎯 두 속성의 정규화 값이 <b>거의 같아졌어요!</b> 원래 값은 '+v1+'mm 와 '+v2+'g 으로 숫자 크기가 완전히 다른데도, 정규화하면 <b>같은 잣대로 비교</b>할 수 있게 됩니다.';
+  else box.innerHTML='💡 원래 숫자는 <b>'+v1+'</b> 과 <b>'+v2+'</b> 로 크기 차이가 크지만, 정규화하면 둘 다 <b>0~1 사이</b> 값이 됩니다. 두 막대의 길이를 비교해 보세요.';
+}
+const u1=normRow('s1','v1','f1','g1',170,230);
+const u2=normRow('s2','v2','f2','g2',2500,6500);
+u1();u2();
+
+/* 상관계수 산점도 */
+const SVGNS='http://www.w3.org/2000/svg';
+const NPT=40,BX=[],BN=[];
+(function(){
+  let seed=12345;
+  const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+  const g=()=>{let s=0;for(let i=0;i<6;i++)s+=rnd();return (s-3)/1.2;};
+  for(let i=0;i<NPT;i++){BX.push(g());BN.push(g());}
+})();
+function drawScatter(r){
+  const sc=document.getElementById('sc');
+  while(sc.firstChild)sc.removeChild(sc.firstChild);
+  const W=330,H=230,pad=26;
+  const ax=(a,b,c,d)=>{const l=document.createElementNS(SVGNS,'line');
+    l.setAttribute('x1',a);l.setAttribute('y1',b);l.setAttribute('x2',c);l.setAttribute('y2',d);
+    l.setAttribute('stroke','rgba(255,255,255,.3)');l.setAttribute('stroke-width','1.5');sc.appendChild(l);};
+  ax(pad,H-pad,W-10,H-pad);ax(pad,10,pad,H-pad);
+  const k=Math.sqrt(Math.max(0,1-r*r));
+  const toX=z=>pad+((z+2.6)/5.2)*(W-pad-16);
+  const toY=z=>(H-pad)-((z+2.6)/5.2)*(H-pad-16);
+  for(let i=0;i<NPT;i++){
+    const c=document.createElementNS(SVGNS,'circle');
+    c.setAttribute('cx',toX(BX[i]).toFixed(1));
+    c.setAttribute('cy',toY(r*BX[i]+k*BN[i]).toFixed(1));
+    c.setAttribute('r','4');c.setAttribute('fill','#84D8A2');c.setAttribute('opacity','.85');
+    sc.appendChild(c);}
+  if(Math.abs(r)>0.12){
+    const l=document.createElementNS(SVGNS,'line');
+    l.setAttribute('x1',toX(-2.2));l.setAttribute('y1',toY(r*-2.2));
+    l.setAttribute('x2',toX(2.2));l.setAttribute('y2',toY(r*2.2));
+    l.setAttribute('stroke','#FFD772');l.setAttribute('stroke-width','2.5');
+    l.setAttribute('stroke-dasharray','6 4');sc.appendChild(l);}
+  const t=document.createElementNS(SVGNS,'text');
+  t.setAttribute('x',W-84);t.setAttribute('y',H-9);t.setAttribute('fill','rgba(255,255,255,.6)');
+  t.setAttribute('font-size','11');t.textContent='속성 A →';sc.appendChild(t);
+  const yl=document.createElementNS(SVGNS,'text');
+  yl.setAttribute('x',-70);yl.setAttribute('y',14);yl.setAttribute('fill','rgba(255,255,255,.6)');
+  yl.setAttribute('font-size','11');yl.setAttribute('transform','rotate(-90)');yl.textContent='속성 B →';
+  sc.appendChild(yl);
+}
+function describeR(r){
+  const a=Math.abs(r);
+  if(a<0.15) return {d:'<b>상관관계가 거의 없어요.</b> 점들이 사방으로 흩어져 방향을 찾을 수 없습니다.',
+    m:'🤷 한쪽을 알아도 다른 쪽을 예측할 수 없어요. 이런 속성은 <b>핵심 속성으로 쓰기 어렵습니다.</b>'};
+  const s=a>=0.7?'강한':'약한', c=r>0?'양(+)':'음(−)';
+  const dir=r>0?'한쪽이 커지면 다른 쪽도 <b>커집니다.</b>':'한쪽이 커지면 다른 쪽은 <b>작아집니다.</b>';
+  const m=a>=0.7?'🎯 점들이 선 위에 촘촘히 모여 있죠? 이렇게 상관이 강한 속성은 <b>예측에 아주 유용한 핵심 속성</b>입니다.'
+    :'💡 방향은 보이지만 점들이 꽤 흩어져 있어요. 관계는 있지만 <b>혼자서는 예측력이 약합니다.</b>';
+  return {d:'<b>'+s+' '+c+'의 상관관계</b>입니다. '+dir, m:m};
+}
+function setR(v){document.getElementById('rs').value=v;updateR();}
+function updateR(){
+  const r=+document.getElementById('rs').value/100;
+  document.getElementById('rv').textContent=r.toFixed(2);
+  const i=describeR(r);
+  document.getElementById('rdesc').innerHTML=i.d;
+  document.getElementById('rmsg').innerHTML=i.m;
+  drawScatter(r);
+}
+document.getElementById('rs').addEventListener('input',updateR);
+updateR();
+
+/* 샌드박스 */
+bindEditor('code','ln',()=>execTo('code','out','runBtn'));
+bindEditor('code3','ln3',()=>execTo('code3','out3','runBtn3'));
+loadSnip('explore','code'); loadSnip('missing','code3');
+initPy();
+
+</script>
+</body>
+</html>
